@@ -1,0 +1,6 @@
+#Compiled resources
+*.class
+*.iml
+
+#Log files
+*.log
