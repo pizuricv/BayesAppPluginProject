@@ -1,0 +1,50 @@
+<!-- ====================================================================== 
+   build. xml for ant by Veselin Pizurica
+====================================================================== -->
+     
+<project name="bayesModule"  default="dist">
+
+	<description>
+          Bayes project
+  </description>
+
+	<property name="classes" value="${basedir}/out" />
+	<property name="src" value="${basedir}/com" />
+	<property name="dist" value="${basedir}/dist" />
+	<property name="lib" value="${basedir}/lib" />
+	<property name="project.revision" value="2.0" />
+	
+	<path id="classpath">
+		<fileset dir="${lib}" includes="*.jar" />
+	</path>
+
+	<target name="clean">
+		<delete dir="${classes}" />
+		<delete>
+      <fileset dir="${dist}" includes="**/*.jar"/>
+    </delete>
+	</target>
+
+	<target name="init">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${classes}" />
+	</target>
+	
+
+<target name="compile" depends="init" >
+		<javac destdir="${classes}" debug="true" srcdir="${src}">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	
+   <target name="dist" depends="compile">
+        <jar destfile="${dist}/plugins-${project.revision}.jar">
+            <fileset dir="${classes}" includes="com/**/**/*.class"/>
+        </jar>
+    </target>
+    
+    
+    <target name="all" depends="dist">
+    </target>
+
+</project>
