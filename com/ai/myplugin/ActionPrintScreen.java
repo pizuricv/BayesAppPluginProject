@@ -14,7 +14,7 @@ import java.util.Map;
 import java.lang.System;
 
 @PluginImplementation
-public class ActionPrintScreenPlugin implements BNActionPlugin{
+public class ActionPrintScreen implements BNActionPlugin{
 
     private static final String DUMMY_PROPERTY = "dummy property that will be print out";
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
@@ -43,7 +43,7 @@ public class ActionPrintScreenPlugin implements BNActionPlugin{
 
     @Override
     public BNActionPlugin getNewInstance() {
-        return new ActionPrintScreenPlugin();
+        return new ActionPrintScreen();
     }
 
     @Override

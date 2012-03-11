@@ -13,14 +13,13 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.System;
 
 
 @PluginImplementation
-public class PingSensorV1 implements BNSensorPlugin{
+public class PingSensor implements BNSensorPlugin{
     private static final String IP_ADDRESS = "IP address";
     private static final String TIMEOUT = "timeout";
     private static final String ALIVE = "Alive";
@@ -51,7 +50,7 @@ public class PingSensorV1 implements BNSensorPlugin{
     }
 
     public String getDescription() {
-        return "Ping test V1 to check IP connectivity";
+        return "Ping test to check IP connectivity";
     }
 
     public TestResult execute(TestSessionContext testSessionContext) {
@@ -108,7 +107,7 @@ public class PingSensorV1 implements BNSensorPlugin{
     }
 
     public BNSensorPlugin getNewInstance() {
-        return new PingSensorV1();
+        return new PingSensor();
     }
 
     public void setNodeName(String nodeName) {
