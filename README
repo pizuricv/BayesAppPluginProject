@@ -1,6 +1,6 @@
 #Create your own minimal plug
 Check build.xml file (in case you use ant), or type the following commands
-javac  -classpath ..\dist\bayesModule-1.1.0.jar;..\lib\jspf.core-1.0.2.jar com\ai\myplugin\*.java
+javac  -classpath ..\dist\bayesModule-2.1.0.jar;..\lib\jspf.core-1.0.2.jar com\ai\myplugin\*.java
 jar cvf myplugs_v1.jar com\ai\myplugin\*.class
 #drop it in the plugins directory, YOU ARE DONE!!
 

@@ -12,7 +12,7 @@
 	<property name="src" value="${basedir}/com" />
 	<property name="dist" value="${basedir}/dist" />
 	<property name="lib" value="${basedir}/lib" />
-	<property name="project.revision" value="2.0" />
+	<property name="project.revision" value="2.0.1" />
 	
 	<path id="classpath">
 		<fileset dir="${lib}" includes="*.jar" />

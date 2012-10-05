@@ -5,7 +5,6 @@
 
 package com.ai.myplugin;
 
-import com.ai.bayes.scenario.Receiver;
 import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
