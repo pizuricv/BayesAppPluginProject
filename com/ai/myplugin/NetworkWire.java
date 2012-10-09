@@ -71,8 +71,8 @@ public class NetworkWire implements BNActionPlugin{
         String server = (String) getProperty(SERVER_ADDRESS);
 
         try {
-            port = (Integer) getProperty(SERVER_PORT);
-            scenarioID = (Integer) getProperty(SCENARIO_ID);
+            port = Integer.parseInt((String) getProperty(SERVER_PORT));
+            scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
         } catch (Exception e){
             System.err.println(e.getLocalizedMessage());
             throw new RuntimeException(e);
@@ -176,9 +176,9 @@ public class NetworkWire implements BNActionPlugin{
 
     public static void main(String [] args ){
         NetworkWire networkWire = new NetworkWire();
-        networkWire.setProperty(SERVER_PORT, 8888);
+        networkWire.setProperty(SERVER_PORT, "8888");
         networkWire.setProperty(SERVER_ADDRESS, "localhost");
-        networkWire.setProperty(SCENARIO_ID, 1);
+        networkWire.setProperty(SCENARIO_ID, "1");
         TestSessionContext testSessionContext =  new TestSessionContext(1);
         testSessionContext.setAttribute(NodeSessionParams.NODE_NAME, "CONNECTION");
         testSessionContext.setAttribute(NodeSessionParams.NODE_TRIGGERED_STATE, "NOK");
