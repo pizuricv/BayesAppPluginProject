@@ -66,6 +66,8 @@ public class NetworkWire implements BNActionPlugin{
         boolean testSuccess = true;
         Integer port = -1;
         Integer scenarioID = -1;
+
+        //if you add HTTP authentication on the BN server you need to pass these credentials
 //        String user = getProperty(USER_NAME) == null ? "user" : (String) getProperty(USER_NAME);
 //        String password = getProperty(USER_PASSWORD) == null ? "password" : (String) getProperty(USER_PASSWORD);
         String server = (String) getProperty(SERVER_ADDRESS);
