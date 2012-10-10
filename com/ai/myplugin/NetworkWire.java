@@ -51,7 +51,7 @@ public class NetworkWire implements BNActionPlugin{
 
     @Override
     public String getDescription() {
-        return "Action that only prints the event";
+        return "Action that fires the triggered state towards another network";
     }
 
     @Override
@@ -111,7 +111,6 @@ public class NetworkWire implements BNActionPlugin{
         }
         connection.setDoOutput(true); // Triggers POST.
         connection.setRequestProperty("Accept-Charset", charset);
-        //connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         OutputStream output = null;
         try {
@@ -184,4 +183,6 @@ public class NetworkWire implements BNActionPlugin{
         testSessionContext.setAttribute(NodeSessionParams.NODE_TRIGGERED_STATE, "NOK");
         networkWire.action(testSessionContext);
     }
+
+
 }
