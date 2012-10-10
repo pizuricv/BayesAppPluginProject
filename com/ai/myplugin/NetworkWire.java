@@ -35,7 +35,7 @@ public class NetworkWire implements BNActionPlugin{
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS) || string.equals(SERVER_PORT) 
+        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS) || string.equals(SERVER_PORT)
                 || string.equals(USER_NAME) || string.equals(USER_PASSWORD)) {
             propertiesMap.put(string, obj);
         } else {
@@ -62,7 +62,7 @@ public class NetworkWire implements BNActionPlugin{
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         System.out.println("####### action triggered " + getDescription());
-        
+
         boolean testSuccess = true;
         Integer port = -1;
         Integer scenarioID = -1;
@@ -83,7 +83,7 @@ public class NetworkWire implements BNActionPlugin{
             String errorMessage = "error in the configuration of the sensor " +getDescription();
             System.err.println(errorMessage);
             throw new RuntimeException(errorMessage);
-        }    
+        }
 
         ///scenarios/{scenario}/{node}
         String node = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
@@ -133,28 +133,30 @@ public class NetworkWire implements BNActionPlugin{
 
         //Get Response
         InputStream is = null;
-        try {
-            is = connection.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-        String line;
-        StringBuffer response = new StringBuffer();
-        try {
-            while((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
+        if(connection != null){
+            try {
+                is = connection.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            String line;
+            StringBuffer response = new StringBuffer();
+            try {
+                while((line = rd.readLine()) != null) {
+                    response.append(line);
+                    response.append('\r');
+                }
+            } catch (IOException e) {
+                System.err.println(e.getLocalizedMessage());
+            }
+            try {
+                rd.close();
+            } catch (IOException e) {
+                System.err.println(e.getLocalizedMessage());
+            }
+            System.out.println(response.toString());
         }
-        try {
-            rd.close();
-        } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
-        }
-        System.out.println(response.toString());
 
         final boolean finalTestSuccess = testSuccess;
         return new ActionResult() {
