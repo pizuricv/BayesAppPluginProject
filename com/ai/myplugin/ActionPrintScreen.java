@@ -69,6 +69,6 @@ public class ActionPrintScreen implements BNActionPlugin{
 
     @Override
     public String getName() {
-        return "Print Screen Action V1";
+        return "PrintScreen Action";
     }
 }

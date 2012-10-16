@@ -77,7 +77,7 @@ public class RandomSensor implements BNSensorPlugin {
 
 
     public String getName() {
-        return "Random Plugin Sensor";
+        return "Random Test";
     }
 
     public String[] getSupportedStates() {

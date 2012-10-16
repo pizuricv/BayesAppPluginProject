@@ -81,7 +81,7 @@ public class SwingSensor implements BNSensorPlugin {
     }
 
     public String getName() {
-        return "Swing Sensor";
+        return "Swing Test";
     }
 
     public String[] getSupportedStates() {

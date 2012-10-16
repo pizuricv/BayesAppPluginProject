@@ -21,7 +21,6 @@ import java.lang.System;
 public class NetworkWire implements BNActionPlugin{
 
     private static final String SERVER_ADDRESS = "remote server address";
-    private static final String SERVER_PORT = "remote server port";
     private static final String USER_NAME = "remote server user";
     private static final String USER_PASSWORD = "remote server password";
     private static final String SCENARIO_ID = "remote scenario ID";
@@ -30,12 +29,12 @@ public class NetworkWire implements BNActionPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{SCENARIO_ID, SERVER_ADDRESS, SERVER_PORT, USER_NAME, USER_PASSWORD};
+        return new String[]{SCENARIO_ID, SERVER_ADDRESS, USER_NAME, USER_PASSWORD};
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS) || string.equals(SERVER_PORT)
+        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS)
                 || string.equals(USER_NAME) || string.equals(USER_PASSWORD)) {
             propertiesMap.put(string, obj);
         } else {
@@ -64,23 +63,24 @@ public class NetworkWire implements BNActionPlugin{
         System.out.println("####### action triggered " + getDescription());
 
         boolean testSuccess = true;
-        Integer port = -1;
         Integer scenarioID = -1;
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
 //        String user = getProperty(USER_NAME) == null ? "user" : (String) getProperty(USER_NAME);
 //        String password = getProperty(USER_PASSWORD) == null ? "password" : (String) getProperty(USER_PASSWORD);
         String server = (String) getProperty(SERVER_ADDRESS);
+        if(server.endsWith("/")){
+            server = server.substring(0, server.lastIndexOf("/"));
+        }
 
         try {
-            port = Integer.parseInt((String) getProperty(SERVER_PORT));
             scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
         } catch (Exception e){
             System.err.println(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
-        if(server == null || port.equals(-1) || scenarioID.equals(-1)) {
-            String errorMessage = "error in the configuration of the sensor " +getDescription();
+        if(server == null || scenarioID.equals(-1)) {
+            String errorMessage = "error in the configuration of the sensor " + getDescription();
             System.err.println(errorMessage);
             throw new RuntimeException(errorMessage);
         }
@@ -90,7 +90,7 @@ public class NetworkWire implements BNActionPlugin{
         String state = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_TRIGGERED_STATE);
 
         try {
-            url = new URL("http", server, port, "/rest/bn/scenarios/"+ scenarioID + "/"+ node);
+            url = new URL(server+ "/scenarios/" + scenarioID + "/"+ node);
         } catch (MalformedURLException e) {
             System.err.println(e.getLocalizedMessage());
             throw new RuntimeException(e);
@@ -179,8 +179,7 @@ public class NetworkWire implements BNActionPlugin{
 
     public static void main(String [] args ){
         NetworkWire networkWire = new NetworkWire();
-        networkWire.setProperty(SERVER_PORT, "8888");
-        networkWire.setProperty(SERVER_ADDRESS, "localhost");
+        networkWire.setProperty(SERVER_ADDRESS, "http://85.255.197.153/api");
         networkWire.setProperty(SCENARIO_ID, "1");
         TestSessionContext testSessionContext =  new TestSessionContext(1);
         testSessionContext.setAttribute(NodeSessionParams.NODE_NAME, "CONNECTION");

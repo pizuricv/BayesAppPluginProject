@@ -91,7 +91,7 @@ public class PingSensor implements BNSensorPlugin{
     Name needs to be unique across different sensors
     */
     public String getName() {
-        return "Ping Test V1";
+        return "Ping Test";
     }
 
     public String[] getSupportedStates() {
