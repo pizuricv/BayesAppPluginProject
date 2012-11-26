@@ -1,41 +1,42 @@
 /**
- * User: Veselin Pizurica
- * Date 10/08/2012
+ * User: pizuricv
+ * Date: 11/26/12
  */
 
 package com.ai.myplugin;
 
+import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
-import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import com.ai.bayes.plugins.BNActionPlugin;
 
 import java.io.*;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.System;
 
 @PluginImplementation
-public class NetworkWire implements BNActionPlugin{
-
+public class ScenarioControlAction implements BNActionPlugin{
     private static final String SERVER_ADDRESS = "remote server address";
     private static final String USER_NAME = "remote server user";
     private static final String USER_PASSWORD = "remote server password";
     private static final String SCENARIO_ID = "remote scenario ID";
+    private static final String COMMAND = "command";
     private URL url;
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
-
+    
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{SCENARIO_ID, SERVER_ADDRESS, USER_NAME, USER_PASSWORD};
+        return new String[]{SCENARIO_ID, SERVER_ADDRESS, USER_NAME, USER_PASSWORD, COMMAND};
     }
 
     @Override
     public void setProperty(String string, Object obj) {
         if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS)
-                || string.equals(USER_NAME) || string.equals(USER_PASSWORD)) {
+                || string.equals(USER_NAME) || string.equals(USER_PASSWORD) || string.equals(COMMAND)) {
             propertiesMap.put(string, obj);
         } else {
             System.out.println("property " + string + " not known by the action");
@@ -43,18 +44,18 @@ public class NetworkWire implements BNActionPlugin{
     }
 
     @Override
-    public Object getProperty(String string) {
-        return propertiesMap.get(string);
+    public Object getProperty(String key) {
+        return propertiesMap.get(key);
     }
 
     @Override
     public String getDescription() {
-        return "Action that fires the triggered state towards another network";
+        return "Allows start/stop/pause/delete of existing scenarios";
     }
 
     @Override
     public BNActionPlugin getNewInstance() {
-        return new NetworkWire();
+        return new ScenarioControlAction();
     }
 
     @Override
@@ -84,12 +85,8 @@ public class NetworkWire implements BNActionPlugin{
             throw new RuntimeException(errorMessage);
         }
 
-        ///scenarios/{scenario}/{node}
-        String node = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
-        String state = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_TRIGGERED_STATE);
-
         try {
-            url = new URL(server+ "/scenarios/" + scenarioID + "/"+ node);
+            url = new URL(server+ "/scenarios/" + scenarioID);
         } catch (MalformedURLException e) {
             System.err.println(e.getLocalizedMessage());
             throw new RuntimeException(e);
@@ -99,7 +96,7 @@ public class NetworkWire implements BNActionPlugin{
         String charset = "UTF-8";
         String query = null;
         try {
-            query = String.format("state=%s", URLEncoder.encode(state, charset));
+            query = String.format("action=%s", URLEncoder.encode((String) getProperty(COMMAND), charset));
         } catch (UnsupportedEncodingException e) {
             System.err.println(e.getLocalizedMessage());
             testSuccess = false;
@@ -173,18 +170,6 @@ public class NetworkWire implements BNActionPlugin{
 
     @Override
     public String getName() {
-        return "Network Wire";
+        return "Scenario Control Action";
     }
-
-    public static void main(String [] args ){
-        NetworkWire networkWire = new NetworkWire();
-        networkWire.setProperty(SERVER_ADDRESS, "http://85.255.197.153/api");
-        networkWire.setProperty(SCENARIO_ID, "1");
-        TestSessionContext testSessionContext =  new TestSessionContext(1);
-        testSessionContext.setAttribute(NodeSessionParams.NODE_NAME, "CONNECTION");
-        testSessionContext.setAttribute(NodeSessionParams.NODE_TRIGGERED_STATE, "NOK");
-        networkWire.action(testSessionContext);
-    }
-
-
 }
