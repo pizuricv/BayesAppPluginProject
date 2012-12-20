@@ -18,17 +18,19 @@ public class SwingSensor implements BNSensorPlugin {
 
     String nodeName = null;
     private BayesianNetwork bayesianNetwork;
+    private String question = null;
 
     public String[] getRequiredProperties() {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+        return new String[] {"Question to ask"};
     }
 
     public void setProperty(String string, Object obj) {
+        question = obj.toString();
 
     }
 
     public Object getProperty(String string) {
-        return null;
+        return question;
     }
 
     public String getDescription() {
@@ -52,6 +54,10 @@ public class SwingSensor implements BNSensorPlugin {
     public String getNodeName() {
         return nodeName;
     }
+    
+    private String getQuestion(){
+        return question == null || question.startsWith("No Value")? "What is the result of " + getNodeName(): question;
+    }
 
     public TestResult execute(TestSessionContext testSessionContext) {
         JPanel panel = (JPanel) testSessionContext.getAttribute("panel", null);
@@ -60,7 +66,7 @@ public class SwingSensor implements BNSensorPlugin {
             throw new RuntimeException("Missing attributes");
         }
         final int index = JOptionPane.showOptionDialog(SwingUtils.getFrame(panel),
-                "What is the result of " + getNodeName(), "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                getQuestion(), "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
                 getSupportedStates(), getSupportedStates()[0]);
 
         return new TestResult() {
