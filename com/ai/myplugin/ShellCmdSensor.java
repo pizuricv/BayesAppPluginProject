@@ -3,7 +3,6 @@
  * Date: 12/20/12
  */
 package com.ai.myplugin;
-import com.ai.bayes.model.BayesianNetwork;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
@@ -84,15 +83,6 @@ public class ShellCmdSensor implements BNSensorPlugin{
         return new ShellCmdSensor();
     }
 
-    @Override
-    public void setNodeName(String s) {
-
-    }
-
-    @Override
-    public void setBayesianNetwork(BayesianNetwork bayesianNetwork) {
-
-    }
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
@@ -139,7 +129,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
                 @Override
                 public String getName() {
-                    return command;
+                    return "Shell Result";
                 }
 
                 @Override

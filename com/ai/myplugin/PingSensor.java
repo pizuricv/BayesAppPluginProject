@@ -24,7 +24,6 @@ public class PingSensor implements BNSensorPlugin{
     private static final String TIMEOUT = "timeout";
     private static final String ALIVE = "Alive";
     private static final String NOT_ALIVE = "Not Alive";
-    private String nodeName;
 
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
 
@@ -73,7 +72,7 @@ public class PingSensor implements BNSensorPlugin{
             you need to return the node name, since the diagnosis result for the node is linked to the node name of the test result 
             */
             public String getName() {
-                return getNodeName();
+                return "Ping Test Result";
             }
 
             public String getObserverState() {
@@ -109,20 +108,5 @@ public class PingSensor implements BNSensorPlugin{
     public BNSensorPlugin getNewInstance() {
         return new PingSensor();
     }
-
-    public void setNodeName(String nodeName) {
-        this.nodeName = nodeName;
-    }
-
-    public String getNodeName() {
-        return nodeName;
-    }
-
-    /*
-    Only if you need the access to the belief network, otherwise you can don't need this call
-    */
-    public void setBayesianNetwork(BayesianNetwork bayesianNetwork) {
-    }
-
 
 }

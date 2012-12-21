@@ -4,6 +4,7 @@ import com.ai.bayes.model.BayesianNetwork;
 import com.ai.bayes.model.Pair;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
@@ -17,12 +18,12 @@ import java.util.Map;
 public class RandomSensor implements BNSensorPlugin {
 
     private Map<String, Object> map = new HashMap<String, Object>();
-    private String nodeName;
-    private BayesianNetwork bayesianNetwork;
 
     public TestResult execute(TestSessionContext testSessionContext) {
+        String nodeName = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
+        BayesianNetwork bayesianNetwork = (BayesianNetwork) testSessionContext.getAttribute(NodeSessionParams.BN_NETWORK);
 
-        List<Pair<Double, String>> probs = bayesianNetwork.getProbabilities(getNodeName());
+        List<Pair<Double, String>> probs = bayesianNetwork.getProbabilities(nodeName);
 
         double [] coins = new double[probs.size()];
         double incr = 0;
@@ -44,7 +45,7 @@ public class RandomSensor implements BNSensorPlugin {
             }
 
             public String getName() {
-                return getNodeName();
+                return "Random Result";
             }
 
             public String getObserverState() {
@@ -55,15 +56,6 @@ public class RandomSensor implements BNSensorPlugin {
 
     public BNSensorPlugin getNewInstance() {
         return new RandomSensor();
-    }
-
-    public void setNodeName(String nodeName) {
-        this.nodeName = nodeName;
-    }
-
-    @Override
-    public void setBayesianNetwork(BayesianNetwork bayesianNetwork) {
-        this.bayesianNetwork = bayesianNetwork;
     }
 
     private int findStateIndexForVal(double val, double[] coins) {
@@ -81,7 +73,7 @@ public class RandomSensor implements BNSensorPlugin {
     }
 
     public String[] getSupportedStates() {
-        return bayesianNetwork == null ?  null: bayesianNetwork.getStates(getNodeName());
+        return new String[] {};
     }
 
     public String[] getRequiredProperties() {
@@ -94,10 +86,6 @@ public class RandomSensor implements BNSensorPlugin {
 
     public Object getProperty(String string) {
         return map.get(string);
-    }
-
-    public String getNodeName() {
-        return nodeName;
     }
 
     public String getDescription() {
