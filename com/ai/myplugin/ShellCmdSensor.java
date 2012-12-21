@@ -134,7 +134,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
                 @Override
                 public boolean isSuccess() {
-                    return  exitVal == 0 && !("error").equals("error");
+                    return  exitVal == 0 && !("error").equals("command");
                 }
 
                 @Override
