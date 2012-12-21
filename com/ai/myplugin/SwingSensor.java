@@ -36,10 +36,6 @@ public class SwingSensor implements BNSensorPlugin {
         return "Swing Sensor that let you define the return state in GUI";
     }
 
-    public BNSensorPlugin getNewInstance() {
-        return new SwingSensor();
-    }
-    
     private String getQuestion(String node){
         return question == null || question.startsWith("No Value")? "What is the result of " + node: question;
     }

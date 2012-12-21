@@ -54,11 +54,6 @@ public class ScenarioControlAction implements BNActionPlugin{
     }
 
     @Override
-    public BNActionPlugin getNewInstance() {
-        return new ScenarioControlAction();
-    }
-
-    @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         System.out.println("####### action triggered " + getDescription());
 

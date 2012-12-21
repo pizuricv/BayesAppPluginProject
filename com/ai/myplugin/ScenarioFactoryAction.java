@@ -66,11 +66,6 @@ public class ScenarioFactoryAction implements BNActionPlugin{
     }
 
     @Override
-    public BNActionPlugin getNewInstance() {
-        return new ScenarioFactoryAction();
-    }
-
-    @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         System.out.println("####### action triggered " + getDescription());
 

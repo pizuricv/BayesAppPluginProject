@@ -105,8 +105,4 @@ public class PingSensor implements BNSensorPlugin{
         return (Integer) getProperty(TIMEOUT);
     }
 
-    public BNSensorPlugin getNewInstance() {
-        return new PingSensor();
-    }
-
 }

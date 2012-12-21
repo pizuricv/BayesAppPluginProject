@@ -79,12 +79,6 @@ public class ShellCmdSensor implements BNSensorPlugin{
     }
 
     @Override
-    public BNSensorPlugin getNewInstance() {
-        return new ShellCmdSensor();
-    }
-
-
-    @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         try {
 
@@ -206,22 +200,4 @@ public class ShellCmdSensor implements BNSensorPlugin{
         }
         return "level_0";
     }
-
-    public static void main(String []args){
-
-        ShellCmdSensor shellExecutor  = (ShellCmdSensor) new ShellCmdSensor().getNewInstance();
-        shellExecutor.setProperty("threshold", "1,2,4,12,14");
-        shellExecutor.setProperty("command", "C:\\Users\\pizuricv\\MyProjects\\BayesProject\\script\\sensor.bat");
-        System.out.println(Arrays.toString(shellExecutor.getSupportedStates()));
-        TestResult testResult = shellExecutor.execute(null);
-        System.out.println(testResult.getObserverState());
-
-        shellExecutor  = (ShellCmdSensor) new ShellCmdSensor().getNewInstance();
-        shellExecutor.setProperty("threshold", 13l);
-        shellExecutor.setProperty("command", "C:\\Users\\pizuricv\\MyProjects\\BayesProject\\script\\sensor.bat");
-        System.out.println(Arrays.toString(shellExecutor.getSupportedStates()));
-        testResult = shellExecutor.execute(null);
-        System.out.println(testResult.getObserverState());
-    }
-
 }

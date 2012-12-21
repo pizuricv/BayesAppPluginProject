@@ -53,11 +53,6 @@ public class NetworkWire implements BNActionPlugin{
     }
 
     @Override
-    public BNActionPlugin getNewInstance() {
-        return new NetworkWire();
-    }
-
-    @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         System.out.println("####### action triggered " + getDescription());
 

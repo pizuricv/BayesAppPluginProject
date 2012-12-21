@@ -42,11 +42,6 @@ public class ActionPrintScreen implements BNActionPlugin{
     }
 
     @Override
-    public BNActionPlugin getNewInstance() {
-        return new ActionPrintScreen();
-    }
-
-    @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         if(propertiesMap.containsKey(DUMMY_PROPERTY)){
             System.out.println("###########DUMMY ACTION#######"+ propertiesMap.get(DUMMY_PROPERTY));

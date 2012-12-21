@@ -54,10 +54,6 @@ public class RandomSensor implements BNSensorPlugin {
         } ;
     }
 
-    public BNSensorPlugin getNewInstance() {
-        return new RandomSensor();
-    }
-
     private int findStateIndexForVal(double val, double[] coins) {
         for(int i = 0; i< coins.length; i ++){
             if(val < coins [i]) {

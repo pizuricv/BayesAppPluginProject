@@ -31,11 +31,6 @@ public class BeepAction implements BNActionPlugin{
     }
 
     @Override
-    public BNActionPlugin getNewInstance() {
-        return new BeepAction();
-    }
-
-    @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         java.awt.Toolkit.getDefaultToolkit().beep();
         return new ActionResult() {
