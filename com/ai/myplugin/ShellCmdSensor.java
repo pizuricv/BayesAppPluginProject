@@ -64,8 +64,11 @@ public class ShellCmdSensor implements BNSensorPlugin{
     public Object getProperty(String s) {
         if("threshold".endsWith(s)){
             return threshold;
-        } else{
-            throw new RuntimeException("Property " + s + " not recognised by " + getDescription());
+        } else if("command".endsWith(s)){
+            return command;
+        }
+        else{
+            throw new RuntimeException("Property " + s + " not recognised by " + getName());
         }
     }
 
