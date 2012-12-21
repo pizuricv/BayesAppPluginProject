@@ -26,8 +26,6 @@ public class ShellCmdSensor implements BNSensorPlugin{
     private int exitVal = -1;
     private String result = "error";
 
-    private ShellCmdSensor(){};
-
     @Override
     public String[] getRequiredProperties() {
         return new String [] {"threshold", "command"} ;
