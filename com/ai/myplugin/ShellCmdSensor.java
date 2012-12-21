@@ -7,6 +7,7 @@ import com.ai.bayes.model.BayesianNetwork;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
-
+@PluginImplementation
 public class ShellCmdSensor implements BNSensorPlugin{
     private String command;
     private ArrayList<Long> threshold = new ArrayList<Long>();
