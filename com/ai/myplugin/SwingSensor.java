@@ -10,7 +10,6 @@ import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
-import com.ai.util.swing.SwingUtils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import javax.swing.*;
@@ -43,12 +42,7 @@ public class SwingSensor implements BNSensorPlugin {
     public TestResult execute(TestSessionContext testSessionContext) {
         final String nodeName = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
         final BayesianNetwork bayesianNetwork = (BayesianNetwork) testSessionContext.getAttribute(NodeSessionParams.BN_NETWORK);
-        JPanel panel = (JPanel) testSessionContext.getAttribute("panel", null);
-
-        if(panel == null ){
-            throw new RuntimeException("Missing attributes");
-        }
-        final int index = JOptionPane.showOptionDialog(SwingUtils.getFrame(panel),
+        final int index = JOptionPane.showOptionDialog(null,
                 getQuestion(nodeName), "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
                 bayesianNetwork.getStates(nodeName), bayesianNetwork.getStates(nodeName)[0]);
 
