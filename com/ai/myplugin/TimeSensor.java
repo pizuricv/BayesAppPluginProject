@@ -30,12 +30,13 @@ public class TimeSensor implements BNSensorPlugin{
         if("hour".equalsIgnoreCase(input)) {
             returnStates = new String []{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"};
         } else  if("day".equalsIgnoreCase(input)) {
-            returnStates = new String []{"1","2","3","4","5","6","7"};
+            returnStates = new String []{"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
         } else  if("week".equalsIgnoreCase(input)) {
             returnStates = new String []{"1","2","3","4","5"};
         }
         else if("month".equalsIgnoreCase(input)) {
-            returnStates = new String []{"1","2","3","4","5","6","7","8","9","10","11","12"};
+            returnStates = new String []{"January","February","March","April","May","June","July",
+                    "August","September","October","November","December"};
         } else {
             throw new RuntimeException("Entry not recognized "+ input);
         }
