@@ -11,6 +11,7 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
+import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -72,11 +73,11 @@ public class TimeSensor implements BNSensorPlugin{
                 if("hour".equalsIgnoreCase(property)) {
                     return String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
                 } else  if("day".equalsIgnoreCase(property)) {
-                    return String.valueOf(calendar.get(Calendar.DAY_OF_WEEK));
+                    return new DateFormatSymbols().getWeekdays()[calendar.get(Calendar.DAY_OF_WEEK)];
                 } else  if("week".equalsIgnoreCase(property)) {
                     return String.valueOf(calendar.get(Calendar.WEEK_OF_MONTH));
                 }else if("month".equalsIgnoreCase(property)) {
-                    return String.valueOf(calendar.get(Calendar.MONTH));
+                    return new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)];
                 }
                 return "";
             };
