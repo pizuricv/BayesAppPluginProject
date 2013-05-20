@@ -251,8 +251,10 @@ public class WeatherSensor implements BNSensorPlugin{
             return tempStates;
         } else if(WEATHER.equals(property.get(OPTION))){
             return weatherStates;
-        } else {
+        } else if(HUMIDITY.equals(property.get(OPTION))){
             return humidityStates;
+        } else {
+            return new String[]{};
         }
     }
 
