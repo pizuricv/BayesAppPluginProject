@@ -247,9 +247,9 @@ public class WeatherSensor implements BNSensorPlugin{
 
     @Override
     public String[] getSupportedStates() {
-        if(property.get(OPTION).equals(TEMP)){
+        if(TEMP.equals(property.get(OPTION))){
             return tempStates;
-        } else if(property.get(OPTION).equals(WEATHER)){
+        } else if(WEATHER.equals(property.get(OPTION))){
             return weatherStates;
         } else {
             return humidityStates;
