@@ -22,7 +22,7 @@ public class TimeSensor implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[] {"Selection [hour] [day] [week] [month]"};
+        return new String[] {"Option: [hour] | [day] | [week] | [month]"};
     }
 
     @Override
@@ -51,12 +51,11 @@ public class TimeSensor implements BNSensorPlugin{
 
     @Override
     public String getDescription() {
-        return "Returns hour, day(in a week) or month, depending on the input property";
+        return "Returns hour, day(in a week) or month";
     }
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        final Calendar calendar = new GregorianCalendar();
         return new TestResult() {
             @Override
             public boolean isSuccess() {
@@ -71,13 +70,13 @@ public class TimeSensor implements BNSensorPlugin{
             @Override
             public String getObserverState() {
                 if("hour".equalsIgnoreCase(property)) {
-                    return String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+                    return String.valueOf(new GregorianCalendar().get(Calendar.HOUR_OF_DAY));
                 } else  if("day".equalsIgnoreCase(property)) {
-                    return new DateFormatSymbols().getWeekdays()[calendar.get(Calendar.DAY_OF_WEEK)];
+                    return new DateFormatSymbols().getWeekdays()[new GregorianCalendar().get(Calendar.DAY_OF_WEEK)];
                 } else  if("week".equalsIgnoreCase(property)) {
-                    return String.valueOf(calendar.get(Calendar.WEEK_OF_MONTH));
-                }else if("month".equalsIgnoreCase(property)) {
-                    return new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)];
+                    return String.valueOf(new GregorianCalendar().get(Calendar.WEEK_OF_MONTH));
+                } else if("month".equalsIgnoreCase(property)) {
+                    return new DateFormatSymbols().getMonths()[new GregorianCalendar().get(Calendar.MONTH)];
                 }
                 return "";
             };
