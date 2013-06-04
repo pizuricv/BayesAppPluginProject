@@ -27,7 +27,7 @@ public class StockSensor implements BNSensorPlugin{
 
     private static final String STOCK = "stock";
     private static final String THRESHOLD = "threshold";
-    private static final String VALUE_TAG = "price, high, low, p-e or volume";
+    private static final String VALUE_TAG = "PRICE, VOLUME, HIGH, LOW, MOVING_AVERAGE, PERCENT";
     static final String server = "http://finance.yahoo.com/d/quotes.csv?s=";
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     String [] states = {"Below", "Above"};
@@ -45,11 +45,11 @@ public class StockSensor implements BNSensorPlugin{
                 || string.equals(THRESHOLD) ) {
             if(string.equals(VALUE_TAG)){
                 Set<String> mySet = new HashSet<String>(Arrays.asList(tags));
-                if(!mySet.contains(obj)){
+                if(!mySet.contains(obj.toString())){
                     throw new RuntimeException("Property "+ string + " is not in correct format "+Arrays.toString(tags));
                 }
             }
-            propertiesMap.put(string, obj);
+            propertiesMap.put(string, obj.toString());
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -61,14 +61,14 @@ public class StockSensor implements BNSensorPlugin{
     }
     @Override
     public String getDescription() {
-        return "Stock exchange senor";
+        return "Stock exchange sensor";
     }
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         URL url;
         boolean testSuccess = true;
-        final Double threshold = (Double) getProperty(THRESHOLD);
+        final Double threshold = Double.parseDouble((String) getProperty(THRESHOLD));
         final String tag = (String) getProperty(VALUE_TAG);
         System.out.println("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
 
@@ -210,19 +210,19 @@ public class StockSensor implements BNSensorPlugin{
         StockSensor stockSensor = new StockSensor();
         stockSensor.setProperty(STOCK, "MSFT");
         stockSensor.setProperty(VALUE_TAG, "PRICE");
-        stockSensor.setProperty(THRESHOLD, 36.0);
+        stockSensor.setProperty(THRESHOLD, "36");
         System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
         System.out.println(stockSensor.execute(null).getObserverState());
 
 
         stockSensor.setProperty(STOCK, "GOOG");
         stockSensor.setProperty(VALUE_TAG, "PRICE");
-        stockSensor.setProperty(THRESHOLD, 800.0);
+        stockSensor.setProperty(THRESHOLD, "800.0");
         System.out.println(stockSensor.execute(null).getObserverState());
 
         stockSensor.setProperty(STOCK, "BAR.BR");
         stockSensor.setProperty(VALUE_TAG, "PERCENT");
-        stockSensor.setProperty(THRESHOLD, -1.0);
+        stockSensor.setProperty(THRESHOLD, "-1.0");
         System.out.println(stockSensor.execute(null).getObserverState());
     }
 }
