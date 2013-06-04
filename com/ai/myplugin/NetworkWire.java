@@ -16,6 +16,7 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.System;
+import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class NetworkWire implements BNActionPlugin{
@@ -25,7 +26,7 @@ public class NetworkWire implements BNActionPlugin{
     private static final String USER_PASSWORD = "remote server password";
     private static final String SCENARIO_ID = "remote scenario ID";
     private URL url;
-    Map<String, Object> propertiesMap = new HashMap<String, Object>();
+    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     @Override
     public String[] getRequiredProperties() {
@@ -38,7 +39,7 @@ public class NetworkWire implements BNActionPlugin{
                 || string.equals(USER_NAME) || string.equals(USER_PASSWORD)) {
             propertiesMap.put(string, obj);
         } else {
-            System.out.println("property " + string + " not known by the action");
+            throw new RuntimeException("Property "+ string + " not in the required settings");
         }
     }
 

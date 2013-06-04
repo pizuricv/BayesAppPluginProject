@@ -39,7 +39,7 @@ public class TimeSensor implements BNSensorPlugin{
             returnStates = new String []{"January","February","March","April","May","June","July",
                     "August","September","October","November","December"};
         } else {
-            throw new RuntimeException("Entry not recognized "+ input);
+            throw new RuntimeException("Property "+ s + " not in the required settings");
         }
         property = input;
     }

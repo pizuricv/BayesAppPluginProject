@@ -41,6 +41,8 @@ public class PingSensor implements BNSensorPlugin{
             }
         } else if(string.equals(TIMEOUT)){
             propertiesMap.put(string, Integer.parseInt(obj.toString()));
+        } else {
+            throw new RuntimeException("Property "+ string + " not in the required settings");
         }
     }
 
