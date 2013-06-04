@@ -1,8 +1,14 @@
+/**
+ * User: pizuricv
+ * Date: 6/4/13
+ */
+
 package com.ai.myplugin;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,10 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * User: pizuricv
- * Date: 6/4/13
- */
+@PluginImplementation
 public class StockSensor implements BNSensorPlugin{
 
     private static final String STOCK = "stock";
@@ -187,7 +190,7 @@ public class StockSensor implements BNSensorPlugin{
     private void parseOutput(String tag, Map<String, Double> parsing, StringTokenizer stringTokenizer) {
         try{
             String string = stringTokenizer.nextToken();
-            parsing.put(tag, Double.parseDouble(string.replaceAll("%","").replaceAll("\"","")));
+            parsing.put(tag, Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", "")));
         } catch (Exception e){
             System.err.println("Error parsing [" + tag + "] " + e.getMessage());
         }
