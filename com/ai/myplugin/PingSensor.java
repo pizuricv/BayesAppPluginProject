@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.System;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
@@ -25,7 +26,7 @@ public class PingSensor implements BNSensorPlugin{
     private static final String ALIVE = "Alive";
     private static final String NOT_ALIVE = "Not Alive";
 
-    Map<String, Object> propertiesMap = new HashMap<String, Object>();
+    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
 
     public String[] getRequiredProperties() {
