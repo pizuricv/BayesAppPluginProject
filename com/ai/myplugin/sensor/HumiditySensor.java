@@ -14,14 +14,13 @@ import java.net.*;
 import java.util.Properties;
 
 @PluginImplementation
-public class TemperatureSensor implements BNSensorPlugin{
+public class HumiditySensor implements BNSensorPlugin{
     //TODO use JSON parsing later, need a tiny library for this
     String city;
     static final String server = "http://api.openweathermap.org/";
 
-
-    String [] tempStates = {"Freezing", "Cold", "Mild", "Warm", "Hot", "Heat"};
-    private static final String NAME = "Temperature";
+    String [] humidityStates = {"Low", "Normal", "High"};
+    private static final String NAME = "Humidity";
 
     @Override
     public String[] getRequiredProperties() {
@@ -44,7 +43,7 @@ public class TemperatureSensor implements BNSensorPlugin{
 
     @Override
     public String getDescription() {
-        return "Weather information";
+        return "Humidity information";
     }
 
     @Override
@@ -108,13 +107,14 @@ public class TemperatureSensor implements BNSensorPlugin{
         Object obj = parser.parse(stringBuffer.toString());*/
         final String stringToParse = stringBuffer.toString();
         System.out.println(stringToParse);
-        int indexTemp = stringToParse.indexOf("temp");
-        String tempString = stringToParse.substring(indexTemp + 6 );
-        int index1 = tempString.indexOf(",") == -1? Integer.MAX_VALUE : tempString.indexOf(",");
-        int index2 = tempString.indexOf("},") == -1? Integer.MAX_VALUE : tempString.indexOf("},");
-        String temperatureString = tempString.substring(0, Math.min(index1, index2));
 
-        final int temp = (int)Math.round(Double.parseDouble(temperatureString));
+        int indexHumidity = stringToParse.indexOf("humidity");
+        String tempHumidity = stringToParse.substring(indexHumidity + 10);
+        int index1 = tempHumidity.indexOf(",") == -1? Integer.MAX_VALUE : tempHumidity.indexOf(",");
+        int index2 = tempHumidity.indexOf("},") == -1? Integer.MAX_VALUE : tempHumidity.indexOf("},");
+        String humidityString = tempHumidity.substring(0, Math.min(index1, index2));
+
+        final int humidity = (int) Double.parseDouble(humidityString);
 
         final boolean finalTestSuccess = testSuccess;
         return new TestResult() {
@@ -125,29 +125,27 @@ public class TemperatureSensor implements BNSensorPlugin{
 
             @Override
             public String getName() {
-                return "Temperature result";
+                return "Humidity result";
             }
 
             @Override
             public String getObserverState() {
-               return mapTemperature() ;
+                return mapHumidity();
+
             }
 
-            private String mapTemperature() {
-                System.out.println("Map temperature "+temp);
-                if(temp < 0) {
-                    return "Freezing";
-                }  else if(temp < 8) {
-                    return "Cold";
-                } else if(temp < 15) {
-                    return "Mild";
-                }  else if(temp < 25) {
-                    return "Warm";
-                }  else if(temp < 30) {
-                    return "Hot";
+
+
+            private String mapHumidity() {
+                //    String [] humidityStates = {"Low", "Normal", "High"};
+                System.out.println("Map humidity "+humidity);
+                if(humidity < 70) {
+                    return "Low";
+                } else if(humidity < 90) {
+                    return "Normal";
                 }
-                return "Heat";
-            };
+                return "High";
+            }
         };
     }
 
@@ -158,13 +156,22 @@ public class TemperatureSensor implements BNSensorPlugin{
 
     @Override
     public String[] getSupportedStates() {
-        return tempStates;
+        return humidityStates;
+
     }
 
     public static void main(String[] args){
-        TemperatureSensor weatherSensor = new TemperatureSensor();
-        weatherSensor.setProperty("city", "London");
+        HumiditySensor weatherSensor = new HumiditySensor();
+        weatherSensor.setProperty("city", "Gent");
         TestResult testResult = weatherSensor.execute(null);
+        System.out.println(testResult.getObserverState());
+
+        weatherSensor.setProperty("city", "London");
+        testResult = weatherSensor.execute(null);
+        System.out.println(testResult.getObserverState());
+
+        weatherSensor.setProperty("city", "Sidney");
+        testResult = weatherSensor.execute(null);
         System.out.println(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Bangalore");
