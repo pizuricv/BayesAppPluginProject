@@ -22,34 +22,34 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@PluginImplementation
-public class StockSensor implements BNSensorPlugin{
+public abstract class StockSensor implements BNSensorPlugin{
 
-    private static final String STOCK = "stock";
-    private static final String THRESHOLD = "threshold";
-    private static final String VALUE_TAG = "PRICE, VOLUME, HIGH, LOW, MOVING_AVERAGE, PERCENT";
+    public static final String STOCK = "stock";
+    public static final String THRESHOLD = "threshold";
     static final String server = "http://finance.yahoo.com/d/quotes.csv?s=";
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     String [] states = {"Below", "Above"};
     String [] tags = {"PRICE","VOLUME", "HIGH", "LOW", "MOVING_AVERAGE", "PERCENT"};
     private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
     private static final String NAME = "Stock";
+    public static final String MOVING_AVERAGE = "MOVING_AVERAGE";
+    public static final String PRICE = "PRICE";
+    public static final String VOLUME = "VOLUME";
+    public static final String PERCENT = "PERCENT";
+    public static final String HIGH = "HIGH";
+    public static final String LOW = "LOW";
+
+    protected abstract String getTag();
+    protected abstract String getSensorName();
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{VALUE_TAG, STOCK, THRESHOLD};
+        return new String[]{STOCK, THRESHOLD};
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equals(VALUE_TAG) || string.equals(STOCK)
-                || string.equals(THRESHOLD) ) {
-            if(string.equals(VALUE_TAG)){
-                Set<String> mySet = new HashSet<String>(Arrays.asList(tags));
-                if(!mySet.contains(obj.toString())){
-                    throw new RuntimeException("Property "+ string + " is not in correct format "+Arrays.toString(tags));
-                }
-            }
+        if(string.equals(STOCK)|| string.equals(THRESHOLD) ) {
             propertiesMap.put(string, obj.toString());
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
@@ -70,7 +70,7 @@ public class StockSensor implements BNSensorPlugin{
         URL url;
         boolean testSuccess = true;
         final Double threshold = Double.parseDouble((String) getProperty(THRESHOLD));
-        final String tag = (String) getProperty(VALUE_TAG);
+        final String tag = getTag();
         System.out.println("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
 
         try {
@@ -129,7 +129,7 @@ public class StockSensor implements BNSensorPlugin{
         parseOutput("VOLUME", hashMap, stringTokenizer);
         parseOutput("HIGH", hashMap, stringTokenizer);
         parseOutput("LOW", hashMap, stringTokenizer);
-        parseOutput("MOVING_AVERAGE", hashMap, stringTokenizer);
+        parseOutput(MOVING_AVERAGE, hashMap, stringTokenizer);
         parseOutput("PERCENT", hashMap, stringTokenizer);
 
         //date:time
@@ -191,7 +191,9 @@ public class StockSensor implements BNSensorPlugin{
     private void parseOutput(String tag, Map<String, Double> parsing, StringTokenizer stringTokenizer) {
         try{
             String string = stringTokenizer.nextToken();
-            parsing.put(tag, Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", "")));
+            Double value = Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", ""));
+            System.out.println(tag + " = " + value);
+            parsing.put(tag, value);
         } catch (Exception e){
             System.err.println("Error parsing [" + tag + "] " + e.getMessage());
         }
@@ -199,7 +201,7 @@ public class StockSensor implements BNSensorPlugin{
 
     @Override
     public String getName() {
-        return NAME;
+        return getSensorName();
     }
 
     @Override
@@ -208,21 +210,28 @@ public class StockSensor implements BNSensorPlugin{
     }
 
     public static void main(String[] args){
-        StockSensor stockSensor = new StockSensor();
+        StockSensor stockSensor = new StockSensor() {
+            @Override
+            protected String getTag() {
+                return "PRICE";
+            }
+
+            @Override
+            protected String getSensorName() {
+                return "Price sensor";
+            }
+        };
         stockSensor.setProperty(STOCK, "MSFT");
-        stockSensor.setProperty(VALUE_TAG, "PRICE");
         stockSensor.setProperty(THRESHOLD, "36");
         System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
         System.out.println(stockSensor.execute(null).getObserverState());
 
 
         stockSensor.setProperty(STOCK, "GOOG");
-        stockSensor.setProperty(VALUE_TAG, "PRICE");
         stockSensor.setProperty(THRESHOLD, "800.0");
         System.out.println(stockSensor.execute(null).getObserverState());
 
         stockSensor.setProperty(STOCK, "BAR.BR");
-        stockSensor.setProperty(VALUE_TAG, "PERCENT");
         stockSensor.setProperty(THRESHOLD, "-1.0");
         System.out.println(stockSensor.execute(null).getObserverState());
     }
