@@ -41,9 +41,9 @@ public class TwitterDMAction implements BNActionPlugin {
 
     @Override
     public void setProperty(String string, Object o) {
-        if(CUSTOMER_KEY.equals(string) || CUSTOMER_SECRET.equals(string) ||
-                ACCESS_TOKEN.equals(string) || ACCESS_TOKEN_SECRET.equals(string) ||
-                TWITTER_ACCOUNT.equals(string) || TWITTER_MESSAGE.equals(string)) {
+        if(CUSTOMER_KEY.equalsIgnoreCase(string) || CUSTOMER_SECRET.equalsIgnoreCase(string) ||
+                ACCESS_TOKEN.equalsIgnoreCase(string) || ACCESS_TOKEN_SECRET.equalsIgnoreCase(string) ||
+                TWITTER_ACCOUNT.equalsIgnoreCase(string) || TWITTER_MESSAGE.equalsIgnoreCase(string)) {
             propertiesMap.put(string, o.toString());
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");

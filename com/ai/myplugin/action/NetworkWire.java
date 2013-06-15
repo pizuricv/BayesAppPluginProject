@@ -36,8 +36,8 @@ public class NetworkWire implements BNActionPlugin{
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS)
-                || string.equals(USER_NAME) || string.equals(USER_PASSWORD)) {
+        if(string.equalsIgnoreCase(SCENARIO_ID) || string.equalsIgnoreCase(SERVER_ADDRESS)
+                || string.equalsIgnoreCase(USER_NAME) || string.equalsIgnoreCase(USER_PASSWORD)) {
             propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");

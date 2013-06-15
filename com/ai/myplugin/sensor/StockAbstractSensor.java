@@ -28,7 +28,6 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     static final String server = "http://finance.yahoo.com/d/quotes.csv?s=";
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     String [] states = {"Below", "Above"};
-    String [] tags = {"PRICE","VOLUME", "HIGH", "LOW", "MOVING_AVERAGE", "PERCENT"};
     private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
     public static final String MOVING_AVERAGE = "MOVING_AVERAGE";
     public static final String PRICE = "PRICE";
@@ -47,7 +46,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equals(STOCK)|| string.equals(THRESHOLD) ) {
+        if(string.equalsIgnoreCase(STOCK)|| string.equalsIgnoreCase(THRESHOLD) ) {
             propertiesMap.put(string, obj.toString());
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");

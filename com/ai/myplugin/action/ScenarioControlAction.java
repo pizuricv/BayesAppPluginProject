@@ -36,8 +36,8 @@ public class ScenarioControlAction implements BNActionPlugin{
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS)
-                || string.equals(USER_NAME) || string.equals(USER_PASSWORD) || string.equals(COMMAND)) {
+        if(string.equalsIgnoreCase(SCENARIO_ID) || string.equalsIgnoreCase(SERVER_ADDRESS)
+                || string.equalsIgnoreCase(USER_NAME) || string.equalsIgnoreCase(USER_PASSWORD) || string.equalsIgnoreCase(COMMAND)) {
             propertiesMap.put(string, obj);
         } else {
             System.out.println("property " + string + " not known by the action");
