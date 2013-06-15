@@ -18,7 +18,7 @@ import java.util.GregorianCalendar;
 public abstract class TimeAbstractSensor implements BNSensorPlugin{
     String timeZone;
     String [] returnStates;
-    protected static final String TIME_ZONE = "TIME_ZONE";
+    protected static final String TIME_ZONE = "timezone";
     protected static final String HOUR = "HOUR";
     protected static final String DAY = "TIME";
     protected static final String WEEK = "WEEK";

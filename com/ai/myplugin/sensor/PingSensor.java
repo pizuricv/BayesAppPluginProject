@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class PingSensor implements BNSensorPlugin{
-    private static final String IP_ADDRESS = "IP address";
+    private static final String IP_ADDRESS = "address";
     private static final String TIMEOUT = "timeout";
     private static final String ALIVE = "Alive";
     private static final String NOT_ALIVE = "Not Alive";
