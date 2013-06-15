@@ -14,16 +14,18 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.util.Calendar;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class TwitterDMAction implements BNActionPlugin {
 
-    private final String CUSTOMER_KEY = "OAuthConsumerKey";
-    private final String CUSTOMER_SECRET = "OAuthConsumerSecret";
+    private final String CONSUMER_KEY = "OAuthConsumerKey";
+    private final String CONSUMER_SECRET = "OAuthConsumerSecret";
     private final String ACCESS_TOKEN = "OAuthAccessToken";
     private final String ACCESS_TOKEN_SECRET = "OAuthAccessTokenSecret";
     private final String TWITTER_ACCOUNT = "twitter account";
@@ -32,16 +34,27 @@ public class TwitterDMAction implements BNActionPlugin {
     private static final String NAME = "Twitter";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
+    private static String CONFIG_FILE = "bn.properties";
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[] {CUSTOMER_KEY, CUSTOMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET,
+        return new String[] {CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET,
                 TWITTER_ACCOUNT, TWITTER_MESSAGE};
+    }
+
+    //in case that the file exist, use these properties
+    public void fetchTwitterPropertiesFromFile() throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(CONFIG_FILE));
+        propertiesMap.put(CONSUMER_KEY, properties.get(CONSUMER_KEY));
+        propertiesMap.put(CONSUMER_SECRET, properties.get(CONSUMER_SECRET));
+        propertiesMap.put(ACCESS_TOKEN, properties.get(ACCESS_TOKEN));
+        propertiesMap.put(ACCESS_TOKEN_SECRET, properties.get(ACCESS_TOKEN_SECRET));
     }
 
     @Override
     public void setProperty(String string, Object o) {
-        if(CUSTOMER_KEY.equals(string) || CUSTOMER_SECRET.equals(string) ||
+        if(CONSUMER_KEY.equals(string) || CONSUMER_SECRET.equals(string) ||
                 ACCESS_TOKEN.equals(string) || ACCESS_TOKEN_SECRET.equals(string) ||
                 TWITTER_ACCOUNT.equals(string) || TWITTER_MESSAGE.equals(string)) {
             propertiesMap.put(string, o.toString());
@@ -64,9 +77,14 @@ public class TwitterDMAction implements BNActionPlugin {
     public ActionResult action(TestSessionContext testSessionContext) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         boolean success = true;
+        try {
+            fetchTwitterPropertiesFromFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey((String) getProperty(CUSTOMER_KEY))
-                .setOAuthConsumerSecret((String) getProperty(CUSTOMER_SECRET))
+                .setOAuthConsumerKey((String) getProperty(CONSUMER_KEY))
+                .setOAuthConsumerSecret((String) getProperty(CONSUMER_SECRET))
                 .setOAuthAccessToken((String) getProperty(ACCESS_TOKEN))
                 .setOAuthAccessTokenSecret((String) getProperty(ACCESS_TOKEN_SECRET));
         TwitterFactory tf = new TwitterFactory(cb.build());
