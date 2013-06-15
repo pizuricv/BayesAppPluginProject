@@ -42,7 +42,7 @@ public class PingSensor implements BNSensorPlugin{
                 System.err.println(e.getLocalizedMessage());
             }
         } else if(string.equals(TIMEOUT)){
-            propertiesMap.put(string, Integer.parseInt(obj.toString()));
+            propertiesMap.put(string, Utils.getDouble(obj));
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -106,7 +106,7 @@ public class PingSensor implements BNSensorPlugin{
     }
 
     private int getTimeOut(){
-        return (Integer) getProperty(TIMEOUT);
+        return ((Double) getProperty(TIMEOUT)).intValue();
     }
 
 }

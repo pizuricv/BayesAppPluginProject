@@ -30,7 +30,6 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     String [] states = {"Below", "Above"};
     String [] tags = {"PRICE","VOLUME", "HIGH", "LOW", "MOVING_AVERAGE", "PERCENT"};
     private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
-    private static final String NAME = "Stock";
     public static final String MOVING_AVERAGE = "MOVING_AVERAGE";
     public static final String PRICE = "PRICE";
     public static final String VOLUME = "VOLUME";
@@ -68,7 +67,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     public TestResult execute(TestSessionContext testSessionContext) {
         URL url;
         boolean testSuccess = true;
-        final Double threshold = Double.parseDouble((String) getProperty(THRESHOLD));
+        final Double threshold = Utils.getDouble(getProperty(THRESHOLD));
         final String tag = getTag();
         System.out.println("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
 
@@ -221,7 +220,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
             }
         };
         stockSensor.setProperty(STOCK, "MSFT");
-        stockSensor.setProperty(THRESHOLD, "36");
+        stockSensor.setProperty(THRESHOLD, 36);
         System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
         System.out.println(stockSensor.execute(null).getObserverState());
 
