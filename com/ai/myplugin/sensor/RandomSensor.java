@@ -1,4 +1,4 @@
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 
 import com.ai.bayes.model.BayesianNetwork;
 import com.ai.bayes.model.Pair;
@@ -16,6 +16,8 @@ import java.util.Map;
 
 @PluginImplementation
 public class RandomSensor implements BNSensorPlugin {
+
+    private static final String NAME = "Random";
 
     private Map<String, Object> map = new HashMap<String, Object>();
 
@@ -65,7 +67,7 @@ public class RandomSensor implements BNSensorPlugin {
 
 
     public String getName() {
-        return "Random Test";
+        return NAME;
     }
 
     public String[] getSupportedStates() {

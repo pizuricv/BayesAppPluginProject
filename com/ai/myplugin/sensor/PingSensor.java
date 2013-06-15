@@ -3,7 +3,7 @@
  * Date: 06/03/12
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
 import com.ai.bayes.model.BayesianNetwork;
@@ -25,6 +25,7 @@ public class PingSensor implements BNSensorPlugin{
     private static final String TIMEOUT = "timeout";
     private static final String ALIVE = "Alive";
     private static final String NOT_ALIVE = "Not Alive";
+    private static final String NAME = "Ping";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -93,7 +94,7 @@ public class PingSensor implements BNSensorPlugin{
     Name needs to be unique across different sensors
     */
     public String getName() {
-        return "Ping Test";
+        return NAME;
     }
 
     public String[] getSupportedStates() {

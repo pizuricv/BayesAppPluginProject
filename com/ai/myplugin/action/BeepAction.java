@@ -2,7 +2,7 @@
  * User: pizuricv
  * Date: 10/29/12
  */
-package com.ai.myplugin;
+package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
@@ -11,6 +11,7 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 @PluginImplementation
 public class BeepAction implements BNActionPlugin{
+    private static final String NAME = "Beep";
     @Override
     public String[] getRequiredProperties() {
         return new String[0];
@@ -48,6 +49,6 @@ public class BeepAction implements BNActionPlugin{
 
     @Override
     public String getName() {
-        return "Beep action";
+        return NAME;
     }
 }

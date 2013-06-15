@@ -2,7 +2,7 @@
  * User: pizuricv
  * Date: 12/20/12
  */
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
@@ -19,12 +19,15 @@ import java.util.StringTokenizer;
 
 @PluginImplementation
 public class ShellCmdSensor implements BNSensorPlugin{
+
+
     private String command;
     private ArrayList<Long> threshold = new ArrayList<Long>();
     private ArrayList<String> states = new ArrayList<String>();
     private static final String parseString = "result=";
     private int exitVal = -1;
     private String result = "error";
+    private static final String NAME = "ShellCommand";
 
     @Override
     public String[] getRequiredProperties() {
@@ -139,7 +142,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
     @Override
     public String getName() {
-        return "Shell sensor";
+        return NAME;
     }
 
     @Override

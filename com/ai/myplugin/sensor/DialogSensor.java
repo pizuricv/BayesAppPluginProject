@@ -3,7 +3,7 @@
  * Date: 11/03/12
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 
 import com.ai.bayes.model.BayesianNetwork;
 import com.ai.bayes.plugins.BNSensorPlugin;
@@ -14,9 +14,10 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import javax.swing.*;
 @PluginImplementation
-public class SwingSensor implements BNSensorPlugin {
+public class DialogSensor implements BNSensorPlugin {
 
     private String question = null;
+    private static final String NAME = "Dialog";
 
     public String[] getRequiredProperties() {
         return new String[] {"Question to ask"};
@@ -64,7 +65,7 @@ public class SwingSensor implements BNSensorPlugin {
     }
 
     public String getName() {
-        return "Swing Test";
+        return NAME;
     }
 
     public String[] getSupportedStates() {

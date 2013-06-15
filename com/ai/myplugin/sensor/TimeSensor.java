@@ -3,7 +3,7 @@
  * Date: 5/17/13
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 
 
 import com.ai.bayes.plugins.BNSensorPlugin;
@@ -19,6 +19,7 @@ import java.util.GregorianCalendar;
 public class TimeSensor implements BNSensorPlugin{
     String property;
     String [] returnStates = new String[]{};
+    private static final String NAME = "DateTime";
 
     @Override
     public String[] getRequiredProperties() {
@@ -85,7 +86,7 @@ public class TimeSensor implements BNSensorPlugin{
 
     @Override
     public String getName() {
-        return "DateTime result";
+        return NAME;
     }
 
     @Override

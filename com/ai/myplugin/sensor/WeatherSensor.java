@@ -2,7 +2,7 @@
 /**
  * User: pizuricv
  */
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
@@ -33,6 +33,7 @@ public class WeatherSensor implements BNSensorPlugin{
             "Windy", "Hail"};
     String [] humidityStates = {"Low", "Normal", "High"};
     String [] tempStates = {"Freezing", "Cold", "Mild", "Warm", "Heat"};
+    private static final String NAME = "Weather";
 
     @Override
     public String[] getRequiredProperties() {
@@ -242,7 +243,7 @@ public class WeatherSensor implements BNSensorPlugin{
 
     @Override
     public String getName() {
-        return "Weather result";
+        return NAME;
     }
 
     @Override

@@ -2,7 +2,7 @@
  * User: pizuricv
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
@@ -13,7 +13,10 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import javax.swing.*;
 
 @PluginImplementation
-public class SwingAction implements BNActionPlugin {
+public class AlarmDialog implements BNActionPlugin {
+
+    private static final String NAME = "AlarmDialog";
+
     private String alarmMessage = null;
 
     public String[] getRequiredProperties() {
@@ -55,6 +58,6 @@ public class SwingAction implements BNActionPlugin {
 
     @Override
     public String getName() {
-        return "Alarm Dialog";
+        return NAME;
     }
 }

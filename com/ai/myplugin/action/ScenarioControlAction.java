@@ -3,7 +3,7 @@
  * Date: 11/26/12
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
@@ -25,6 +25,7 @@ public class ScenarioControlAction implements BNActionPlugin{
     private static final String USER_PASSWORD = "remote server password";
     private static final String SCENARIO_ID = "remote scenario ID";
     private static final String COMMAND = "command";
+    private static final String NAME = "ScenarioControl";
     private URL url;
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
     
@@ -165,6 +166,6 @@ public class ScenarioControlAction implements BNActionPlugin{
 
     @Override
     public String getName() {
-        return "Scenario Control Action";
+        return NAME;
     }
 }

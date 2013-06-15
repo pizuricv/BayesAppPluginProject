@@ -3,7 +3,7 @@
  * Date 08/03/2012
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.action;
 
 import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
@@ -17,6 +17,7 @@ import java.lang.System;
 public class ActionPrintScreen implements BNActionPlugin{
 
     private static final String DUMMY_PROPERTY = "dummy property that will be print out";
+    private static final String NAME = "PrintOnStdout";
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
 
     @Override
@@ -64,6 +65,6 @@ public class ActionPrintScreen implements BNActionPlugin{
 
     @Override
     public String getName() {
-        return "PrintScreen Action";
+        return NAME;
     }
 }

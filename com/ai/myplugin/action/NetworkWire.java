@@ -1,68 +1,57 @@
 /**
- * User: pizuricv
- * Date: 11/26/12
+ * User: Veselin Pizurica
+ * Date 10/08/2012
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
+import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import com.ai.bayes.plugins.BNActionPlugin;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.net.*;
 import java.util.Map;
+import java.lang.System;
+import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-public class ScenarioFactoryAction implements BNActionPlugin{
+public class NetworkWire implements BNActionPlugin{
+
     private static final String SERVER_ADDRESS = "remote server address";
     private static final String USER_NAME = "remote server user";
     private static final String USER_PASSWORD = "remote server password";
-    private static final String NETWORK = "network";
-    private static final String TYPE = "type";
-    private static final String TARGET = "target";
-    private static final String STOP_STATE = "stop state";
-    private static final String OPERATOR = "operator";
-    private static final String THRESHOLD = "threshold";
-    private static final String NAME = "scenario name";
-    private static final String RESOURCE = "resource name";
-    private static final String START = "start";
-    private static final String FREQUENCY = "frequency";
-
+    private static final String SCENARIO_ID = "remote scenario ID";
+    private static final String NAME = "NetworkStateFlooding";
 
     private URL url;
-    Map<String, Object> propertiesMap = new HashMap<String, Object>();
+    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{TARGET, SERVER_ADDRESS, USER_NAME, USER_PASSWORD, NETWORK,
-        TYPE, FREQUENCY, STOP_STATE, OPERATOR, THRESHOLD, NAME, RESOURCE, START};
+        return new String[]{SCENARIO_ID, SERVER_ADDRESS, USER_NAME, USER_PASSWORD};
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        String properties [] = getRequiredProperties();
-        if(Arrays.asList(properties).contains(string)) {
+        if(string.equals(SCENARIO_ID) || string.equals(SERVER_ADDRESS)
+                || string.equals(USER_NAME) || string.equals(USER_PASSWORD)) {
             propertiesMap.put(string, obj);
         } else {
-            System.out.println("property " + string + " not known by the action");
+            throw new RuntimeException("Property "+ string + " not in the required settings");
         }
     }
 
     @Override
-    public Object getProperty(String key) {
-        return propertiesMap.get(key);
+    public Object getProperty(String string) {
+        return propertiesMap.get(string);
     }
 
     @Override
     public String getDescription() {
-        return "Instantiate new scenario";
+        return "Action that fires the triggered state towards another network";
     }
 
     @Override
@@ -70,6 +59,7 @@ public class ScenarioFactoryAction implements BNActionPlugin{
         System.out.println("####### action triggered " + getDescription());
 
         boolean testSuccess = true;
+        Integer scenarioID = -1;
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
 //        String user = getProperty(USER_NAME) == null ? "user" : (String) getProperty(USER_NAME);
@@ -79,40 +69,34 @@ public class ScenarioFactoryAction implements BNActionPlugin{
             server = server.substring(0, server.lastIndexOf("/"));
         }
 
-        if(server == null) {
+        try {
+            scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
+        } catch (Exception e){
+            System.err.println(e.getLocalizedMessage());
+            throw new RuntimeException(e);
+        }
+        if(server == null || scenarioID.equals(-1)) {
             String errorMessage = "error in the configuration of the sensor " + getDescription();
             System.err.println(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
+        ///scenarios/{scenario}/{node}
+        String node = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
+        String state = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_TRIGGERED_STATE);
+
         try {
-            url = new URL(server);
+            url = new URL(server+ "/scenarios/" + scenarioID + "/"+ node);
         } catch (MalformedURLException e) {
             System.err.println(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
 
-        //"name=test1&target=CONNECTION&resource=FRODO&network=internet.bif&start=false&condition=0.99,0,OK&frequency=10&type=diagnosis"
         URLConnection connection = null;
         String charset = "UTF-8";
         String query = null;
-        String name = getProperty(NAME) == null? "scenario started by the action": (String) getProperty(NAME);
-        String type = getProperty(TYPE) == null? "diagnosis": (String) getProperty(TYPE);
-        String resource = getProperty(RESOURCE) == null? "resource": (String) getProperty(RESOURCE);
-        String condition = getProperty(THRESHOLD) + "," + getProperty(OPERATOR) + ","+getProperty(STOP_STATE);
-        String start = getProperty(START) == null? "false": (String) getProperty(START);
-        String frequency = getProperty(FREQUENCY) == null? "15": (String) getProperty(FREQUENCY);
-
         try {
-            query = String.format("network=%s", URLEncoder.encode((String) getProperty(NETWORK), charset));
-            query += String.format("&name=%s", name, charset);
-            query += String.format("&target=%s", getProperty(TARGET), charset);
-            query += String.format("&resource=%s", resource, charset);
-            query += String.format("&condition=%s", condition, charset);
-            query += String.format("&type=%s", type, charset);
-            query += String.format("&start=%s", start, charset);
-            query += String.format("&frequency=%s", frequency, charset);
-
+            query = String.format("state=%s", URLEncoder.encode(state, charset));
         } catch (UnsupportedEncodingException e) {
             System.err.println(e.getLocalizedMessage());
             testSuccess = false;
@@ -186,6 +170,18 @@ public class ScenarioFactoryAction implements BNActionPlugin{
 
     @Override
     public String getName() {
-        return "Scenario Factory Action";
+        return NAME;
     }
+
+    public static void main(String [] args ){
+        NetworkWire networkWire = new NetworkWire();
+        networkWire.setProperty(SERVER_ADDRESS, "http://85.255.197.153/api");
+        networkWire.setProperty(SCENARIO_ID, "1");
+        TestSessionContext testSessionContext =  new TestSessionContext(1);
+        testSessionContext.setAttribute(NodeSessionParams.NODE_NAME, "CONNECTION");
+        testSessionContext.setAttribute(NodeSessionParams.NODE_TRIGGERED_STATE, "NOK");
+        networkWire.action(testSessionContext);
+    }
+
+
 }

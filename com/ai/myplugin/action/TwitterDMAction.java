@@ -2,7 +2,7 @@
  * User: pizuricv
  * Date: 6/4/13
  */
-package com.ai.myplugin;
+package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
@@ -28,6 +28,8 @@ public class TwitterDMAction implements BNActionPlugin {
     private final String ACCESS_TOKEN_SECRET = "OAuthAccessTokenSecret";
     private final String TWITTER_ACCOUNT = "twitter account";
     private final String TWITTER_MESSAGE = "twitter message";
+
+    private static final String NAME = "Twitter";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -96,7 +98,7 @@ public class TwitterDMAction implements BNActionPlugin {
 
     @Override
     public String getName() {
-        return "Twitter Action";
+        return NAME;
     }
 
     public static void main(String[] args) {

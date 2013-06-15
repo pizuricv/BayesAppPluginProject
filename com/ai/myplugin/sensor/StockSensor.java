@@ -3,7 +3,7 @@
  * Date: 6/4/13
  */
 
-package com.ai.myplugin;
+package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
@@ -33,6 +33,7 @@ public class StockSensor implements BNSensorPlugin{
     String [] states = {"Below", "Above"};
     String [] tags = {"PRICE","VOLUME", "HIGH", "LOW", "MOVING_AVERAGE", "PERCENT"};
     private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
+    private static final String NAME = "Stock";
 
     @Override
     public String[] getRequiredProperties() {
@@ -198,7 +199,7 @@ public class StockSensor implements BNSensorPlugin{
 
     @Override
     public String getName() {
-        return "Stock exchange sensor result";
+        return NAME;
     }
 
     @Override
