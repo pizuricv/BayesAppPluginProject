@@ -46,8 +46,10 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equalsIgnoreCase(STOCK)|| string.equalsIgnoreCase(THRESHOLD) ) {
-            propertiesMap.put(string, obj.toString());
+        if(string.equalsIgnoreCase(STOCK) ) {
+            propertiesMap.put(STOCK, obj.toString());
+        } else if(string.equalsIgnoreCase(THRESHOLD)){
+            propertiesMap.put(THRESHOLD, obj.toString()) ;
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }

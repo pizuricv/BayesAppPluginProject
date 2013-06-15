@@ -28,7 +28,7 @@ public class ActionPrintScreen implements BNActionPlugin{
     @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(DUMMY_PROPERTY)) {
-            propertiesMap.put(string,obj);
+            propertiesMap.put(DUMMY_PROPERTY,obj);
         }
     }
 
