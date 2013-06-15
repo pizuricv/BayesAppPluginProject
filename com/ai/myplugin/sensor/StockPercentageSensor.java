@@ -5,29 +5,16 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-public class StockPercentageSensor extends StockSensor{
+public class StockPercentageSensor extends StockAbstractSensor {
 
     @Override
     protected String getTag() {
-        return StockSensor.PERCENT;
+        return StockAbstractSensor.PERCENT;
     }
 
     @Override

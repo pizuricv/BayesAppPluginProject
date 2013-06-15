@@ -8,7 +8,6 @@ package com.ai.myplugin.sensor;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
-import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class StockSensor implements BNSensorPlugin{
+public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     public static final String STOCK = "stock";
     public static final String THRESHOLD = "threshold";
@@ -210,7 +209,7 @@ public abstract class StockSensor implements BNSensorPlugin{
     }
 
     public static void main(String[] args){
-        StockSensor stockSensor = new StockSensor() {
+        StockAbstractSensor stockSensor = new StockAbstractSensor() {
             @Override
             protected String getTag() {
                 return "PRICE";

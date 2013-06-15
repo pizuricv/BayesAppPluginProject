@@ -3,10 +3,10 @@ package com.ai.myplugin.sensor;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 @PluginImplementation
-public class StockLowSensor extends StockSensor{
+public class StockLowSensor extends StockAbstractSensor {
     @Override
     protected String getTag() {
-        return StockSensor.LOW;
+        return StockAbstractSensor.LOW;
     }
 
     @Override
