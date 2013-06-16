@@ -120,7 +120,7 @@ public class TwitterDMAction implements BNActionPlugin {
     }
 
     public static void main(String[] args) {
-        ConfigurationBuilder cb = new ConfigurationBuilder();
+        /*ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
                 .setOAuthConsumerKey("******************")
                 .setOAuthConsumerSecret("******************")
@@ -137,6 +137,10 @@ public class TwitterDMAction implements BNActionPlugin {
             te.printStackTrace();
             System.out.println("Failed to send a direct message: " + te.getMessage());
             System.exit(-1);
-        }
+        }*/
+        TwitterDMAction twitterDMAction = new TwitterDMAction();
+        twitterDMAction.setProperty("twitter account", "pizuricv");
+        twitterDMAction.setProperty("twitter message", "hello");
+        twitterDMAction.action(null);
     }
 }
