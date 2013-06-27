@@ -12,6 +12,6 @@ public class HourSensor extends TimeAbstractSensor {
 
     @Override
     protected String getSensorName() {
-        return "HourSensor";
+        return "Hour";
     }
 }
