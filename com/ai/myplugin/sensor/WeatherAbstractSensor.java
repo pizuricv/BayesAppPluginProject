@@ -162,6 +162,15 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                 }
             }
 
+            @Override
+            public String getRawData(){
+                return "{" +
+                        "\"temperature\" : " +  temp + "," +
+                        "\"weather\" : " + "\""+mapWeather() + "\""+ "," +
+                        "\"humidity\" : " + humidity +
+                        "}";
+            }
+
             private String mapWeather() {
                 //String [] weatherStates = {"Clouds", "Clear", "Rain", "Storm", "Snow", "Fog"};
                 //http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
@@ -293,5 +302,6 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
         System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
     }
 }

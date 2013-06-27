@@ -28,6 +28,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
     private int exitVal = -1;
     private String result = "error";
     private static final String NAME = "ShellCommand";
+    private String output = "";
 
     @Override
     public String[] getRequiredProperties() {
@@ -131,6 +132,11 @@ public class ShellCmdSensor implements BNSensorPlugin{
                 public String getObserverState() {
                     return result;
                 }
+
+                @Override
+                public String getRawData() {
+                    return output;
+                }
             }  ;
 
         } catch (Throwable t) {
@@ -181,6 +187,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
                 throw new RuntimeException("Error executing the script "+ getName() + " : error is "+ line);
             } else{
                 if(line.startsWith(parseString)){
+                    output += line;
                     System.out.println("Found result " + line);
                     result = mapResult(line.replaceAll(parseString,""));
                 } else{

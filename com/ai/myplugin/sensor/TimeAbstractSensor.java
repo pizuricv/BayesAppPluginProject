@@ -11,6 +11,7 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
 
 import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -34,6 +35,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
         return new String[] {TIME_ZONE};
     }
 
+    //@TODO implement the time zone
     @Override
     public void setProperty(String s, Object o) {
         if(TIME_ZONE.equalsIgnoreCase(s))
@@ -79,6 +81,15 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
                 }
                 return "";
             };
+
+            @Override
+            public String getRawData(){
+                SimpleDateFormat date_format = new SimpleDateFormat("ddMMyyyy");
+                String date = date_format.format((new GregorianCalendar().getTime()));
+                return "{" +
+                        "date: " + date +
+                        "}";
+            }
         };
     }
 

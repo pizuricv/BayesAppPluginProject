@@ -60,6 +60,11 @@ public class DialogSensor implements BNSensorPlugin {
             public String getObserverState() {
                 return bayesianNetwork.getStates(nodeName)[index];
             }
+
+            public String getRawData(){
+                return bayesianNetwork.toJSONString();
+            }
+
         };
 
     }

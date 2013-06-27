@@ -86,6 +86,10 @@ public class PingSensor implements BNSensorPlugin{
                     return NOT_ALIVE;
                 }
             }
+
+            public String getRawData(){
+                return null;
+            }
         };
         return result;
     }

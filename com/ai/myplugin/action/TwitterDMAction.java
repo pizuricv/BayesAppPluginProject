@@ -139,8 +139,8 @@ public class TwitterDMAction implements BNActionPlugin {
             System.exit(-1);
         }*/
         TwitterDMAction twitterDMAction = new TwitterDMAction();
-        twitterDMAction.setProperty("twitter account", "pizuricv");
-        twitterDMAction.setProperty("twitter message", "hello");
+        twitterDMAction.setProperty("twitter account", "pizurican");
+        twitterDMAction.setProperty("twitter message", "hello test");
         twitterDMAction.action(null);
     }
 }

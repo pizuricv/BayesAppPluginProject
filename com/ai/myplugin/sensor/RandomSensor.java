@@ -18,6 +18,7 @@ import java.util.Map;
 public class RandomSensor implements BNSensorPlugin {
 
     private static final String NAME = "Random";
+    private double res;
 
     private Map<String, Object> map = new HashMap<String, Object>();
 
@@ -39,8 +40,8 @@ public class RandomSensor implements BNSensorPlugin {
             System.out.println("for state" + probs.get(i).snd + " assign the coin value " + value);
         }
 
-        double val = Math.random();
-        final String   observedState = probs.get(findStateIndexForVal(val, coins)).snd;
+        res = Math.random();
+        final String   observedState = probs.get(findStateIndexForVal(res, coins)).snd;
         return new TestResult() {
             public boolean isSuccess() {
                 return true;
@@ -52,6 +53,12 @@ public class RandomSensor implements BNSensorPlugin {
 
             public String getObserverState() {
                 return observedState;
+            }
+
+            public String getRawData(){
+                return "{ " +
+                        "\"" + res + "\" : " + String.valueOf(res) +
+                        "}";
             }
         } ;
     }

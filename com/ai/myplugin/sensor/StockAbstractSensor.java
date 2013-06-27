@@ -184,6 +184,24 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
                     throw new RuntimeException("Error getting Stock result");
                 }
             }
+
+            @Override
+            public String getRawData() {
+                String res = "";
+                String sep = ",\r\n";
+                int i = 0;
+                int len = hashMap.size();
+                for(Map.Entry<String, Double> key : hashMap.entrySet()){
+                    if(i == len-1){
+                        sep = "\r\n";
+                    }
+                    i++;
+                    res += "\""+ key.getKey().toLowerCase() + "\" : " + key.getValue() + sep;
+                }
+                return "{" +
+                        res +
+                        "}";
+            }
         } ;
     }
 
@@ -233,5 +251,6 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
         stockSensor.setProperty(STOCK, "BAR.BR");
         stockSensor.setProperty(THRESHOLD, "-1.0");
         System.out.println(stockSensor.execute(null).getObserverState());
+        System.out.println(stockSensor.execute(null).getRawData());
     }
 }
