@@ -62,7 +62,7 @@ public class PingSensor implements BNSensorPlugin{
 
         try {
             reachable = getAddress().isReachable(getTimeOut());
-        } catch (IOException e) {
+        } catch (Exception e) {
             testSuccess = false;
             System.err.println(e.getLocalizedMessage());
         }
