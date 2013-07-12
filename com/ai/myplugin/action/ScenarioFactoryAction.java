@@ -21,9 +21,9 @@ import java.util.Map;
 
 @PluginImplementation
 public class ScenarioFactoryAction implements BNActionPlugin{
-    private static final String SERVER_ADDRESS = "remote server address";
-    private static final String USER_NAME = "remote server user";
-    private static final String USER_PASSWORD = "remote server password";
+    private static final String SERVER_ADDRESS = "server address";
+    private static final String USER_NAME = "username";
+    private static final String USER_PASSWORD = "password";
     private static final String NETWORK = "network";
     private static final String TYPE = "type";
     private static final String TARGET = "target";
