@@ -6,14 +6,13 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
-import com.ai.bayes.model.BayesianNetwork;
+import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import java.io.IOException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Map;
 import java.lang.System;
 import java.util.concurrent.ConcurrentHashMap;

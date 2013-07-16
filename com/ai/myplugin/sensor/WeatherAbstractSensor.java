@@ -6,13 +6,17 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.Rest;
+import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import java.io.*;
-import java.net.*;
+import java.net.URLEncoder;
 
 public abstract class WeatherAbstractSensor implements BNSensorPlugin {
-    //TODO use JSON parsing later, need a tiny library for this
     String city;
     static final String TEMP = "temperature";
     static final String HUMIDITY = "humidity";
@@ -23,7 +27,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     protected abstract String getTag();
     protected abstract String getSensorName();
 
-    String [] weatherStates = {"Clouds", "Clear", "Rain",
+    protected static String [] weatherStates = {"Clouds", "Clear", "Rain",
             "Storm", "Snow", "Fog", "Mist" , "Drizzle",
             "Smoke", "Dust", "Tropical Storm", "Hot", "Cold" ,
             "Windy", "Hail"};
@@ -39,7 +43,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(CITY)) {
-            city = (String) obj;
+            city = URLEncoder.encode((String) obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -61,85 +65,73 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             throw new RuntimeException("City not defined");
         }
 
-        URL url;
         boolean testSuccess = true;
+        String stringToParse = "";
 
-        try {
-            url = new URL(server+ "data/2.5/find?q="+ city+ "&mode=json&units=metric&cnt=0");
-        } catch (MalformedURLException e) {
-            System.err.println(e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        }
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) url.openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-            testSuccess = false;
-        }
-        assert conn != null;
-        try {
-            conn.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
+        String pathURL = server+ "data/2.5/find?q="+ city+ "&mode=json&units=metric&cnt=0";
+        try{
+            stringToParse = Rest.httpGet(pathURL);
+            System.out.println(stringToParse);
+        } catch (Exception e) {
             testSuccess = false;
         }
 
-        BufferedReader rd = null;
+        JSONParser parser=new JSONParser();
+        JSONObject obj  = null;
         try {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
+            obj = (JSONObject) parser.parse(stringToParse);
+        } catch (ParseException e) {
             testSuccess = false;
         }
-        String inputLine;
-        StringBuffer stringBuffer = new StringBuffer();
 
-        assert rd != null;
-        try {
-            while ((inputLine = rd.readLine()) != null){
-                stringBuffer.append(inputLine);
+        int temp = -1;
+        int humidity = -1;
+        int weatherID = -1;
+        int pressure = -1;
+        double windSpeed = -1;
+        int cloudCoverage = -1;
+
+        if(testSuccess ){
+            JSONArray jsonArray = (JSONArray)obj.get("list");
+            for (Object o : jsonArray.toArray()) {
+                JSONObject jo = (JSONObject) o;
+                if(jo.get("main") != null){
+                    temp = Utils.getDouble( ((JSONObject)jo.get("main")).get("temp")).intValue();
+                    humidity = Utils.getDouble(((JSONObject)jo.get("main")).get("humidity")).intValue();
+                    pressure = Utils.getDouble(((JSONObject)jo.get("main")).get("pressure")).intValue();
+                }
+                if(jo.get("weather") != null){
+                    JSONArray jsonArray1 = (JSONArray)jo.get("weather");
+                    for (Object o2 : jsonArray1.toArray()) {
+                        JSONObject jo2 = (JSONObject) o2;
+                        if(jo2.get("id") != null){
+                            weatherID =  Utils.getDouble(jo2.get("id")).intValue();
+                        }
+                    }
+                }
+                if(jo.get("wind") != null){
+                     windSpeed =  Utils.getDouble(((JSONObject) jo.get("wind")).get("speed"));
+                }
+                if(jo.get("clouds") != null){
+                    cloudCoverage =  Utils.getDouble(((JSONObject)jo.get("clouds")).get("all")).intValue();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            testSuccess = false;
+        } else{
+            temp = -1;
+            humidity = -1;
+            weatherID = -1;
+            pressure = -1;
+            windSpeed = -1;
+            cloudCoverage = -1;
         }
-        conn.disconnect();
-        try {
-            rd.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-/*        JSONParser parser=new JSONParser();
-
-        Object obj = parser.parse(stringBuffer.toString());*/
-        final String stringToParse = stringBuffer.toString();
-        System.out.println(stringToParse);
-        int indexTemp = stringToParse.indexOf("temp");
-        String tempString = stringToParse.substring(indexTemp + 6 );
-        int index1 = tempString.indexOf(",") == -1? Integer.MAX_VALUE : tempString.indexOf(",");
-        int index2 = tempString.indexOf("},") == -1? Integer.MAX_VALUE : tempString.indexOf("},");
-        String temperatureString = tempString.substring(0, Math.min(index1, index2));
-
-        int indexHumidity = stringToParse.indexOf("humidity");
-        String tempHumidity = stringToParse.substring(indexHumidity + 10);
-        index1 = tempHumidity.indexOf(",") == -1? Integer.MAX_VALUE : tempHumidity.indexOf(",");
-        index2 = tempHumidity.indexOf("},") == -1? Integer.MAX_VALUE : tempHumidity.indexOf("},");
-        String humidityString = tempHumidity.substring(0, Math.min(index1, index2));
-
-        final int temp = (int)Math.round(Double.parseDouble(temperatureString));
-        final int humidity = (int)Math.round(Double.parseDouble(humidityString));
-
-        //get weather ID
-        int indexWeather = stringToParse.indexOf("weather\":[{\"id\"");
-        String tempWeather = stringToParse.substring(indexWeather + 16 );
-        index1 = tempWeather.indexOf(",") == -1? Integer.MAX_VALUE : tempWeather.indexOf(",");
-        index2 = tempWeather.indexOf("},") == -1? Integer.MAX_VALUE : tempWeather.indexOf("},");
-        final int weatherID = Integer.parseInt(tempWeather.substring(0, Math.min(index1, index2)));
-
 
         final boolean finalTestSuccess = testSuccess;
+        final int finalHumidity = humidity;
+        final int finalTemp = temp;
+        final int finalWeatherID = weatherID;
+        final int finalPressure = pressure;
+        final double finalWindSpeed = windSpeed;
+        final int finalCloudCoverage = cloudCoverage;
         return new TestResult() {
             @Override
             public boolean isSuccess() {
@@ -165,48 +157,51 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             @Override
             public String getRawData(){
                 return "{" +
-                        "\"temperature\" : " +  temp + "," +
+                        "\"temperature\" : " + finalTemp + "," +
                         "\"weather\" : " + "\""+mapWeather() + "\""+ "," +
-                        "\"humidity\" : " + humidity +
+                        "\"humidity\" : " + finalHumidity + "," +
+                        "\"pressure\" : " + finalPressure + "," +
+                        "\"cloudCoverage\" : " + finalCloudCoverage + "," +
+                        "\"windSpeed\" : " + finalWindSpeed +
                         "}";
             }
 
             private String mapWeather() {
                 //String [] weatherStates = {"Clouds", "Clear", "Rain", "Storm", "Snow", "Fog"};
                 //http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
-                if(weatherID < 300){
+                if(finalWeatherID < 300){
                     return "Storm";
-                } else if(weatherID < 400){
+                } else if(finalWeatherID < 400){
                     return "Drizzle";
-                } else if(weatherID < 600){
+                } else if(finalWeatherID < 600){
                     return "Rain";
-                } else if(weatherID < 700){
+                } else if(finalWeatherID < 700){
                     return "Snow";
-                } else if(weatherID == 701){
+                } else if(finalWeatherID == 701){
                     return "Mist";
-                } else if(weatherID == 711){
+                } else if(finalWeatherID == 711){
                     return "Smoke";
-                } else if(weatherID == 721){
+                } else if(finalWeatherID == 721){
                     return "Haze";
-                } else if(weatherID == 731){
+                } else if(finalWeatherID == 731){
                     return "Dust";
-                } else if(weatherID == 741){
+                } else if(finalWeatherID == 741){
                     return "Fog";
-                } else if(weatherID == 800){
+                } else if(finalWeatherID == 800){
                     return "Clear";
-                } else if(weatherID < 900){
+                } else if(finalWeatherID < 900){
                     return "Clouds";
-                } else if(weatherID == 900){
+                } else if(finalWeatherID == 900){
                     return "Tornado";
-                } else if(weatherID == 901){
+                } else if(finalWeatherID == 901){
                     return "Tropical Storm";
-                } else if(weatherID == 902){
+                } else if(finalWeatherID == 902){
                     return "Cold";
-                } else if(weatherID == 903){
+                } else if(finalWeatherID == 903){
                     return "Hot";
-                } else if(weatherID == 904){
+                } else if(finalWeatherID == 904){
                     return "Windy";
-                }  else if(weatherID == 9035){
+                }  else if(finalWeatherID == 9035){
                     return "Hail";
                 }
                 return "Extreme";
@@ -215,24 +210,24 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
             private String mapHumidity() {
                 //    String [] humidityStates = {"Low", "Normal", "High"};
-                System.out.println("Map humidity "+humidity);
-                if(humidity < 70) {
+                System.out.println("Map humidity "+ finalHumidity);
+                if(finalHumidity < 70) {
                     return "Low";
-                } else if(humidity < 90) {
+                } else if(finalHumidity < 90) {
                     return "Normal";
                 }
                 return "High";
             }
 
             private String mapTemperature() {
-                System.out.println("Map temperature "+temp);
-                if(temp < 0) {
+                System.out.println("Map temperature "+ finalTemp);
+                if(finalTemp < 0) {
                     return "Freezing";
-                }  else if(temp < 8) {
+                }  else if(finalTemp < 8) {
                     return "Cold";
-                } else if(temp < 15) {
+                } else if(finalTemp < 15) {
                     return "Mild";
-                }  else if(temp < 25) {
+                }  else if(finalTemp < 25) {
                     return "Warm";
                 }
                 return "Heat";

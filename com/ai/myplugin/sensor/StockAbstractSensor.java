@@ -7,14 +7,10 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.Rest;
+import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,80 +62,41 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        URL url;
         boolean testSuccess = true;
         final Double threshold = Utils.getDouble(getProperty(THRESHOLD));
         final String tag = getTag();
         System.out.println("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
+        String urlPath = server+ getProperty(STOCK) + FORMAT_QUERY;
 
+        String stringToParse = null;
         try {
-            url = new URL(server+ getProperty(STOCK) + FORMAT_QUERY);
-        } catch (MalformedURLException e) {
-            System.err.println(e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        }
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) url.openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-            testSuccess = false;
-        }
-        assert conn != null;
-        try {
-            conn.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
+            stringToParse = Rest.httpGet(urlPath);
+            System.out.println("Response for " + getProperty(STOCK) + " >>" + stringToParse);
+        } catch (Exception e) {
             testSuccess = false;
         }
 
-        BufferedReader rd = null;
-        try {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-            testSuccess = false;
-        }
-        String inputLine;
-        StringBuffer stringBuffer = new StringBuffer();
-
-        assert rd != null;
-        try {
-            while ((inputLine = rd.readLine()) != null){
-                stringBuffer.append(inputLine);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            testSuccess = false;
-        }
-        conn.disconnect();
-        try {
-            rd.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        final String stringToParse = stringBuffer.toString();
-        System.out.println("Response for " + getProperty(STOCK) + " >>" + stringToParse);
-        StringTokenizer stringTokenizer = new StringTokenizer(stringToParse,",");
         final ConcurrentHashMap<String, Double> hashMap = new ConcurrentHashMap<String, Double>();
 
-        parseOutput("PRICE", hashMap, stringTokenizer);
-        parseOutput("VOLUME", hashMap, stringTokenizer);
-        parseOutput("HIGH", hashMap, stringTokenizer);
-        parseOutput("LOW", hashMap, stringTokenizer);
-        parseOutput(MOVING_AVERAGE, hashMap, stringTokenizer);
-        parseOutput("PERCENT", hashMap, stringTokenizer);
+        if(testSuccess){
+            StringTokenizer stringTokenizer = new StringTokenizer(stringToParse,",");
+            parseOutput("PRICE", hashMap, stringTokenizer);
+            parseOutput("VOLUME", hashMap, stringTokenizer);
+            parseOutput("HIGH", hashMap, stringTokenizer);
+            parseOutput("LOW", hashMap, stringTokenizer);
+            parseOutput(MOVING_AVERAGE, hashMap, stringTokenizer);
+            parseOutput("PERCENT", hashMap, stringTokenizer);
 
-        //date:time
-        SimpleDateFormat format =
-                new SimpleDateFormat("\"MM/dd/yyyy\" \"HH:mma\"");
-        String dateString = stringTokenizer.nextToken() + " " + stringTokenizer.nextToken();
-        try {
-            Date parsed = format.parse(dateString);
-            System.out.println("Date is " + parsed.toString());
-        } catch (ParseException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            //date:time
+            SimpleDateFormat format =
+                    new SimpleDateFormat("\"MM/dd/yyyy\" \"HH:mma\"");
+            String dateString = stringTokenizer.nextToken() + " " + stringTokenizer.nextToken();
+            try {
+                Date parsed = format.parse(dateString);
+                System.out.println("Date is " + parsed.toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         final boolean finalTestSuccess = testSuccess;

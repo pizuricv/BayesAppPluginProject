@@ -1,4 +1,4 @@
-package com.ai.myplugin.sensor;
+package com.ai.myplugin.util;
 
 public class Utils {
 
