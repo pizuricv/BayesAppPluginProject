@@ -18,6 +18,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class ScenarioFactoryAction implements BNActionPlugin{
@@ -38,7 +39,7 @@ public class ScenarioFactoryAction implements BNActionPlugin{
 
 
     private URL url;
-    Map<String, Object> propertiesMap = new HashMap<String, Object>();
+    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, java.lang.Object>();
 
     @Override
     public String[] getRequiredProperties() {

@@ -16,6 +16,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class RawThresholdSensor implements BNSensorPlugin {
@@ -26,7 +27,6 @@ public class RawThresholdSensor implements BNSensorPlugin {
     private static final String NAME = "RawThresholdSensor";
     private String rawData;
     private String node;
-    private Map<String, Long> mapLastRunForNode = new HashMap<String, Long>();
 
     @Override
     public String[] getRequiredProperties() {
@@ -91,7 +91,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
         if(mapTestResult == null)
             return new EmptyResult();
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         try {
             jsonObject = (JSONObject) new JSONParser().parse(mapTestResult.get(node).toString());
         } catch (ParseException e) {

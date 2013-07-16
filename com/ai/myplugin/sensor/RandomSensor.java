@@ -11,7 +11,7 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
@@ -20,7 +20,7 @@ public class RandomSensor implements BNSensorPlugin {
     private static final String NAME = "Random";
     private double res;
 
-    private Map<String, Object> map = new HashMap<String, Object>();
+    private Map<String, Object> map = new ConcurrentHashMap<String, Object>();
 
     public TestResult execute(TestSessionContext testSessionContext) {
         String nodeName = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);

@@ -13,6 +13,8 @@ import com.ai.util.resource.TestSessionContext;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 //@PluginImplementation
 public class WeatherForecast implements BNSensorPlugin {
@@ -51,7 +53,7 @@ public class WeatherForecast implements BNSensorPlugin {
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
 
-        HashMap<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
 
 

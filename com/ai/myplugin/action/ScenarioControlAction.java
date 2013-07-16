@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class ScenarioControlAction implements BNActionPlugin{
@@ -27,7 +28,7 @@ public class ScenarioControlAction implements BNActionPlugin{
     private static final String COMMAND = "command";
     private static final String NAME = "ScenarioControl";
     private URL url;
-    Map<String, Object> propertiesMap = new HashMap<String, Object>();
+    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, java.lang.Object>();
     
     @Override
     public String[] getRequiredProperties() {
