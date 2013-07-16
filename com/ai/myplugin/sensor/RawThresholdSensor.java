@@ -21,6 +21,8 @@ import java.util.*;
 public class RawThresholdSensor implements BNSensorPlugin {
     private ArrayList<Long> threshold = new ArrayList<Long>();
     private ArrayList<String> states = new ArrayList<String>();
+    //in case that states are defined via property
+    private ArrayList<String> definedStates  = new ArrayList<String>();
     private static final String NAME = "RawThresholdSensor";
     private String rawData;
     private String node;
@@ -55,6 +57,13 @@ public class RawThresholdSensor implements BNSensorPlugin {
             rawData = o.toString();
         } else if ("node".equals(s)){
             node = o.toString();
+        } else if("states".endsWith(s)){
+            if(o instanceof String)  {
+                String input = (String) o;
+                StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
+                while(stringTokenizer.hasMoreElements())
+                    definedStates.add(stringTokenizer.nextToken().trim());
+            }
         }
     }
 
@@ -132,14 +141,25 @@ public class RawThresholdSensor implements BNSensorPlugin {
     }
 
     private String mapResult(Double result) {
-        int i = states.size() - 1;
-        for(Long l : threshold){
-            if(result  > l){
-                return "level_" + i;
+        if(definedStates.size() == 0){
+            int i = states.size() - 1;
+            for(Long l : threshold){
+                if(result  > l){
+                    return "level_" + i;
+                }
+                i --;
             }
-            i --;
+            return "level_0";
+        } else {
+            int i = definedStates.size() - 1;
+            for(Long l : threshold){
+                if(result  > l){
+                    return definedStates.get(i);
+                }
+                i --;
+            }
+            return definedStates.get(0);
         }
-        return "level_0";
     }
 
     public static void main(String []args){
@@ -156,6 +176,16 @@ public class RawThresholdSensor implements BNSensorPlugin {
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         mapTestResult.put("node1", testResult.getRawData());
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testResult = rawThresholdSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+
+        rawThresholdSensor = new RawThresholdSensor();
+        rawThresholdSensor.setProperty("rawData", "temperature");
+        rawThresholdSensor.setProperty("threshold", "5,15,25");
+        rawThresholdSensor.setProperty("states", "low,medium,high, heat");
+        rawThresholdSensor.setProperty("node", "node1");
         testResult = rawThresholdSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
