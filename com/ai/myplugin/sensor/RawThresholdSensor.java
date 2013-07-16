@@ -30,7 +30,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
     @Override
     public String[] getRequiredProperties() {
-        return new String [] {"threshold", "rawData", "node"} ;
+        return new String [] {"threshold", "rawData", "node", "states"} ;
     }
 
 
