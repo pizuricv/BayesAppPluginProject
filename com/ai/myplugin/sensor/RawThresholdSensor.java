@@ -75,6 +75,8 @@ public class RawThresholdSensor implements BNSensorPlugin {
             return rawData;
         } else if("node".endsWith(s)){
             return node;
+        }  else if("states".endsWith(s)){
+            return states;
         }
         else{
             throw new RuntimeException("Property " + s + " not recognised by " + getName());
@@ -89,17 +91,22 @@ public class RawThresholdSensor implements BNSensorPlugin {
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
-        if(mapTestResult == null)
+        if(mapTestResult == null){
+            System.out.println("no map found");
             return new EmptyResult();
-        JSONObject jsonObject;
+        }
+
+        JSONObject jsonObject = (JSONObject) (mapTestResult.get(node));
+        if(jsonObject == null)
+            return new EmptyResult();
+
+        final Object value;
         try {
-            jsonObject = (JSONObject) new JSONParser().parse(mapTestResult.get(node).toString());
+            value = ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(rawData);
         } catch (ParseException e) {
             e.printStackTrace();
             return new EmptyResult();
         }
-
-        final Object value = jsonObject.get(rawData);
         Double dataD = Utils.getDouble(value);
 
         final String level = mapResult(dataD);
@@ -111,7 +118,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
             @Override
             public String getName() {
-                return "Raw Test Result";
+                return "Raw Data Sensor Result";
             }
 
             @Override
@@ -132,12 +139,15 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
     @Override
     public String getName() {
-        return "Raw Test Result";
+        return NAME;
     }
 
     @Override
     public String[] getSupportedStates() {
-        return states.toArray(new String[states.size()]);
+        if(definedStates.size() == 0)
+            return states.toArray(new String[states.size()]);
+        else
+            return definedStates.toArray(new String[definedStates.size()]);
     }
 
     private String mapResult(Double result) {
