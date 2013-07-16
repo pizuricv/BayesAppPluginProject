@@ -37,7 +37,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[] {"City", "Option"};
+        return new String[] {"City"};
     }
 
     @Override
@@ -169,7 +169,9 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             private String mapWeather() {
                 //String [] weatherStates = {"Clouds", "Clear", "Rain", "Storm", "Snow", "Fog"};
                 //http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
-                if(finalWeatherID < 300){
+                if(finalWeatherID == -1){
+                    return "No data";
+                }else if(finalWeatherID < 300){
                     return "Storm";
                 } else if(finalWeatherID < 400){
                     return "Drizzle";
@@ -296,6 +298,14 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
+        System.out.println(testResult.getObserverState());
+       testResult.getRawData();
+
+
+        System.out.println("@@@@");
+        WeatherSensor weatherSensor1 = new WeatherSensor();
+        weatherSensor1.setProperty("city", "ffffff");
+        testResult = weatherSensor1.execute(null);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }
