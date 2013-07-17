@@ -129,7 +129,6 @@ public class RawThresholdSensor implements BNSensorPlugin {
             @Override
             public String getRawData() {
                 return "{" +
-                        "\"rawData\" : " + rawData + " ,"+
                         "\"value\" : " + value +
                         "}";
             }
@@ -184,7 +183,9 @@ public class RawThresholdSensor implements BNSensorPlugin {
         rawThresholdSensor.setProperty("node", "node1");
         TestSessionContext testSessionContext = new TestSessionContext(1);
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        mapTestResult.put("node1", testResult.getRawData());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("rawData", testResult.getRawData());
+        mapTestResult.put("node1", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
         testResult = rawThresholdSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
