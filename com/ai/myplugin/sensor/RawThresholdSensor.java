@@ -129,7 +129,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
             @Override
             public String getRawData() {
                 return "{" +
-                        "\"value\" : " + value +
+                        "\"" + rawData + "\" : " + value +
                         "}";
             }
 
