@@ -40,6 +40,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         if("threshold".endsWith(s)){
             if(o instanceof String)  {
                 String input = (String) o;
+                input = input.replace("[","").replace("]","");
                 StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
                 int i = 0;
                 states.add("level_"+ i++);
@@ -60,6 +61,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         } else if("states".endsWith(s)){
             if(o instanceof String)  {
                 String input = (String) o;
+                input = input.replace("[","").replace("]","");
                 StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
                 while(stringTokenizer.hasMoreElements())
                     definedStates.add(stringTokenizer.nextToken().trim());
@@ -107,9 +109,8 @@ public class RawThresholdSensor implements BNSensorPlugin {
             e.printStackTrace();
             return new EmptyResult();
         }
-        Double dataD = Utils.getDouble(value);
+        final Double dataD = Utils.getDouble(value);
 
-        final String level = mapResult(dataD);
         return new TestResult() {
             @Override
             public boolean isSuccess() {
@@ -123,7 +124,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
             @Override
             public String getObserverState() {
-                return level;
+                return mapResult(dataD);
             }
 
             @Override
@@ -195,7 +196,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         rawThresholdSensor = new RawThresholdSensor();
         rawThresholdSensor.setProperty("rawData", "temperature");
         rawThresholdSensor.setProperty("threshold", "5,15,25");
-        rawThresholdSensor.setProperty("states", "low,medium,high, heat");
+        rawThresholdSensor.setProperty("states", "[low,medium,high, heat]");
         rawThresholdSensor.setProperty("node", "node1");
         testResult = rawThresholdSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
