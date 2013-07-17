@@ -61,7 +61,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         } else if("states".endsWith(s)){
             if(o instanceof String)  {
                 String input = (String) o;
-                input = input.replace("[","").replace("]","");
+                input = input.replace("[","").replace("]","").replaceAll("\"","");
                 StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
                 while(stringTokenizer.hasMoreElements())
                     definedStates.add(stringTokenizer.nextToken().trim());
