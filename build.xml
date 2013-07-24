@@ -9,7 +9,7 @@
   </description>
 
 	<property name="classes" value="${basedir}/out" />
-	<property name="src" value="${basedir}/com" />
+	<property name="src" value="${basedir}/src/main/java" />
 	<property name="dist" value="${basedir}/dist" />
 	<property name="lib" value="${basedir}/lib" />
 	<property name="project.revision" value="2.0.1" />
@@ -39,7 +39,12 @@
 	
    <target name="dist" depends="compile">
         <jar destfile="${dist}/plugins-${project.revision}.jar">
-            <fileset dir="${classes}" includes="com/**/**/*.class"/>
+             <fileset dir="${classes}">
+    			<include name="**/*.class" />
+    			<exclude name="production/**"/>
+    			<exclude name="test/**"/>
+			</fileset>
+
         </jar>
     </target>
     
