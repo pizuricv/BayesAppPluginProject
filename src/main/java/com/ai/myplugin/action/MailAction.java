@@ -111,7 +111,17 @@ public class MailAction implements BNActionPlugin {
                 message.setRecipients(Message.RecipientType.TO,
                         InternetAddress.parse((String) getProperty(MAIL_TO)));
                 message.setSubject((String) getProperty(SUBJECT));
-                message.setText((String) getProperty(MESSAGE));
+
+                Map attributes = testSessionContext.getAllAttributes();
+                StringBuffer messageToAppend = new StringBuffer();
+                messageToAppend.append("message: ").append(getProperty(MESSAGE)).append("\n\n");
+                for(Object key :attributes.keySet()){
+                    messageToAppend.append(key)
+                            .append(": ")
+                            .append(attributes.get(key))
+                            .append("\n");
+                }
+                message.setText(messageToAppend.toString());
                 Transport.send(message);
 
             } catch (MessagingException e) {
