@@ -23,7 +23,7 @@ import javax.mail.internet.MimeMessage;
 public class MailAction implements BNActionPlugin {
     private static String CONFIG_FILE = "bn.properties";
 
-    private static final String NAME = "MailAction";
+    private static final String NAME = "Mail";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     private static final String MAIL_USER = "e-mail";
