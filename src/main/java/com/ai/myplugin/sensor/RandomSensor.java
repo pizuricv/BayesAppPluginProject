@@ -57,8 +57,8 @@ public class RandomSensor implements BNSensorPlugin {
 
             public String getRawData(){
                 return "{" +
-                        "\"observedState\" : " +  observedState + "," +
-                        "\"randomValue\" : " + "\""+res + "\""+
+                        "\"observedState\" : \"" +  observedState + "\" ," +
+                        "\"randomValue\" : " +res +
                         "}";
             }
         } ;
