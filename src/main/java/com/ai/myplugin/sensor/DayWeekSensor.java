@@ -4,19 +4,19 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 
 @PluginImplementation
-public class DaySensor extends TimeAbstractSensor {
+public class DayWeekSensor extends TimeAbstractSensor {
     @Override
     protected String getTag() {
-        return TimeAbstractSensor.DAY;
+        return TimeAbstractSensor.DAY_WEEK;
     }
 
     @Override
     protected String getSensorName() {
-        return "Day";
+        return "DayInWeek";
     }
 
     public static void main (String []args){
-        DaySensor daySensor = new DaySensor();
+        DayWeekSensor daySensor = new DayWeekSensor();
         System.out.println(daySensor.execute(null).getObserverState());
     }
 }
