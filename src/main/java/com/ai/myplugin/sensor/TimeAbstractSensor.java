@@ -20,6 +20,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
     private String dateString;
     String [] returnStates;
     protected static final String TIME_ZONE = "timezone";
+    protected static final String DATE_FORMAT = "format";
     protected static final String HOUR = "HOUR";
     protected static final String DAY = "DAY";
     protected static final String DAY_WEEK = "DAY_WEEK";
@@ -42,7 +43,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
     public void setProperty(String s, Object o) {
         if(TIME_ZONE.equalsIgnoreCase(s))
             timeZone = (String) o;
-        else if(DATE.equalsIgnoreCase(s))
+        else if(DATE_FORMAT.equalsIgnoreCase(s))
             dateString = (String) o;
         else {
            throw new RuntimeException("Property "+ s + " not in the required settings");
@@ -53,7 +54,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
     public Object getProperty(String s) {
         if(TIME_ZONE.equalsIgnoreCase(s))
             return timeZone;
-        else if(DATE.equalsIgnoreCase(s))
+        else if(DATE_FORMAT.equalsIgnoreCase(s))
             return dateString;
         else
             return null;
@@ -95,7 +96,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
                     SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
                     try {
                         GregorianCalendar dateToCompare =  new GregorianCalendar();
-                        dateToCompare.setTime(isoFormat.parse((String) getProperty(DATE)));
+                        dateToCompare.setTime(isoFormat.parse((String) getProperty(DATE_FORMAT)));
                         return gregorianCalendar.get(Calendar.YEAR) == dateToCompare.get(Calendar.YEAR)&&
                                 gregorianCalendar.get(Calendar.MONTH) == dateToCompare.get(Calendar.MONTH) &&
                                 gregorianCalendar.get(Calendar.DAY_OF_MONTH) == dateToCompare.get(Calendar.DAY_OF_MONTH) ?  "TRUE" : "FALSE";
