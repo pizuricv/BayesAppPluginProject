@@ -20,7 +20,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
     private String dateString;
     String [] returnStates;
     protected static final String TIME_ZONE = "timezone";
-    protected static final String DATE_FORMAT = "format";
+    protected static final String DATE_FORMAT = "date";
     protected static final String HOUR = "HOUR";
     protected static final String DAY = "DAY";
     protected static final String DAY_WEEK = "DAY_WEEK";
