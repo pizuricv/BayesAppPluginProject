@@ -19,6 +19,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.stringtemplate.v4.*;
+
 @PluginImplementation
 public class MailAction implements BNActionPlugin {
     private static String CONFIG_FILE = "bn.properties";
@@ -32,6 +34,7 @@ public class MailAction implements BNActionPlugin {
     private static final String MAIL_FROM = "e-mailFrom";
     private static final String MESSAGE = "message";
     private static final String SUBJECT = "subject";
+    private static final String MESSAGE_TEMPLATE = "messageTemplate";
     private String eMailAddress = "" ;
     private String message = "" ;
     private String subject = "" ;
@@ -81,6 +84,13 @@ public class MailAction implements BNActionPlugin {
         return "Email action" ;
     }
 
+    /**
+    message context can be provided the testSessionContext, in the format "messageTemplate"
+    format "Hello world <{name:nodename, property:propertyname}>"
+    Example "Weather in Gent today is {node:Gent, property: wheather}"
+    will be formated as "weather in Gent today is Rain, if the value of the property is Rain
+     @param testSessionContext context for the action
+     */
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         boolean success = true;
@@ -111,17 +121,25 @@ public class MailAction implements BNActionPlugin {
                 message.setRecipients(Message.RecipientType.TO,
                         InternetAddress.parse((String) getProperty(MAIL_TO)));
                 message.setSubject((String) getProperty(SUBJECT));
-
-                Map attributes = testSessionContext.getAllAttributes();
                 StringBuffer messageToAppend = new StringBuffer();
-                messageToAppend.append("message: ").append(getProperty(MESSAGE)).append("\n\n");
-                for(Object key :attributes.keySet()){
-                    messageToAppend.append(key)
-                            .append(": ")
-                            .append(attributes.get(key))
-                            .append("\n");
+
+                if(testSessionContext.getAttribute(MESSAGE_TEMPLATE) != null){
+//                    ST hello = new ST("Hello, <name>");
+//                    hello.add("name", "World");
+                    ST template = new ST((String) testSessionContext.getAttribute(MESSAGE_TEMPLATE));
+
+
+                } else {
+                    Map attributes = testSessionContext.getAllAttributes();
+                    messageToAppend.append("message: ").append(getProperty(MESSAGE)).append("\n\n");
+                    for(Object key :attributes.keySet()){
+                        messageToAppend.append(key)
+                                .append(": ")
+                                .append(attributes.get(key))
+                                .append("\n");
+                    }
+                    message.setText(messageToAppend.toString());
                 }
-                message.setText(messageToAppend.toString());
                 Transport.send(message);
 
             } catch (MessagingException e) {
