@@ -11,6 +11,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OpenWeatherParser {
@@ -24,8 +26,7 @@ public class OpenWeatherParser {
         return server + "forecast/daily?q=" + city + "&mode=json&units=metric&cnt=7";
     };
 
-    public static ConcurrentHashMap<String, Number> getWeatherResultCodes(String city){
-        String pathURL = getServerDailyAddress(city);
+    private static JSONObject getWeatherResult(String city, String pathURL) {
         String stringToParse;
         try{
             stringToParse = Rest.httpGet(pathURL);
@@ -44,29 +45,57 @@ public class OpenWeatherParser {
 
         if(obj.get("message")!=null && obj.get("message").toString().toLowerCase().contains("error"))
             throw new RuntimeException("ERROR getting weather info for: " + city + ", error:  "+obj.get("message").toString());
+        return obj;
+    }
 
-        WeatherResultCodes weatherResultCodes = new WeatherResultCodes();
+    public static List<ConcurrentHashMap<String, Number>> getWeatherResultForWeekCodes(String city){
+        String pathURL = getServerForecastAddress(city);
 
-        if(obj.get("main") != null){
-            weatherResultCodes.temp = Utils.getDouble( ((JSONObject)obj.get("main")).get("temp")).intValue();
-            weatherResultCodes.humidity = Utils.getDouble(((JSONObject)obj.get("main")).get("humidity")).intValue();
-            weatherResultCodes.pressure = Utils.getDouble(((JSONObject)obj.get("main")).get("pressure")).intValue();
-        }
-        if(obj.get("weather") != null){
-            JSONArray jsonArray1 = (JSONArray)obj.get("weather");
-            for (Object o2 : jsonArray1.toArray()) {
+        ArrayList<ConcurrentHashMap<String, Number>> list = new ArrayList<ConcurrentHashMap<String, Number>>();
+        JSONObject o = getWeatherResult(city, pathURL);
+        JSONArray array = (JSONArray) o.get("list");
+        for(Object object : array){
+            JSONObject obj = (JSONObject) object;
+            WeatherResultCodes weatherResultCodes = new WeatherResultCodes();
+
+            weatherResultCodes.temp = Utils.getDouble( ((JSONObject)obj.get("temp")).get("day")).intValue();
+            weatherResultCodes.humidity = Utils.getDouble(obj.get("humidity")).intValue();
+            weatherResultCodes.pressure = Utils.getDouble(obj.get("pressure")).intValue();
+            weatherResultCodes.windSpeed =  Utils.getDouble(obj.get("speed"));
+            weatherResultCodes.cloudCoverage =  Utils.getDouble(obj.get("clouds")).intValue();
+
+            JSONArray jsonArray2 = (JSONArray)obj.get("weather");
+            for (Object o2 : jsonArray2.toArray()) {
                 JSONObject jo2 = (JSONObject) o2;
                 if(jo2.get("id") != null){
                     weatherResultCodes.weatherID =  Utils.getDouble(jo2.get("id")).intValue();
                 }
             }
+            list.add(weatherResultCodes.mapResults());
         }
-        if(obj.get("wind") != null){
-            weatherResultCodes.windSpeed =  Utils.getDouble(((JSONObject) obj.get("wind")).get("speed"));
+
+        return list;
+    }
+
+    public static ConcurrentHashMap<String, Number> getWeatherResultCodes(String city){
+        String pathURL = getServerDailyAddress(city);
+        JSONObject obj = getWeatherResult(city, pathURL);
+
+        WeatherResultCodes weatherResultCodes = new WeatherResultCodes();
+
+        weatherResultCodes.temp = Utils.getDouble( ((JSONObject)obj.get("main")).get("temp")).intValue();
+        weatherResultCodes.humidity = Utils.getDouble(((JSONObject)obj.get("main")).get("humidity")).intValue();
+        weatherResultCodes.pressure = Utils.getDouble(((JSONObject)obj.get("main")).get("pressure")).intValue();
+        weatherResultCodes.windSpeed =  Utils.getDouble(((JSONObject) obj.get("wind")).get("speed"));
+        weatherResultCodes.cloudCoverage =  Utils.getDouble(((JSONObject)obj.get("clouds")).get("all")).intValue();
+        JSONArray jsonArray1 = (JSONArray)obj.get("weather");
+        for (Object o2 : jsonArray1.toArray()) {
+            JSONObject jo2 = (JSONObject) o2;
+            if(jo2.get("id") != null){
+                weatherResultCodes.weatherID =  Utils.getDouble(jo2.get("id")).intValue();
+            }
         }
-        if(obj.get("clouds") != null){
-            weatherResultCodes.cloudCoverage =  Utils.getDouble(((JSONObject)obj.get("clouds")).get("all")).intValue();
-        }
+
         return weatherResultCodes.mapResults();
 
     }

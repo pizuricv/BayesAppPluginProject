@@ -44,7 +44,6 @@
     			<exclude name="production/**"/>
     			<exclude name="test/**"/>
 			</fileset>
-
         </jar>
     </target>
     

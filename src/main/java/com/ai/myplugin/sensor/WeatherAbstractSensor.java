@@ -8,7 +8,6 @@ import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.OpenWeatherParser;
 import com.ai.util.resource.TestSessionContext;
-import netscape.javascript.JSObject;
 import org.json.simple.JSONObject;
 
 
@@ -26,7 +25,6 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     public static final String CLOUD_COVERAGE = "cloudCoverage";
     public static final String PRESSURE = "pressure";
     static final String CITY = "city";
-    static final String server = "http://api.openweathermap.org/";
 
     protected abstract String getTag();
     protected abstract String getSensorName();
@@ -118,18 +116,21 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             }
         };
     }
-    private String getForecast(String temperature, String weather, int humidity, int pressure, int cloudCoverage, double windSpeed){
+
+    private static double boolToDouble(boolean b) {
+        return b ? 1.0 : 0.0;
+    }
+    public static String getForecast(String temperature, String weather, int humidity, int pressure, int cloudCoverage, double windSpeed){
         Map<String, Number> map = new ConcurrentHashMap<String, Number>();
         String weatherTemp = (temperature + "_" + weather).toLowerCase();
-        double goodId = weatherTemp.split("heat").length-1 + 2*(weatherTemp.split("warm").length-1)+
-                weatherTemp.split("mild").length-1 + 3*(weatherTemp.split("clear").length-1) +
-                weatherTemp.split("hot").length-1;
-        double badID = weatherTemp.split("cold").length-1 + 2*(weatherTemp.split("freeze").length-1) +
-                weatherTemp.split("snow").length-1 + 2*(weatherTemp.split("snow").length-1) +
-                2*(weatherTemp.split("rain").length-1) + 2*(weatherTemp.split("clouds").length-1) * cloudCoverage/100 +
-                0.5*(weatherTemp.split("fog").length-1) + 0.5*(weatherTemp.split("mist").length-1) +
-                3*(weatherTemp.split("extreme").length-1);
-        boolean stormID = weatherTemp.split("storm").length > 1 || weatherTemp.split("tornado").length > 1;
+        double goodId = boolToDouble(weatherTemp.contains("heat"))+ 2* boolToDouble(weatherTemp.contains("warm"))+
+                boolToDouble(weatherTemp.contains("mild")) + 3* boolToDouble(weatherTemp.contains("clear"))+
+                boolToDouble(weatherTemp.contains("hot"));
+        double badID = boolToDouble(weatherTemp.contains("cold")) + 2* boolToDouble(weatherTemp.contains("freeze")) +
+                boolToDouble(weatherTemp.contains("snow")) +  2* boolToDouble(weatherTemp.contains("rain")) +
+                2* boolToDouble(weatherTemp.contains("cloud")) * cloudCoverage/100 + 0.5* boolToDouble(weatherTemp.contains("fog")) +
+                0.5* boolToDouble(weatherTemp.contains("mist")) + 3* boolToDouble(weatherTemp.contains("extreme"));
+        boolean stormID = weatherTemp.contains("storm") || weatherTemp.contains("tornado");
 
         if(stormID){
             map.put("Storm", 0.99);
