@@ -55,6 +55,6 @@ public class WeatherAbstractSensorTest extends TestCase{
         JSONParser jsonParser = new JSONParser();
         JSONObject obj = (JSONObject) jsonParser.parse(result);
         Map map = (Map) obj.get("states");
-        assertEquals(1, Double.parseDouble(map.get("Storm").toString()));
+        assertEquals(1, Double.parseDouble(map.get("Storm").toString()), 0.011);
     }
 }

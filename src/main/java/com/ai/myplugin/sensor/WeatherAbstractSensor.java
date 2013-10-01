@@ -8,10 +8,12 @@ import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.OpenWeatherParser;
 import com.ai.util.resource.TestSessionContext;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,6 +24,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     public static final String WEATHER = "weather";
     public static final String WIND_SPEED = "windSpeed";
     public static final String FORECAST = "forecast";
+    public static final String WEEK_FORECAST = "weekForecast";
     public static final String CLOUD_COVERAGE = "cloudCoverage";
     public static final String PRESSURE = "pressure";
     static final String CITY = "city";
@@ -70,51 +73,96 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             throw new RuntimeException("City not defined");
         }
 
-        final ConcurrentHashMap<String, Number> map = OpenWeatherParser.getWeatherResultCodes(city);
+        if(!WEEK_FORECAST.equals(getTag())) {
 
-        final int finalHumidity = map.get(HUMIDITY).intValue();
-        final int finalTemp = map.get(TEMP).intValue();
-        final int finalWeatherID = map.get(WEATHER).intValue();
-        final int finalPressure = map.get(PRESSURE).intValue();
-        final double finalWindSpeed = map.get(WIND_SPEED).doubleValue();
-        final int finalCloudCoverage = map.get(CLOUD_COVERAGE).intValue();
-        return new TestResult() {
-            @Override
-            public boolean isSuccess() {
-                return true;
-            }
+            final ConcurrentHashMap<String, Number> map = OpenWeatherParser.getWeatherResultCodes(city);
 
-            @Override
-            public String getName() {
-                return "Weather result";
-            }
-
-            @Override
-            public String getObserverState() {
-                if(getTag().equals(TEMP)){
-                    return mapTemperature(finalTemp);
-                } else if(getTag().equals(WEATHER)){
-                    return mapWeather(finalWeatherID);
-                } else if(getTag().equals(FORECAST)){
-                    return getForecast(mapTemperature(finalTemp), mapWeather(finalWeatherID),
-                            finalHumidity, finalPressure, finalCloudCoverage, finalWindSpeed);
-                }else {
-                    return mapHumidity(finalHumidity);
+            final int finalHumidity = map.get(HUMIDITY).intValue();
+            final int finalTemp = map.get(TEMP).intValue();
+            final int finalWeatherID = map.get(WEATHER).intValue();
+            final int finalPressure = map.get(PRESSURE).intValue();
+            final double finalWindSpeed = map.get(WIND_SPEED).doubleValue();
+            final int finalCloudCoverage = map.get(CLOUD_COVERAGE).intValue();
+            return new TestResult() {
+                @Override
+                public boolean isSuccess() {
+                    return true;
                 }
-            }
 
-            @Override
-            public String getRawData(){
-                return "{" +
-                        "\"temperature\" : " + finalTemp + "," +
-                        "\"weather\" : " + "\""+mapWeather(finalWeatherID) + "\""+ "," +
-                        "\"humidity\" : " + finalHumidity + "," +
-                        "\"pressure\" : " + finalPressure + "," +
-                        "\"cloudCoverage\" : " + finalCloudCoverage + "," +
-                        "\"windSpeed\" : " + finalWindSpeed +
-                        "}";
-            }
-        };
+                @Override
+                public String getName() {
+                    return "Weather result";
+                }
+
+                @Override
+                public String getObserverState() {
+                    if(getTag().equals(TEMP)){
+                        return mapTemperature(finalTemp);
+                    } else if(getTag().equals(WEATHER)){
+                        return mapWeather(finalWeatherID);
+                    } else if(getTag().equals(FORECAST)){
+                        return getForecast(mapTemperature(finalTemp), mapWeather(finalWeatherID),
+                                finalHumidity, finalPressure, finalCloudCoverage, finalWindSpeed);
+                    }else {
+                        return mapHumidity(finalHumidity);
+                    }
+                }
+
+                @Override
+                public String getRawData(){
+                    return "{" +
+                            "\"temperature\" : " + finalTemp + "," +
+                            "\"weather\" : " + "\""+mapWeather(finalWeatherID) + "\""+ "," +
+                            "\"humidity\" : " + finalHumidity + "," +
+                            "\"pressure\" : " + finalPressure + "," +
+                            "\"cloudCoverage\" : " + finalCloudCoverage + "," +
+                            "\"windSpeed\" : " + finalWindSpeed +
+                            "}";
+                }
+            };
+        }else {
+            final List<ConcurrentHashMap<String, Number>> list = OpenWeatherParser.getWeatherResultForWeekCodes(city);
+            return new TestResult() {
+                @Override
+                public boolean isSuccess() {
+                    return true;
+                }
+
+                @Override
+                public String getName() {
+                    return "Weather week forecast";
+                }
+
+                //TODO see how to flood this information back, probably will require the update of the interface
+                @Override
+                public String getObserverState() {
+                    JSONArray jsonArray = new JSONArray();
+                    for(Map mapIter : list){
+                        ConcurrentHashMap<String, Number> map = (ConcurrentHashMap<String, Number>) mapIter;
+                        int humidity = map.get(HUMIDITY).intValue();
+                        int temperature = map.get(TEMP).intValue();
+                        int weatherID = map.get(WEATHER).intValue();
+                        int pressure = map.get(PRESSURE).intValue();
+                        double windSpeed = map.get(WIND_SPEED).doubleValue();
+                        int cloudCoverage = map.get(CLOUD_COVERAGE).intValue();
+                        String forecast = getForecast(mapTemperature(temperature), mapWeather(weatherID),
+                                humidity, pressure, cloudCoverage, windSpeed);
+                        jsonArray.add(forecast);
+                    }
+                    return jsonArray.toJSONString();
+                }
+
+                @Override
+                public String getRawData() {
+                    JSONArray jsonArray = new JSONArray();
+                    for(Map map : list){
+                        jsonArray.add(map);
+                    }
+                    return jsonArray.toJSONString();
+                }
+            } ;
+
+        }
     }
 
     private static double boolToDouble(boolean b) {
@@ -217,7 +265,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
     private String mapHumidity(int humidityId) {
         //    String [] humidityStates = {"Low", "Normal", "High"};
-        System.out.println("Map humidity "+ humidityId);
+        //System.out.println("Map humidity "+ humidityId);
         if(humidityId < 70) {
             return "Low";
         } else if(humidityId < 90) {
@@ -227,7 +275,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     }
 
     private String mapTemperature(int temperature) {
-        System.out.println("Map temperature "+ temperature);
+        //System.out.println("Map temperature "+ temperature);
         if(temperature < 0) {
             return "Freezing";
         }  else if(temperature < 8) {

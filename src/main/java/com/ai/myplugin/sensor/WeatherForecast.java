@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+//currently not exposed, TODO check if that one should be removed later
 //@PluginImplementation
 public class WeatherForecast implements BNSensorPlugin {
 
