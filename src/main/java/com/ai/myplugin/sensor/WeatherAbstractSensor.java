@@ -101,8 +101,10 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                     } else if(getTag().equals(WEATHER)){
                         return mapWeather(finalWeatherID);
                     } else if(getTag().equals(FORECAST)){
-                        return getForecast(mapTemperature(finalTemp), mapWeather(finalWeatherID),
-                                finalHumidity, finalPressure, finalCloudCoverage, finalWindSpeed);
+                        JSONArray array = new JSONArray();
+                        array.add(getForecast(mapTemperature(finalTemp), mapWeather(finalWeatherID),
+                                finalHumidity, finalPressure, finalCloudCoverage, finalWindSpeed));
+                        return array.toJSONString();
                     }else {
                         return mapHumidity(finalHumidity);
                     }
@@ -145,9 +147,8 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                         int pressure = map.get(PRESSURE).intValue();
                         double windSpeed = map.get(WIND_SPEED).doubleValue();
                         int cloudCoverage = map.get(CLOUD_COVERAGE).intValue();
-                        String forecast = getForecast(mapTemperature(temperature), mapWeather(weatherID),
-                                humidity, pressure, cloudCoverage, windSpeed);
-                        jsonArray.add(forecast);
+                        jsonArray.add(getForecast(mapTemperature(temperature), mapWeather(weatherID),
+                                humidity, pressure, cloudCoverage, windSpeed));
                     }
                     return jsonArray.toJSONString();
                 }
@@ -168,7 +169,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     private static double boolToDouble(boolean b) {
         return b ? 1.0 : 0.0;
     }
-    public static String getForecast(String temperature, String weather, int humidity, int pressure, int cloudCoverage, double windSpeed){
+    public static Map<String, Number> getForecast(String temperature, String weather, int humidity, int pressure, int cloudCoverage, double windSpeed){
         Map<String, Number> map = new ConcurrentHashMap<String, Number>();
         String weatherTemp = (temperature + "_" + weather).toLowerCase();
         double goodId = boolToDouble(weatherTemp.contains("heat"))+ 2* boolToDouble(weatherTemp.contains("warm"))+
@@ -215,9 +216,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                 map.put("NotSure", 0.1);
             }
         }
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("states", map);
-        return jsonObject.toJSONString();
+        return map;
     };
 
     private String mapWeather(int weatherID) {

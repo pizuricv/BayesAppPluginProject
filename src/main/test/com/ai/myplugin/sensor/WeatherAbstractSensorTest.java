@@ -29,32 +29,21 @@ public class WeatherAbstractSensorTest extends TestCase{
     }
 
     public void testNiceForecast() throws ParseException {
-        String result = weatherAbstractSensor.getForecast("Warm", "Clear", 90, 1000, 20, 1);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject obj = (JSONObject) jsonParser.parse(result);
-        Map map = (Map) obj.get("states");
+        Map map = weatherAbstractSensor.getForecast("Warm", "Clear", 90, 1000, 20, 1);
         assertEquals(0.8, Double.parseDouble(map.get("Good").toString()));
 
     }
     public void testBadForecast() throws ParseException {
-        String result = weatherAbstractSensor.getForecast("Cold", "Clouds", 90, 1000, 80, 1);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject obj = (JSONObject) jsonParser.parse(result);
-        Map map = (Map) obj.get("states");
+        Map map  = weatherAbstractSensor.getForecast("Cold", "Clouds", 90, 1000, 80, 1);
         assertEquals(0.85, Double.parseDouble(map.get("Bad").toString()));
 
-        result = weatherAbstractSensor.getForecast("Cold", "Clouds", 90, 1000, 20, 1);
-        obj = (JSONObject) jsonParser.parse(result);
-        map = (Map) obj.get("states");
+        map = weatherAbstractSensor.getForecast("Cold", "Clouds", 90, 1000, 20, 1);
         assertEquals(0.6, Double.parseDouble(map.get("Bad").toString()));
 
     }
 
     public void testStorm() throws ParseException {
-        String result = weatherAbstractSensor.getForecast("Cold", "Storm", 90, 1000, 80, 1);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject obj = (JSONObject) jsonParser.parse(result);
-        Map map = (Map) obj.get("states");
+        Map map= weatherAbstractSensor.getForecast("Cold", "Storm", 90, 1000, 80, 1);
         assertEquals(1, Double.parseDouble(map.get("Storm").toString()), 0.011);
     }
 }
