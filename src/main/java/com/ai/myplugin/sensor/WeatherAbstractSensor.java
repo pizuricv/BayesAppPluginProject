@@ -41,6 +41,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     };
     String [] humidityStates = {"Low", "Normal", "High"};
     String [] tempStates = {"Freezing", "Cold", "Mild", "Warm", "Heat"};
+    String [] forecastStates = {"Good", "Bad", "NotSure"};
     private static final String NAME = "Weather";
 
     @Override
@@ -300,6 +301,8 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             return weatherStates;
         } else if(HUMIDITY.equals(getTag())){
             return humidityStates;
+        } else if(FORECAST.equals(getTag()) || WEEK_FORECAST.equals(getTag())){
+            return forecastStates;
         } else {
             return new String[]{};
         }
