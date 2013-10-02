@@ -12,10 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.StringTokenizer;
+import java.util.*;
 
 @PluginImplementation
 public class ShellCmdSensor implements BNSensorPlugin{
@@ -131,6 +128,11 @@ public class ShellCmdSensor implements BNSensorPlugin{
                 @Override
                 public String getObserverState() {
                     return result;
+                }
+
+                @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    return null;
                 }
 
                 @Override

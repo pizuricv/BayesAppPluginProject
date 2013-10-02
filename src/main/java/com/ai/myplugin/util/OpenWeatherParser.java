@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OpenWeatherParser {
@@ -48,10 +49,10 @@ public class OpenWeatherParser {
         return obj;
     }
 
-    public static List<ConcurrentHashMap<String, Number>> getWeatherResultForWeekCodes(String city){
+    public static List<Map<String, Number>> getWeatherResultForWeekCodes(String city){
         String pathURL = getServerForecastAddress(city);
 
-        ArrayList<ConcurrentHashMap<String, Number>> list = new ArrayList<ConcurrentHashMap<String, Number>>();
+        ArrayList<Map<String, Number>> list = new ArrayList<Map<String, Number>>();
         JSONObject o = getWeatherResult(city, pathURL);
         JSONArray array = (JSONArray) o.get("list");
         for(Object object : array){

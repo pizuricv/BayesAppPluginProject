@@ -53,6 +53,11 @@ public class RandomSensor implements BNSensorPlugin {
                 return observedState;
             }
 
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
+            }
+
             public String getRawData(){
                 return "{" +
                         "\"observedState\" : \"" +  observedState + "\" ," +

@@ -128,6 +128,11 @@ public class RawThresholdSensor implements BNSensorPlugin {
             }
 
             @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
+            }
+
+            @Override
             public String getRawData() {
                 return "{" +
                         "\"" + rawData + "\" : " + value +
@@ -216,6 +221,11 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
         @Override
         public String getObserverState() {
+            return null;
+        }
+
+        @Override
+        public List<Map<String, Number>> getObserverStates() {
             return null;
         }
 

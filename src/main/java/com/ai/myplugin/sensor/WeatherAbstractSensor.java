@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -112,6 +113,17 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                 }
 
                 @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    List list = null;
+                    if(getTag().equals(FORECAST))  {
+                        list = new ArrayList();
+                        list.add(getForecast(mapTemperature(finalTemp), mapWeather(finalWeatherID),
+                                finalHumidity, finalPressure, finalCloudCoverage, finalWindSpeed));
+                    }
+                    return list;
+                }
+
+                @Override
                 public String getRawData(){
                     return "{" +
                             "\"temperature\" : " + finalTemp + "," +
@@ -124,7 +136,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                 }
             };
         }else {
-            final List<ConcurrentHashMap<String, Number>> list = OpenWeatherParser.getWeatherResultForWeekCodes(city);
+            final List<Map<String, Number>> list = OpenWeatherParser.getWeatherResultForWeekCodes(city);
             return new TestResult() {
                 @Override
                 public boolean isSuccess() {
@@ -152,6 +164,11 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                                 humidity, pressure, cloudCoverage, windSpeed));
                     }
                     return jsonArray.toJSONString();
+                }
+
+                @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    return list;
                 }
 
                 @Override

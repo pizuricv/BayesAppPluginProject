@@ -106,7 +106,14 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
                     }
                 }
                 return "";
-            };
+            }
+
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
+            }
+
+            ;
 
             @Override
             public String getRawData(){

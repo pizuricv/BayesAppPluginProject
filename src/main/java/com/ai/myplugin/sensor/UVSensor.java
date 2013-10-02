@@ -104,6 +104,11 @@ public class UVSensor implements BNSensorPlugin {
                         }
 
                         @Override
+                        public List<Map<String, Number>> getObserverStates() {
+                            return null;  //To change body of implemented methods use File | Settings | File Templates.
+                        }
+
+                        @Override
                         public String getRawData() {
                             return null;  //To change body of implemented methods use File | Settings | File Templates.
                         }
@@ -158,6 +163,11 @@ public class UVSensor implements BNSensorPlugin {
                 if(max < 11)
                     return "RED";
                 return "VIOLET";
+            }
+
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
             }
 
             @Override

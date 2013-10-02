@@ -13,6 +13,7 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
 import java.lang.System;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,6 +85,11 @@ public class PingSensor implements BNSensorPlugin{
                 } else {
                     return NOT_ALIVE;
                 }
+            }
+
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
             }
 
             public String getRawData(){

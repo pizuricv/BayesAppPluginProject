@@ -143,6 +143,11 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
             }
 
             @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
+            }
+
+            @Override
             public String getRawData() {
                 String res = "";
                 String sep = ",\r\n";

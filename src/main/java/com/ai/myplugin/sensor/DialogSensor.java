@@ -13,6 +13,9 @@ import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import javax.swing.*;
+import java.util.List;
+import java.util.Map;
+
 @PluginImplementation
 public class DialogSensor implements BNSensorPlugin {
 
@@ -59,6 +62,11 @@ public class DialogSensor implements BNSensorPlugin {
 
             public String getObserverState() {
                 return bayesianNetwork.getStates(nodeName)[index];
+            }
+
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
             }
 
             public String getRawData(){
