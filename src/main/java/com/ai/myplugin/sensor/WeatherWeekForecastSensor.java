@@ -14,7 +14,7 @@ public class WeatherWeekForecastSensor extends WeatherAbstractSensor{
 
     @Override
     protected String getSensorName() {
-        return "WeatherDayForecastSensor";
+        return "WeatherWeekForecastSensor";
     }
 
     public static void main(String[] args){
