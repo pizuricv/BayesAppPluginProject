@@ -1,7 +1,6 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.bayes.model.BayesianNetwork;
-import com.ai.bayes.model.Pair;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.NodeSessionParams;
@@ -24,22 +23,26 @@ public class RandomSensor implements BNSensorPlugin {
         String nodeName = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
         BayesianNetwork bayesianNetwork = (BayesianNetwork) testSessionContext.getAttribute(NodeSessionParams.BN_NETWORK);
 
-        List<Pair<Double, String>> probs = bayesianNetwork.getProbabilities(nodeName);
+        Map<String, Double> probs = bayesianNetwork.getPriors(nodeName);
 
         double [] coins = new double[probs.size()];
         double incr = 0;
         double value;
 
         System.out.println("assign priors for the game");
-        for(int i = 0; i < probs.size(); i++ ){
-            value = probs.get(i).fst ;
+        int i = 0;
+        for(String key : probs.keySet()){
+            System.out.println("state " + key + " width probability " + probs.get(key));
+            value = probs.get(key) ;
             coins[i] = value + incr;
             incr += value;
-            System.out.println("for state" + probs.get(i).snd + " assign the coin value " + value);
+            System.out.println("for state " + key + " assign the coin value " + coins[i]);
+            i++;
         }
 
         res = Math.random();
-        final String   observedState = probs.get(findStateIndexForVal(res, coins)).snd;
+        final String observedState = findStateForIndex(res, coins, bayesianNetwork.getStates(nodeName));
+        System.out.println("state that will be injected is " + observedState);
         return new TestResult() {
             public boolean isSuccess() {
                 return true;
@@ -67,13 +70,13 @@ public class RandomSensor implements BNSensorPlugin {
         } ;
     }
 
-    private int findStateIndexForVal(double val, double[] coins) {
+    private String findStateForIndex(double val, double[] coins, String[] states) {
         for(int i = 0; i< coins.length; i ++){
             if(val < coins [i]) {
-                return i;
+                return states[i];
             }
         }
-        return coins.length - 1;
+        return states[coins.length - 1];
     }
 
 
