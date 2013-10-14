@@ -1,54 +1,94 @@
-<!-- ====================================================================== 
+<!-- ======================================================================
    build. xml for ant by Veselin Pizurica
-====================================================================== -->
-     
-<project name="bayesModule"  default="dist">
+   ====================================================================== -->
 
-	<description>
-          Bayes project
-  </description>
+   <project name="bayesModule"  default="dist">
 
-	<property name="classes" value="${basedir}/out" />
-	<property name="src" value="${basedir}/src/main/java" />
-	<property name="dist" value="${basedir}/dist" />
-	<property name="lib" value="${basedir}/lib" />
-	<property name="project.revision" value="2.0.1" />
-	
-	<path id="classpath">
-		<fileset dir="${lib}" includes="*.jar" />
-	</path>
+     <description>
+      Bayes plugin project
+    </description>
 
-	<target name="clean">
-		<delete dir="${classes}" />
-		<delete>
+    <property name="classes" value="${basedir}/out" />
+    <property name="src" value="${basedir}/src/main/java" />
+    <property name="src_test" value="${basedir}/src/main/test"/>
+    <property name="classes_test" value="${basedir}/test_out" />
+    <property name="dist" value="${basedir}/dist" />
+    <property name="lib" value="${basedir}/lib" />
+    <property name="reports" value="${basedir}/reports" />
+    <property name="project.revision" value="2.0.1" />
+
+    <path id="classpath">
+      <fileset dir="${lib}" includes="*.jar" />
+    </path>
+
+    <target name="clean">
+     <delete dir="${classes}" />
+     <delete dir="${classes_test}" />
+     <delete dir="${reports}" />
+     <delete>
       <fileset dir="${dist}" includes="**/*.jar"/>
     </delete>
-	</target>
+  </target>
 
-	<target name="init">
-		<mkdir dir="${dist}" />
-		<mkdir dir="${classes}" />
-	</target>
-	
+  <target name="init">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${classes}" />
+    <mkdir dir="${classes_test}" />
+    <mkdir dir="${reports}" />
+  </target>
 
-<target name="compile" depends="init" >
-		<javac destdir="${classes}" debug="true" srcdir="${src}">
-			<classpath refid="classpath" />
-		</javac>
-	</target>
-	
-   <target name="dist" depends="compile">
-        <jar destfile="${dist}/plugins-${project.revision}.jar">
-             <fileset dir="${classes}">
-    			<include name="**/*.class" />
-    			<exclude name="production/**"/>
-    			<exclude name="test/**"/>
-			</fileset>
-        </jar>
-    </target>
-    
-    
-    <target name="all" depends="dist">
-    </target>
+
+  <target name="compile" depends="init" >
+    <javac destdir="${classes}" debug="true" srcdir="${src}">
+     <classpath refid="classpath" />
+   </javac>
+ </target>
+
+ <target name="compile_test" depends="dist" >
+  <javac destdir="${classes_test}" debug="true" srcdir="${src_test}">
+    <classpath refid="classpath" />
+  </javac>
+</target>
+
+ <target name="dist" depends="compile">
+  <jar destfile="${dist}/plugins-${project.revision}.jar">
+   <fileset dir="${classes}">
+     <include name="**/*.class" />
+     <exclude name="production/**"/>
+     <exclude name="test/**"/>
+   </fileset>
+ </jar>
+</target>
+
+  <target name="run-tests" depends="compile_test" description="run your test suite" >
+    <junit printsummary="yes" haltonfailure="yes" showoutput="yes" >
+      <classpath>
+        <pathelement path="${classes}"/>
+        <pathelement path="${classes_test}"/>
+        <fileset dir="lib">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+      <batchtest fork="yes" todir="${reports}/">
+        <formatter type="xml"/>
+        <fileset dir="${src_test}">
+          <include name="**/*Test*.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+    <target name ="test" depends="run-tests">
+    <junitreport todir="${reports}">
+      <fileset dir="${reports}/">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${reports}\html\"/>
+    </junitreport>
+  </target>
+
+
+<target name="all" depends="dist">
+</target>
 
 </project>
