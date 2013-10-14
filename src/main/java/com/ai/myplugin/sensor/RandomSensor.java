@@ -31,17 +31,19 @@ public class RandomSensor implements BNSensorPlugin {
 
         System.out.println("assign priors for the game");
         int i = 0;
+        String [] states = new String [probs.size()];
         for(String key : probs.keySet()){
             System.out.println("state " + key + " width probability " + probs.get(key));
             value = probs.get(key) ;
             coins[i] = value + incr;
             incr += value;
             System.out.println("for state " + key + " assign the coin value " + coins[i]);
+            states[i] = key;
             i++;
         }
 
         res = Math.random();
-        final String observedState = findStateForIndex(res, coins, bayesianNetwork.getStates(nodeName));
+        final String observedState = findStateForIndex(res, coins, states);
         System.out.println("state that will be injected is " + observedState);
         return new TestResult() {
             public boolean isSuccess() {
