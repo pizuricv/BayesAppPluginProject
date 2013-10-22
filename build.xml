@@ -21,6 +21,11 @@
       <fileset dir="${lib}" includes="*.jar" />
     </path>
 
+    <path id="classpath_test">
+      <fileset dir="${lib}" includes="*.jar" />
+      <fileset dir="${dist}" includes="*.jar" />
+    </path>
+
     <target name="clean">
      <delete dir="${classes}" />
      <delete dir="${classes_test}" />
@@ -46,7 +51,7 @@
 
  <target name="compile_test" depends="dist" >
   <javac destdir="${classes_test}" debug="true" srcdir="${src_test}">
-    <classpath refid="classpath" />
+    <classpath refid="classpath_test" />
   </javac>
 </target>
 
