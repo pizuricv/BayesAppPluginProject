@@ -30,11 +30,11 @@ http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Pluviog
 
 @PluginImplementation
 public class WaterLevelSensor implements BNSensorPlugin{
-    private static final String LOCATION = "location";
+    public static final String LOCATION = "location";
     private String location = null;
-    private static final String DAILY_THRESHOLD = "daily_threshold";
+    public static final String DAILY_THRESHOLD = "daily_threshold";
     private Integer dailyThreshold = null;
-    private static final String TOTAL_THRESHOLD = "total_threshold";
+    public static final String TOTAL_THRESHOLD = "total_threshold";
     private Integer totalThreshold = null;
 
     @Override
@@ -73,8 +73,9 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        if(location == null){
-            throw new RuntimeException("location code not defined");
+        for(String property : getRequiredProperties()){
+            if(getProperty(property) == null)
+                throw new RuntimeException("Required property "+property + " not defined");
         }
 
         boolean testSuccess = true;
@@ -85,7 +86,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
         String pathURL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/PluviograafTabel&KL=nl&mode=P";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            System.out.println(stringToParse);
+            //System.out.println(stringToParse);
         } catch (Exception e) {
             testSuccess = false;
         }
