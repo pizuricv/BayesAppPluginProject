@@ -137,6 +137,9 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             };
         }else {
             final List<Map<String, Number>> list = OpenWeatherParser.getWeatherResultForWeekCodes(city);
+            final Boolean exactDay = (Boolean) getProperty(WeatherWeekForecastSensor.EXACT_DAY);
+            final Integer days = (Integer) getProperty(WeatherWeekForecastSensor.DAYS);
+
             return new TestResult() {
                 @Override
                 public boolean isSuccess() {
@@ -151,8 +154,26 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                 //TODO see how to flood this information back, probably will require the update of the interface
                 @Override
                 public String getObserverState() {
-                    JSONArray jsonArray = new JSONArray();
-                    for(Map mapIter : list){
+                    return null;
+                }
+
+                @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    ArrayList<Map<String, Number>> predictions = new ArrayList();
+                    if(exactDay){
+                        Map<String, Number> map = list.get(days);
+                        int humidity = map.get(HUMIDITY).intValue();
+                        int temperature = map.get(TEMP).intValue();
+                        int weatherID = map.get(WEATHER).intValue();
+                        int pressure = map.get(PRESSURE).intValue();
+                        double windSpeed = map.get(WIND_SPEED).doubleValue();
+                        int cloudCoverage = map.get(CLOUD_COVERAGE).intValue();
+                        predictions.add(getForecast(mapTemperature(temperature), mapWeather(weatherID),
+                                humidity, pressure, cloudCoverage, windSpeed));
+                        return predictions;
+                    }
+                    List<Map<String, Number>> list2= list.subList(0, days);
+                    for(Map mapIter : list2){
                         ConcurrentHashMap<String, Number> map = (ConcurrentHashMap<String, Number>) mapIter;
                         int humidity = map.get(HUMIDITY).intValue();
                         int temperature = map.get(TEMP).intValue();
@@ -160,15 +181,10 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
                         int pressure = map.get(PRESSURE).intValue();
                         double windSpeed = map.get(WIND_SPEED).doubleValue();
                         int cloudCoverage = map.get(CLOUD_COVERAGE).intValue();
-                        jsonArray.add(getForecast(mapTemperature(temperature), mapWeather(weatherID),
+                        predictions.add(getForecast(mapTemperature(temperature), mapWeather(weatherID),
                                 humidity, pressure, cloudCoverage, windSpeed));
                     }
-                    return jsonArray.toJSONString();
-                }
-
-                @Override
-                public List<Map<String, Number>> getObserverStates() {
-                    return list;
+                    return getCumulativePredictions(predictions);
                 }
 
                 @Override
@@ -182,6 +198,25 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             } ;
 
         }
+    }
+
+    private static List<Map<String, Number>> getCumulativePredictions(ArrayList<Map<String , Number>> predictions) {
+        Map<String, Number> resultMap = new ConcurrentHashMap<String, Number>();
+        Double totalSum = 0.;
+        for(Map<String, Number> map : predictions){
+            for(String key: map.keySet()){
+                Number res = resultMap.get(key) == null? 0:resultMap.get(key);
+                Double value = res.doubleValue() + map.get(key).doubleValue();
+                totalSum += map.get(key).doubleValue();
+                resultMap.put(key, value);
+            }
+        }
+        double coef = 1/totalSum;
+        for(String key : resultMap.keySet())
+            resultMap.put(key, Math.round(resultMap.get(key).doubleValue()* coef * 100)/100.);
+        ArrayList l = new ArrayList<Map<String, Number>>();
+        l.add(resultMap);
+        return l;
     }
 
     private static double boolToDouble(boolean b) {
