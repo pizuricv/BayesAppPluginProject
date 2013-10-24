@@ -202,7 +202,7 @@ public class AirQualitySensor implements BNSensorPlugin{
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {"NO_ALARM", "ALARM"};
+        return new String[] {"EXCELLENT","GOOD", "NORMAL", "POOR", "BAD"};
     }
 
     public static void main(String []args){
