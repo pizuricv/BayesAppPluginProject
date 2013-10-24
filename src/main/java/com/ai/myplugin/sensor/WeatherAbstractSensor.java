@@ -9,7 +9,6 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.OpenWeatherParser;
 import com.ai.util.resource.TestSessionContext;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 
 import java.net.URLEncoder;
