@@ -62,6 +62,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         boolean testSuccess = true;
         final Double threshold = Utils.getDouble(getProperty(THRESHOLD));
         final String tag = getTag();

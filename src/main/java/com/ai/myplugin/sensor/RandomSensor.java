@@ -20,6 +20,7 @@ public class RandomSensor implements BNSensorPlugin {
     private Map<String, Object> map = new ConcurrentHashMap<String, Object>();
 
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         String nodeName = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
         BayesianNetwork bayesianNetwork = (BayesianNetwork) testSessionContext.getAttribute(NodeSessionParams.BN_NETWORK);
 

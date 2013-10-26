@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -73,6 +74,8 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+
         for(String property : getRequiredProperties()){
             if(getProperty(property) == null)
                 throw new RuntimeException("Required property "+property + " not defined");
@@ -148,32 +151,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
 
         }
-        else return new TestResult() {
-            @Override
-            public boolean isSuccess() {
-                return false;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public String getName() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public List<Map<String, Number>> getObserverStates() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public String getRawData() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-        };
+        else return new EmptyTestResult();
     }
 
     @Override

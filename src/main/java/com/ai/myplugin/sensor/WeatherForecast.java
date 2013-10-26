@@ -7,6 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Mashape;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
@@ -53,18 +54,16 @@ public class WeatherForecast implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
-
-
         try {
             String str = Rest.httpGet(server + city, map);
             System.out.println(str);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new EmptyTestResult();
     }
 
     @Override

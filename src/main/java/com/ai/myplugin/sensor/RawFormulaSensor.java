@@ -93,16 +93,22 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        final double res;
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        double res = 0;
         String parseFormula = (String) getProperty(FORMULA);
+        boolean success = false;
         try {
             parseFormula = parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
             res = executeFormula(parseFormula);
+            success = true;
         } catch (Exception e) {
-            throw new RuntimeException("for formula : " + parseFormula + ", error is :" + e.getMessage());
+            System.err.println(e.getLocalizedMessage() + ", for formula: "+ parseFormula);
         }
-
-        return new TestResult() {
+        final double finalRes = res;
+        if(!success)
+            return new EmptyResult();
+        else
+            return new TestResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -115,9 +121,9 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
             @Override
             public String getObserverState() {
-                if(res == Utils.getDouble(getProperty(THRESHOLD)))
+                if(finalRes == Utils.getDouble(getProperty(THRESHOLD)))
                     return "EQUAL";
-                if(res > Utils.getDouble(getProperty(THRESHOLD)))
+                if(finalRes > Utils.getDouble(getProperty(THRESHOLD)))
                     return "ABOVE";
                 else
                     return "BELOW";
@@ -131,7 +137,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
             @Override
             public String getRawData() {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("value", res);
+                jsonObject.put("value", finalRes);
                 return  jsonObject.toJSONString();
             }
 

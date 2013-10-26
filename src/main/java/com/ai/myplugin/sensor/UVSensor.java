@@ -54,6 +54,8 @@ public class UVSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+
         if(zipCode == null){
             throw new RuntimeException("Zip code not defined");
         }

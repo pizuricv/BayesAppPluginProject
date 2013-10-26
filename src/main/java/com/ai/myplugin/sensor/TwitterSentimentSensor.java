@@ -58,6 +58,8 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+
         if(!running){
             runSentiment((String) getProperty(SEARCH_TERMS));
         }
@@ -179,7 +181,8 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
                         System.out.println(testResult.getRawData());
                         System.out.println(testResult.getObserverState());
                     } catch (InterruptedException e) {
-                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        e.printStackTrace();
+                        return;
                     }
                 }
             }

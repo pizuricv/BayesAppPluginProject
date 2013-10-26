@@ -79,6 +79,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         try {
 
             Runtime rt = Runtime.getRuntime();

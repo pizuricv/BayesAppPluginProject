@@ -67,6 +67,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         return new TestResult() {
             @Override
             public boolean isSuccess() {

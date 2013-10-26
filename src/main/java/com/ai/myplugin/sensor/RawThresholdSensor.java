@@ -7,6 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
@@ -92,22 +93,23 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
         if(mapTestResult == null){
             System.out.println("no map found");
-            return new EmptyResult();
+            return new EmptyTestResult();
         }
 
         JSONObject jsonObject = (JSONObject) (mapTestResult.get(node));
         if(jsonObject == null)
-            return new EmptyResult();
+            return new EmptyTestResult();
 
         final Object value;
         try {
             value = ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(rawData);
         } catch (ParseException e) {
             e.printStackTrace();
-            return new EmptyResult();
+            return new EmptyTestResult();
         }
         final Double dataD = Utils.getDouble(value);
 
@@ -206,32 +208,5 @@ public class RawThresholdSensor implements BNSensorPlugin {
         testResult = rawThresholdSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-    }
-
-    private class EmptyResult implements TestResult {
-        @Override
-        public boolean isSuccess() {
-            return false;
-        }
-
-        @Override
-        public String getName() {
-            return "";
-        }
-
-        @Override
-        public String getObserverState() {
-            return null;
-        }
-
-        @Override
-        public List<Map<String, Number>> getObserverStates() {
-            return null;
-        }
-
-        @Override
-        public String getRawData() {
-            return null;
-        }
     }
 }

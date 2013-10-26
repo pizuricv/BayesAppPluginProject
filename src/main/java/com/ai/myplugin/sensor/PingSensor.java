@@ -57,6 +57,7 @@ public class PingSensor implements BNSensorPlugin{
     }
 
     public TestResult execute(TestSessionContext testSessionContext) {
+        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         boolean reachable = false;
         boolean testSuccess = true;
 
