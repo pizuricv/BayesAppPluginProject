@@ -157,14 +157,14 @@ public class UVSensor implements BNSensorPlugin {
             @Override
             public String getObserverState() {
                 if(max < 3)
-                    return "GREEN";
+                    return "Green";
                 if(max < 6)
-                    return "YELLOW";
+                    return "Yellow";
                 if(max < 8)
-                    return "ORANGE";
+                    return "Orange";
                 if(max < 11)
-                    return "RED";
-                return "VIOLET";
+                    return "Red";
+                return "Violet";
             }
 
             @Override

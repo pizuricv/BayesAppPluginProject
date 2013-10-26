@@ -15,7 +15,7 @@ public class WaterLevelSensorTest extends TestCase {
         waterLevelSensor.setProperty(WaterLevelSensor.DAILY_THRESHOLD, 1500);
         waterLevelSensor.setProperty(WaterLevelSensor.TOTAL_THRESHOLD, -100);
         TestResult testResult = waterLevelSensor.execute(null);
-        assertTrue(testResult.getObserverState().equals("ALARM"));
+        assertTrue(testResult.getObserverState().equals("Alarm"));
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }
@@ -26,7 +26,7 @@ public class WaterLevelSensorTest extends TestCase {
         waterLevelSensor.setProperty(WaterLevelSensor.DAILY_THRESHOLD, 1500);
         waterLevelSensor.setProperty(WaterLevelSensor.TOTAL_THRESHOLD, 1500);
         TestResult testResult = waterLevelSensor.execute(null);
-        assertTrue(testResult.getObserverState().equals("NO_ALARM"));
+        assertTrue(testResult.getObserverState().equals("No Alarm"));
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }

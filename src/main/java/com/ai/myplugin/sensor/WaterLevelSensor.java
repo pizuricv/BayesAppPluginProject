@@ -112,10 +112,10 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
         }
         if(testSuccess && daily != Double.MAX_VALUE && daily != Double.MAX_VALUE)  {
-            String ret = "NO_ALARM";
+            String ret = "No Alarm";
             if(daily > Integer.parseInt(getProperty(DAILY_THRESHOLD).toString()) ||
                     total > Integer.parseInt(getProperty(TOTAL_THRESHOLD).toString()))
-                ret = "ALARM";
+                ret = "Alarm";
             final String finalRet = ret;
             final double finalDaily = daily;
             final double finalTotal = total;
@@ -161,7 +161,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {"NO_ALARM", "ALARM"};
+        return new String[] {"No Alarm", "Alarm"};
     }
 
     public static void main(String []args){

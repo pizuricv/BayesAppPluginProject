@@ -77,11 +77,11 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
             @Override
             public String getObserverState() {
                 if(counterPositive.intValue() > counterNegative.intValue())
-                    return "POSITIVE";
+                    return "Positive";
                 if(counterPositive.intValue() == counterNegative.intValue())
-                    return "NEUTRAL";
+                    return "Neutral";
                 else
-                    return "NEGATIVE";
+                    return "Negative";
             }
 
             @Override

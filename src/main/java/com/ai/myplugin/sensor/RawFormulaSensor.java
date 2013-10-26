@@ -118,11 +118,11 @@ public class RawFormulaSensor implements BNSensorPlugin {
             @Override
             public String getObserverState() {
                 if(finalRes == Utils.getDouble(getProperty(THRESHOLD)))
-                    return "EQUAL";
+                    return "Equal";
                 if(finalRes > Utils.getDouble(getProperty(THRESHOLD)))
-                    return "ABOVE";
+                    return "Above";
                 else
-                    return "BELOW";
+                    return "Below";
             }
 
             @Override
@@ -133,7 +133,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
             @Override
             public String getRawData() {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("value", finalRes);
+                jsonObject.put("formulaValue", finalRes);
                 return  jsonObject.toJSONString();
             }
 

@@ -35,7 +35,7 @@ public class RawFormulaSensorTest extends TestCase {
         mapTestResult.put("node2", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
         TestResult testResult = rawFormulaSensor.execute(testSessionContext);
-        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("value"));
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
         System.out.println("formula = " + formula);
         System.out.println("value = " + value);
         assertEquals(value, 1+3.0);
@@ -58,34 +58,34 @@ public class RawFormulaSensorTest extends TestCase {
         TestResult testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        assertEquals("EQUAL", testResult.getObserverState());
+        assertEquals("Equal", testResult.getObserverState());
 
 
         rawFormulaSensor.setProperty("threshold", "3");
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        assertEquals("ABOVE", testResult.getObserverState());
+        assertEquals("Above", testResult.getObserverState());
 
         rawFormulaSensor.setProperty("threshold", "5");
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        assertEquals("BELOW", testResult.getObserverState());
+        assertEquals("Below", testResult.getObserverState());
 
         rawFormulaSensor.setProperty("formula", "node1->value1 / node2->value2 + 3 * ( node1->value1 + node2->value2 )");
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        assertEquals("ABOVE", testResult.getObserverState());
-        Double value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("value"));
+        assertEquals("Above", testResult.getObserverState());
+        Double value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
 
         rawFormulaSensor.setProperty("formula", "node1->value1 / node2->value2 + 3 * (node1->value1 + node2->value2)");
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        assertEquals("ABOVE", testResult.getObserverState());
-        Double value2 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("value"));
+        assertEquals("Above", testResult.getObserverState());
+        Double value2 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
         assertEquals(value1, value2);
         assertEquals(value1, 12.33, 0.1);
 
@@ -95,8 +95,8 @@ public class RawFormulaSensorTest extends TestCase {
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        assertEquals("EQUAL", testResult.getObserverState());
-        value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("value"));
+        assertEquals("Equal", testResult.getObserverState());
+        value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
         assertEquals(value1, 0.);
     }
 }

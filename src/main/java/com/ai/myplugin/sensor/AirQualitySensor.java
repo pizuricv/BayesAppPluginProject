@@ -162,14 +162,14 @@ public class AirQualitySensor implements BNSensorPlugin{
 
     private String mapValue(int finalValue) {
         if(finalValue < 3)
-            return "EXCELLENT";
+            return "Excellent";
         if(finalValue < 5)
-            return "GOOD";
+            return "Good";
         if(finalValue < 7)
-            return "NORMAL";
+            return "Normal";
         if(finalValue < 9)
-            return "POOR";
-        return "BAD";
+            return "Poor";
+        return "Bad";
     }
 
     @Override
