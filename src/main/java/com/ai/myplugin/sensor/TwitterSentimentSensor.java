@@ -28,7 +28,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     private AtomicInteger counterNegative = new AtomicInteger(0);
     private boolean running = false;
     private String [] positiveTerms = new String[] {"great", "super", "awesome", "nice", "lol", "cute", "happy", "good", "love"};
-    private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit"};
+    private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty"};
 
 
 

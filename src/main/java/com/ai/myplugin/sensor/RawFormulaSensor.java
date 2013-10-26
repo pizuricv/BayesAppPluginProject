@@ -94,11 +94,12 @@ public class RawFormulaSensor implements BNSensorPlugin {
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         final double res;
+        String parseFormula = (String) getProperty(FORMULA);
         try {
-            String parseFormula = parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+            parseFormula = parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
             res = executeFormula(parseFormula);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("for formula : " + parseFormula + ", error is :" + e.getMessage());
         }
 
         return new TestResult() {
