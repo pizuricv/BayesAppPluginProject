@@ -61,26 +61,20 @@ public class RawFormulaSensor implements BNSensorPlugin {
     private String parse(Map<String, Object>  attribute) throws ParseException {
         String returnString = ((String) getProperty(FORMULA)).replaceAll("\\(", " \\( ").replaceAll("\\)", " \\) ");
         String [] split = returnString.split("\\s+");
-        Map<String, String> nodeMaps = new ConcurrentHashMap();
+        Map<String, Double> map = new ConcurrentHashMap<String, Double>();
         for(String s1 : split)   {
             String [] s2 = s1.split("->");
             if(s2.length == 2)  {
-                nodeMaps.put(s2[0], s2[1]);
+                String node = s2[0];
+                String value = s2[1];
+                JSONObject jsonObject = (JSONObject) (attribute.get(node));
+                Object rawValue =  ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value);
+                map.put(s1, Utils.getDouble(rawValue));
             }
         }
-        Map <String, Double> values = new ConcurrentHashMap<String, Double>();
-        for(Map.Entry<String, String> entry: nodeMaps.entrySet()){
-            JSONObject jsonObject = (JSONObject) (attribute.get(entry.getKey()));
-            if(jsonObject == null)
-                return null;
-            Object value = ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(entry.getValue());
-            values.put(entry.getKey(), Utils.getDouble(value));
-        }
-        if(values.size() != nodeMaps.size())
-            throw new RuntimeException("Error in parsing the formula "+ getProperty(FORMULA));
 
-        for(Map.Entry<String, String> entry: nodeMaps.entrySet()){
-            returnString = returnString.replaceAll(entry.getKey() + "->" + entry.getValue(), values.get(entry.getKey()).toString());
+        for(Map.Entry<String, Double> entry: map.entrySet()){
+            returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
         }
         return returnString;
     };
@@ -96,9 +90,11 @@ public class RawFormulaSensor implements BNSensorPlugin {
         System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         double res = 0;
         String parseFormula = (String) getProperty(FORMULA);
+        System.out.println("Formula to parse: "+parseFormula);
         boolean success = false;
         try {
             parseFormula = parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+            System.out.println("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
             success = true;
         } catch (Exception e) {
@@ -157,21 +153,49 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
 
     public static void main(String []args){
+
+        Long time = System.currentTimeMillis()/1000;
+
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
         rawFormulaSensor.setProperty("formula", "node1->value1 + node2->value2");
 
         rawFormulaSensor.setProperty("threshold", "4");
         TestSessionContext testSessionContext = new TestSessionContext(1);
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        JSONObject jsonObject = new JSONObject();
-        JSONObject jsonRaw = new JSONObject();
-        jsonRaw.put("value1", 1);
-        jsonRaw.put("value2", 3);
-        jsonObject.put("rawData", jsonRaw.toJSONString());
-        mapTestResult.put("node1", jsonObject);
-        mapTestResult.put("node2", jsonObject);
+        JSONObject objRaw = new JSONObject();
+        objRaw.put("value1", 1);
+        objRaw.put("time", time);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node1", objRaw);
+
+        objRaw = new JSONObject();
+        objRaw.put("value2", 1);
+        objRaw.put("time", time);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node2", objRaw);
+
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
         TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+
+        StockPriceSensor stockPriceSensor = new StockPriceSensor();
+        stockPriceSensor.setProperty(StockPriceSensor.STOCK, "GOOG");
+        stockPriceSensor.setProperty(StockPriceSensor.THRESHOLD, "800.0");
+        testResult = stockPriceSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+        JSONObject obj = new JSONObject();
+        obj.put("time", time);
+        obj.put("rawData", testResult.getRawData());
+        mapTestResult = new ConcurrentHashMap<String, Object>();
+        mapTestResult.put("GOOG", obj);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+
+        rawFormulaSensor.setProperty("formula", "GOOG->price - GOOG->moving_average");
+        rawFormulaSensor.setProperty("threshold", 100);
+        testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
 

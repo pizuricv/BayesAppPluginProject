@@ -89,5 +89,14 @@ public class RawFormulaSensorTest extends TestCase {
         assertEquals(value1, value2);
         assertEquals(value1, 12.33, 0.1);
 
+
+        rawFormulaSensor.setProperty("formula", "node1->value1 - node1->value1");
+        rawFormulaSensor.setProperty("threshold", 0);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+        assertEquals("EQUAL", testResult.getObserverState());
+        value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("value"));
+        assertEquals(value1, 0.);
     }
 }
