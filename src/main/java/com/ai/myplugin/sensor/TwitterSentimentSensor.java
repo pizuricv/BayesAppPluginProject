@@ -21,7 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 public class TwitterSentimentSensor implements BNSensorPlugin{
     private static final String SEARCH_TERMS = "search_terms";
-    private static final String BASELINE = "window";
+    private static final String WINDOW = "window";
+    private int window = 15;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     //TODO add real analysis!!!
     private SlidingWindowCounter counterPositive = new SlidingWindowCounter(15, "positive sentiment");
@@ -36,12 +37,12 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String []{SEARCH_TERMS, BASELINE};
+        return new String []{SEARCH_TERMS, WINDOW};
     }
 
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
-            if(string.equalsIgnoreCase(BASELINE))
+            if(string.equalsIgnoreCase(WINDOW))
                 obj = Utils.getDouble(obj);
             propertiesMap.put(string, obj);
         } else {
@@ -63,8 +64,9 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
         System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         if(!running){
-            counterPositive.setSlidingWindowMinutes(((Double)getProperty(BASELINE)).intValue());
-            counterNegative.setSlidingWindowMinutes(((Double)getProperty(BASELINE)).intValue());
+            int w = getProperty(WINDOW) != null? ((Double)getProperty(WINDOW)).intValue(): window;
+            counterPositive.setSlidingWindowMinutes(w);
+            counterNegative.setSlidingWindowMinutes(w);
             runSentiment((String) getProperty(SEARCH_TERMS));
         }
         return new TestResult() {
@@ -186,7 +188,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
     public static void main(String[] args) throws TwitterException, IOException {
         final TwitterSentimentSensor twitterSentimentSensor = new TwitterSentimentSensor();
-        twitterSentimentSensor.setProperty(BASELINE, 3);
+        twitterSentimentSensor.setProperty(WINDOW, 3);
         twitterSentimentSensor.setProperty(SEARCH_TERMS, "justin;bieber");
         Runnable runnable = new Runnable() {
             @Override
