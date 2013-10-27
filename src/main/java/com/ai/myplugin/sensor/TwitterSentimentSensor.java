@@ -29,6 +29,8 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     private boolean running = false;
     private String [] positiveTerms = new String[] {"great", "super", "awesome", "nice", "lol", "cute", "happy", "good", "love"};
     private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty"};
+    TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder().build()).getInstance();
+
 
 
 
@@ -106,7 +108,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {"POSITIVE", "NEUTRAL", "NEGATIVE"};
+        return new String[] {"Positive", "Neutral", "Negative"};
     }
 
     private void weightSearchTerm(String searchItem){
@@ -121,7 +123,6 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     }
 
     public synchronized void runSentiment(String searchTerms){
-        TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder().build()).getInstance();
         final String [] searchSep = searchTerms.split(";");
 
         StatusListener listener = new StatusListener() {
@@ -159,6 +160,8 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
             public void onException(Exception ex) {
                 ex.printStackTrace();
+                running = false;
+                twitterStream.shutdown();
             }
         };
         twitterStream.addListener(listener);
