@@ -228,4 +228,9 @@ public class RawFormulaSensor implements BNSensorPlugin {
             return null;
         }
     }
+
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
 }

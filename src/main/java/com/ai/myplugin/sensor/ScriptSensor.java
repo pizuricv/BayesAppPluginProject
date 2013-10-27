@@ -52,4 +52,9 @@ public class ScriptSensor implements BNSensorPlugin {
     public String[] getSupportedStates() {
         return new String[0];
     }
+
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
 }

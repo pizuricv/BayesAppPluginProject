@@ -164,6 +164,11 @@ public class WaterLevelSensor implements BNSensorPlugin{
         return new String[] {"No Alarm", "Alarm"};
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
     public static void main(String []args){
         WaterLevelSensor waterLevelSensor = new WaterLevelSensor();
         waterLevelSensor.setProperty(LOCATION, "Neerslag Vinderhoute");

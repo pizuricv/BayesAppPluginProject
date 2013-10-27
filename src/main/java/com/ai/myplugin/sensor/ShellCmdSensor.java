@@ -211,4 +211,9 @@ public class ShellCmdSensor implements BNSensorPlugin{
         }
         return "level_0";
     }
+
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
 }

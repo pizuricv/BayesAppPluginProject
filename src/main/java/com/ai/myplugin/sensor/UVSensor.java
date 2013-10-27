@@ -219,6 +219,12 @@ public class UVSensor implements BNSensorPlugin {
         }
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
+
     public static void main(String []args ) {
         UVSensor uvSensor = new UVSensor();
         uvSensor.setProperty(ZIPCODE, "20050");

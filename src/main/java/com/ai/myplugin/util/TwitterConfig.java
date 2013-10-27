@@ -2,6 +2,7 @@ package com.ai.myplugin.util;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
+import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.FileInputStream;
@@ -21,10 +22,10 @@ public class TwitterConfig {
     private static final String ACCESS_TOKEN = "OAuthAccessToken";
     private static final String ACCESS_TOKEN_SECRET = "OAuthAccessTokenSecret";
     private static String CONFIG_FILE = "bn.properties";
-    private static ConfigurationBuilder cb = null;
+    private static Configuration configuration = null;
 
     static {
-        cb = new ConfigurationBuilder();
+        ConfigurationBuilder cb = new ConfigurationBuilder();
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(CONFIG_FILE));
@@ -36,10 +37,11 @@ public class TwitterConfig {
                 .setOAuthConsumerSecret((String) properties.get(CONSUMER_SECRET))
                 .setOAuthAccessToken((String) properties.get(ACCESS_TOKEN))
                 .setOAuthAccessTokenSecret((String) properties.get(ACCESS_TOKEN_SECRET));
+        configuration = cb.build();
 
     }
 
-    public static ConfigurationBuilder getTwitterConfigurationBuilder() {
-        return cb;
+    public static Configuration getTwitterConfigurationBuilder() {
+        return configuration;
     }
 }

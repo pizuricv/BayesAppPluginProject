@@ -160,6 +160,11 @@ public class AirQualitySensor implements BNSensorPlugin{
         else return new EmptyTestResult();
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
     private String mapValue(int finalValue) {
         if(finalValue < 3)
             return "Excellent";

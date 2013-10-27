@@ -119,4 +119,8 @@ public class PingSensor implements BNSensorPlugin{
         return ((Double) getProperty(TIMEOUT)).intValue();
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
 }

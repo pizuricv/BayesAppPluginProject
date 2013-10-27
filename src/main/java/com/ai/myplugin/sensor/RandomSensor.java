@@ -106,4 +106,9 @@ public class RandomSensor implements BNSensorPlugin {
     public String getDescription() {
         return "Random Plugin Sensor that generates random states (with prob. distribution according to the priors)";
     }
+
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
 }

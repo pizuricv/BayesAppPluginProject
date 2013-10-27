@@ -153,6 +153,11 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
         return returnStates;
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
     public static void main(String args []){
         TimeAbstractSensor timeSensor = new TimeAbstractSensor() {
             @Override

@@ -29,7 +29,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     private boolean running = false;
     private String [] positiveTerms = new String[] {"great", "super", "awesome", "nice", "lol", "cute", "happy", "good", "love"};
     private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty"};
-    TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder().build()).getInstance();
+    TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
 
 
 
@@ -160,13 +160,20 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
             public void onException(Exception ex) {
                 ex.printStackTrace();
-                running = false;
-                twitterStream.shutdown();
             }
         };
         twitterStream.addListener(listener);
         twitterStream.sample();
         running = true;
+    }
+
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        running = false;
+        counterNegative.set(0);
+        counterPositive.set(0);
+        twitterStream.shutdown();
     }
 
     public static void main(String[] args) throws TwitterException, IOException {
@@ -191,8 +198,6 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
             }
         } ;
         runnable.run();
-
-
     }
 
 }

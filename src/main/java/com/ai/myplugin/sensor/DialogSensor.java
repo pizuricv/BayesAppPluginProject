@@ -77,6 +77,11 @@ public class DialogSensor implements BNSensorPlugin {
 
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
     public String getName() {
         return NAME;
     }

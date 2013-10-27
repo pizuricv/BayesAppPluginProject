@@ -189,6 +189,11 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
         return states;
     }
 
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
     public static void main(String[] args){
         StockAbstractSensor stockSensor = new StockAbstractSensor() {
             @Override

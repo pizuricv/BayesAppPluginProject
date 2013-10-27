@@ -10,7 +10,6 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 @PluginImplementation
 public class HumiditySensor extends WeatherAbstractSensor{
 
-
     @Override
     protected String getTag() {
         return WeatherAbstractSensor.HUMIDITY;
