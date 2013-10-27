@@ -100,7 +100,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
                         dateToCompare.setTime(isoFormat.parse((String) getProperty(DATE_FORMAT)));
                         return gregorianCalendar.get(Calendar.YEAR) == dateToCompare.get(Calendar.YEAR)&&
                                 gregorianCalendar.get(Calendar.MONTH) == dateToCompare.get(Calendar.MONTH) &&
-                                gregorianCalendar.get(Calendar.DAY_OF_MONTH) == dateToCompare.get(Calendar.DAY_OF_MONTH) ?  "TRUE" : "FALSE";
+                                gregorianCalendar.get(Calendar.DAY_OF_MONTH) == dateToCompare.get(Calendar.DAY_OF_MONTH) ?  "true" : "false";
                     } catch (ParseException e) {
                         e.printStackTrace();
                         throw new RuntimeException(e);
@@ -148,7 +148,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
             returnStates = new String []{"January","February","March","April","May","June","July",
                     "August","September","October","November","December"};
         } else if(getTag().equalsIgnoreCase(DATE)) {
-            returnStates = new String []{"TRUE", "FALSE"};
+            returnStates = new String []{"true", "false"};
         }
         return returnStates;
     }

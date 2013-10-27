@@ -148,7 +148,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {"ABOVE", "EQUAL", "BELOW",};
+        return new String[] {"Above", "Equal", "Below",};
     }
 
 

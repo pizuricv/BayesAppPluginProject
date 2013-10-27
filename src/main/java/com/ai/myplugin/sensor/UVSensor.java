@@ -186,7 +186,7 @@ public class UVSensor implements BNSensorPlugin {
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {"GREEN", "YELLOW", "ORANGE", "RED", "VIOLET"};
+        return new String[] {"Green", "Yellow", "Orange", "Red", "Violet"};
     }
 
     private class UVObject implements Comparable{
