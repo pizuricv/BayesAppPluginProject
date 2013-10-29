@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.FormulaParser;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by User: veselin
  * On Date: 29/10/13
  */
+@PluginImplementation
 public class StockFormulaSensor extends StockAbstractSensor {
 
     @Override
