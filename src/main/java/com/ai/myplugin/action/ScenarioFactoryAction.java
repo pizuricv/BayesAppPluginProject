@@ -104,10 +104,11 @@ public class ScenarioFactoryAction implements BNActionPlugin{
         String resource = getProperty(RESOURCE) == null? "resource": (String) getProperty(RESOURCE);
         String start = getProperty(START) == null? "false": getProperty(START).toString();
         int frequency = getProperty(FREQUENCY) == null? 15: Utils.getDouble(getProperty(FREQUENCY)).intValue();
+        double threshold = getProperty(THRESHOLD) == null? 0.99: Utils.getDouble(getProperty(FREQUENCY)).doubleValue();
 
         JSONObject jsonObject = new JSONObject() ;
         JSONObject conditionObj = new JSONObject() ;
-        conditionObj.put("threshold", getProperty(THRESHOLD));
+        conditionObj.put("threshold", threshold);
         conditionObj.put("operator", getProperty(OPERATOR));
         conditionObj.put("stopState", getProperty(STOP_STATE));
 
