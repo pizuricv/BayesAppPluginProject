@@ -27,6 +27,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     //TODO add real analysis!!!
     private SlidingWindowCounter counterPositive = new SlidingWindowCounter(15, "positive sentiment");
     private SlidingWindowCounter counterNegative = new SlidingWindowCounter(15, "negative sentiment");
+    private SlidingWindowCounter mentions = new SlidingWindowCounter(15, "mentions");
     private boolean running = false;
     private String [] positiveTerms = new String[] {"great", "super", "awesome", "nice", "lol", "cute", "happy", "good", "love"};
     private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty"};
@@ -67,6 +68,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
             int w = getProperty(WINDOW) != null? ((Double)getProperty(WINDOW)).intValue(): window;
             counterPositive.setSlidingWindowMinutes(w);
             counterNegative.setSlidingWindowMinutes(w);
+            mentions.setSlidingWindowMinutes(w);
             runSentiment((String) getProperty(SEARCH_TERMS));
         }
         return new TestResult() {
@@ -100,6 +102,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("positiveCounter", counterPositive.getTotalCount());
                 jsonObject.put("negativeCounter", counterNegative.getTotalCount());
+                jsonObject.put("mentions", mentions.getTotalCount());
                 return jsonObject.toJSONString();
             }
         };
@@ -140,8 +143,9 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
                 for (String token: searchSep){
                     if (status.getText().toLowerCase().indexOf(token.toLowerCase()) > 0) {
                         System.out.println("********* Found *************");
-                        System.out.println("User is : " + status.getUser().getName());
-                        System.out.println("Text is : " + status.getText());
+                        //System.out.println("User is : " + status.getUser().getName());
+                        //System.out.println("Text is : " + status.getText());
+                        mentions.incrementAndGet();
                         weightSearchTerm(status.getText().toLowerCase());
                         //System.out.println("Counter positive is: " + counterPositive.getTotalCount());
                         //System.out.println("Counter negative is: " + counterNegative.getTotalCount());
@@ -183,6 +187,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
         running = false;
         counterNegative.reset();
         counterPositive.reset();
+        mentions.reset();
         twitterStream.shutdown();
     }
 
