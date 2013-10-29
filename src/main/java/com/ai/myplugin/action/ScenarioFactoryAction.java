@@ -7,6 +7,7 @@ package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
+import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
@@ -101,8 +102,8 @@ public class ScenarioFactoryAction implements BNActionPlugin{
         String name = getProperty(SCENARIO_NAME) == null? "scenario started by the action": (String) getProperty(SCENARIO_NAME);
         String type = getProperty(TYPE) == null? "diagnosis": (String) getProperty(TYPE);
         String resource = getProperty(RESOURCE) == null? "resource": (String) getProperty(RESOURCE);
-        String start = getProperty(START) == null? "false": (String) getProperty(START);
-        int frequency = getProperty(FREQUENCY) == null? 15: (Integer) getProperty(FREQUENCY);
+        String start = getProperty(START) == null? "false": getProperty(START).toString();
+        int frequency = getProperty(FREQUENCY) == null? 15: Utils.getDouble(getProperty(FREQUENCY)).intValue();
 
         JSONObject jsonObject = new JSONObject() ;
         JSONObject conditionObj = new JSONObject() ;
@@ -177,7 +178,7 @@ public class ScenarioFactoryAction implements BNActionPlugin{
             } catch (IOException e) {
                 System.err.println(e.getLocalizedMessage());
             }
-            System.out.println(response.toString());
+            System.out.println("response from the server: " + response.toString());
         }
 
         final boolean finalTestSuccess = testSuccess;
