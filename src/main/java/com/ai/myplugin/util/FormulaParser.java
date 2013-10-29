@@ -20,25 +20,6 @@ import java.util.regex.Pattern;
  */
 public class FormulaParser {
 
-    public static void main(String [] args){
-        String text = "(1 - 5)*9 + delta(1 + 4 + f + d)+ delta( x1+y1) + delta( ( x2+y2) - (x4+y4) ) - delta(x3+y3)";
-        int count = 0;
-        for(String string: scanForDelta(text))  {
-            System.out.println("count : " + count++ + " :" +string);
-
-        }
-    }
-
-    private static ArrayList<String> scanForDelta(String string){
-        String []splitString =  string.split("delta");
-        ArrayList<String> list = new ArrayList<String>();
-        for(String str : splitString)
-            if(str.indexOf("(") > -1 && str.indexOf(")") > -1) {
-                list.add(str);
-            }
-        return list;
-    }
-
     public static double executeFormula(String formula) throws Exception {
         System.out.println("execute formula " + formula);
         Calculable calc = new ExpressionBuilder(formula).build();

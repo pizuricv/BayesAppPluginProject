@@ -145,7 +145,9 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
                     return "Above";
                 } else if(FORMULA.equalsIgnoreCase(tag))  {
                     try {
-                        if(getFormulaResult(hashMap) < threshold)
+                        double res = getFormulaResult(hashMap);
+                        hashMap.put("formulaValue", res);
+                        if(res < threshold)
                             return "Below";
                     } catch (Exception e) {
                         e.printStackTrace();

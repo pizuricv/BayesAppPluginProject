@@ -186,6 +186,13 @@ public class RawFormulaSensor implements BNSensorPlugin {
         System.out.println(testResult.getRawData());
 
 
+        rawFormulaSensor.setProperty("formula", "GOOG->price");
+        rawFormulaSensor.setProperty("threshold", 100);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+
     }
 
     @Override
