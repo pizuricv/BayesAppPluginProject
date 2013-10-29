@@ -9,6 +9,7 @@ import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -97,28 +98,35 @@ public class ScenarioFactoryAction implements BNActionPlugin{
         //"name=test1&target=CONNECTION&resource=FRODO&network=internet.bif&start=false&condition=0.99,0,OK&frequency=10&type=diagnosis"
         URLConnection connection = null;
         String charset = "UTF-8";
-        String query = null;
         String name = getProperty(SCENARIO_NAME) == null? "scenario started by the action": (String) getProperty(SCENARIO_NAME);
         String type = getProperty(TYPE) == null? "diagnosis": (String) getProperty(TYPE);
         String resource = getProperty(RESOURCE) == null? "resource": (String) getProperty(RESOURCE);
-        String condition = getProperty(THRESHOLD) + "," + getProperty(OPERATOR) + ","+getProperty(STOP_STATE);
         String start = getProperty(START) == null? "false": (String) getProperty(START);
-        String frequency = getProperty(FREQUENCY) == null? "15": (String) getProperty(FREQUENCY);
+        int frequency = getProperty(FREQUENCY) == null? 15: (Integer) getProperty(FREQUENCY);
 
+        JSONObject jsonObject = new JSONObject() ;
+        JSONObject conditionObj = new JSONObject() ;
+        conditionObj.put("threshold", getProperty(THRESHOLD));
+        conditionObj.put("operator", getProperty(OPERATOR));
+        conditionObj.put("stopState", getProperty(STOP_STATE));
+
+        jsonObject.put("network", getProperty(NETWORK).toString());
+        jsonObject.put("condition", conditionObj);
+        jsonObject.put("start", Boolean.valueOf(start));
+        jsonObject.put("resource", resource);
+        jsonObject.put("type", type);
+        jsonObject.put("start", Boolean.valueOf(start));
+        jsonObject.put("name", name);
+        jsonObject.put("target", getProperty(TARGET));
+        jsonObject.put("frequency", frequency);
+        String query = null;
         try {
-            query = String.format("network=%s", URLEncoder.encode((String) getProperty(NETWORK), charset));
-            query += String.format("&name=%s", name, charset);
-            query += String.format("&target=%s", getProperty(TARGET), charset);
-            query += String.format("&resource=%s", resource, charset);
-            query += String.format("&condition=%s", condition, charset);
-            query += String.format("&type=%s", type, charset);
-            query += String.format("&start=%s", start, charset);
-            query += String.format("&frequency=%s", frequency, charset);
-
+            query = String.format("request=%s", URLEncoder.encode(jsonObject.toJSONString(), charset));
         } catch (UnsupportedEncodingException e) {
             System.err.println(e.getLocalizedMessage());
             testSuccess = false;
         }
+
         try {
             connection = url.openConnection();
         } catch (IOException e) {
@@ -189,5 +197,22 @@ public class ScenarioFactoryAction implements BNActionPlugin{
     @Override
     public String getName() {
         return NAME;
+    }
+
+    public static void main(String[] args) {
+        ScenarioFactoryAction scenarioFactoryAction = new ScenarioFactoryAction();
+        scenarioFactoryAction.setProperty(NETWORK, "RecipeRandomTest.json");
+        scenarioFactoryAction.setProperty(TARGET, "Target");
+        scenarioFactoryAction.setProperty(STOP_STATE, "trigger");
+        scenarioFactoryAction.setProperty(OPERATOR, 0);
+        scenarioFactoryAction.setProperty(THRESHOLD, 0.99);
+        scenarioFactoryAction.setProperty(RESOURCE, "werewrwer");
+        scenarioFactoryAction.setProperty(FREQUENCY, 60);
+        scenarioFactoryAction.setProperty(TYPE, "diagnosis");
+        scenarioFactoryAction.setProperty(SCENARIO_NAME, "hello world");
+        scenarioFactoryAction.setProperty(SERVER_ADDRESS, "http://54.235.253.99/api");
+
+        scenarioFactoryAction.action(null);
+
     }
 }
