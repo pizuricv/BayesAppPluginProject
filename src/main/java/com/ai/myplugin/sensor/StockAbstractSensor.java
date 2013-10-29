@@ -31,9 +31,16 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     public static final String PERCENT = "PERCENT";
     public static final String HIGH = "HIGH";
     public static final String LOW = "LOW";
+    public static final String FORMULA = "FORMULA";
+    public static final String FORMULA_DEFINITION = "formula";
 
     protected abstract String getTag();
     protected abstract String getSensorName();
+
+    //only used by StockFormulaSensor
+    protected double getFormulaResult(ConcurrentHashMap<String, Double> hashMap) throws Exception {
+        return 1;
+    }
 
     @Override
     public String[] getRequiredProperties() {
@@ -42,10 +49,8 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equalsIgnoreCase(STOCK) ) {
-            propertiesMap.put(STOCK, obj.toString());
-        } else if(string.equalsIgnoreCase(THRESHOLD)){
-            propertiesMap.put(THRESHOLD, obj.toString()) ;
+        if(Arrays.asList(getRequiredProperties()).contains(string)) {
+            propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -81,12 +86,12 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
         if(testSuccess){
             StringTokenizer stringTokenizer = new StringTokenizer(stringToParse,",");
-            parseOutput("PRICE", hashMap, stringTokenizer);
-            parseOutput("VOLUME", hashMap, stringTokenizer);
-            parseOutput("HIGH", hashMap, stringTokenizer);
-            parseOutput("LOW", hashMap, stringTokenizer);
+            parseOutput(PRICE, hashMap, stringTokenizer);
+            parseOutput(VOLUME, hashMap, stringTokenizer);
+            parseOutput(HIGH, hashMap, stringTokenizer);
+            parseOutput(LOW, hashMap, stringTokenizer);
             parseOutput(MOVING_AVERAGE, hashMap, stringTokenizer);
-            parseOutput("PERCENT", hashMap, stringTokenizer);
+            parseOutput(PERCENT, hashMap, stringTokenizer);
 
             //date:time
             SimpleDateFormat format =
@@ -115,28 +120,37 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
             @Override
             public String getObserverState() {
                 if("PRICE".equalsIgnoreCase(tag))  {
-                    if(hashMap.get("PRICE") < threshold)
+                    if(hashMap.get(PRICE) < threshold)
                         return "Below";
                     return "Above";
-                } else if("HIGH".equalsIgnoreCase(tag))  {
-                    if(hashMap.get("HIGH") < threshold)
+                } else if(HIGH.equalsIgnoreCase(tag))  {
+                    if(hashMap.get(HIGH) < threshold)
                         return "Below";
                     return "Above";
-                }  else if("LOW".equalsIgnoreCase(tag))  {
-                    if(hashMap.get("LOW") < threshold)
+                }  else if(LOW.equalsIgnoreCase(tag))  {
+                    if(hashMap.get(LOW) < threshold)
                         return "Below";
                     return "Above";
-                }  else if("VOLUME".equalsIgnoreCase(tag))  {
-                    if(hashMap.get("VOLUME") < threshold)
+                }  else if(VOLUME.equalsIgnoreCase(tag))  {
+                    if(hashMap.get(VOLUME) < threshold)
                         return "Below";
                     return "Above";
-                }  else if("MOVING_AVERAGE".equalsIgnoreCase(tag))  {
-                    if(hashMap.get("MOVING_AVERAGE") < threshold)
+                }  else if(MOVING_AVERAGE.equalsIgnoreCase(tag))  {
+                    if(hashMap.get(MOVING_AVERAGE) < threshold)
                         return "Below";
                     return "Above";
-                } else if("PERCENT".equalsIgnoreCase(tag))  {
-                    if(hashMap.get("PERCENT") < threshold)
+                } else if(PERCENT.equalsIgnoreCase(tag))  {
+                    if(hashMap.get(PERCENT) < threshold)
                         return "Below";
+                    return "Above";
+                } else if(FORMULA.equalsIgnoreCase(tag))  {
+                    try {
+                        if(getFormulaResult(hashMap) < threshold)
+                            return "Below";
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return "InvalidResult";
+                    }
                     return "Above";
                 } else {
                     throw new RuntimeException("Error getting Stock result");

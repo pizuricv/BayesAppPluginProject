@@ -7,6 +7,8 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
@@ -14,10 +16,6 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 
 import java.util.*;
@@ -29,8 +27,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";
-    ScriptEngineManager mgr = new ScriptEngineManager();
-    ScriptEngine engine = mgr.getEngineByName("JavaScript");
+    private Map deltaMap = new ConcurrentHashMap();
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -53,31 +50,9 @@ public class RawFormulaSensor implements BNSensorPlugin {
         return propertiesMap.get(string);
     }
 
-    private Double executeFormula(String formula) throws ScriptException {
-        return (Double) engine.eval(formula);
+    private Double executeFormula(String formula) throws Exception {
+        return FormulaParser.executeFormula(formula);
     }
-
-    //formula in format node1->param1 OPER node=>param3 OPER node=>param3 ...
-    private String parse(Map<String, Object>  attribute) throws ParseException {
-        String returnString = ((String) getProperty(FORMULA)).replaceAll("\\(", " \\( ").replaceAll("\\)", " \\) ");
-        String [] split = returnString.split("\\s+");
-        Map<String, Double> map = new ConcurrentHashMap<String, Double>();
-        for(String s1 : split)   {
-            String [] s2 = s1.split("->");
-            if(s2.length == 2)  {
-                String node = s2[0];
-                String value = s2[1];
-                JSONObject jsonObject = (JSONObject) (attribute.get(node));
-                Object rawValue =  ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value);
-                map.put(s1, Utils.getDouble(rawValue));
-            }
-        }
-
-        for(Map.Entry<String, Double> entry: map.entrySet()){
-            returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
-        }
-        return returnString;
-    };
 
 
     @Override
@@ -91,9 +66,20 @@ public class RawFormulaSensor implements BNSensorPlugin {
         double res = 0;
         String parseFormula = (String) getProperty(FORMULA);
         System.out.println("Formula to parse: "+parseFormula);
+        if(parseFormula.indexOf("dt") > -1) {
+            Long delta = (Long) deltaMap.get("prevTime");
+            if(delta == null)   {
+                deltaMap.put("prevTime", System.currentTimeMillis()/1000);
+                return new EmptyTestResult();
+            }
+            Long currentTime = System.currentTimeMillis()/1000;
+            deltaMap.put("prevTime", currentTime);
+            parseFormula.replaceAll("dt", Long.toBinaryString(currentTime - delta));
+        }
+
         boolean success = false;
         try {
-            parseFormula = parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+            parseFormula = FormulaParser.parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA), parseFormula) ;
             System.out.println("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
             success = true;
@@ -102,7 +88,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
         }
         final double finalRes = res;
         if(!success)
-            return new EmptyResult();
+            return new EmptyTestResult();
         else
             return new TestResult() {
             @Override
@@ -200,33 +186,6 @@ public class RawFormulaSensor implements BNSensorPlugin {
         System.out.println(testResult.getRawData());
 
 
-    }
-
-    private class EmptyResult implements TestResult {
-        @Override
-        public boolean isSuccess() {
-            return false;
-        }
-
-        @Override
-        public String getName() {
-            return "";
-        }
-
-        @Override
-        public String getObserverState() {
-            return null;
-        }
-
-        @Override
-        public List<Map<String, Number>> getObserverStates() {
-            return null;
-        }
-
-        @Override
-        public String getRawData() {
-            return null;
-        }
     }
 
     @Override
