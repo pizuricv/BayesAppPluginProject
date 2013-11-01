@@ -11,6 +11,8 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 @PluginImplementation
 public class DialogSensor implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(DialogSensor.class);
 
     private String question = null;
     private static final String NAME = "Dialog";
@@ -79,7 +82,7 @@ public class DialogSensor implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : " + this.getClass().getName());
     }
 
     public String getName() {

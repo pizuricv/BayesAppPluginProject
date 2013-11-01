@@ -2,12 +2,15 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
 import junit.framework.TestCase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Created by User: veselin
  * On Date: 22/10/13
  */
 public class WaterLevelSensorTest extends TestCase {
+    private static final Log log = LogFactory.getLog(WaterLevelSensorTest.class);
 
     public void testWaterLevelSensorAlarm(){
         WaterLevelSensor waterLevelSensor = new WaterLevelSensor();
@@ -16,8 +19,8 @@ public class WaterLevelSensorTest extends TestCase {
         waterLevelSensor.setProperty(WaterLevelSensor.TOTAL_THRESHOLD, -100);
         TestResult testResult = waterLevelSensor.execute(null);
         assertTrue(testResult.getObserverState().equals("Alarm"));
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 
     public void testWaterLevelSensorNoAlarm(){
@@ -27,7 +30,7 @@ public class WaterLevelSensorTest extends TestCase {
         waterLevelSensor.setProperty(WaterLevelSensor.TOTAL_THRESHOLD, 1500);
         TestResult testResult = waterLevelSensor.execute(null);
         assertTrue(testResult.getObserverState().equals("No Alarm"));
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 }

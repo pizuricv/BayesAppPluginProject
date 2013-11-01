@@ -9,12 +9,16 @@ import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import com.ai.bayes.plugins.BNActionPlugin;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.System;
 
 @PluginImplementation
 public class ActionPrintScreen implements BNActionPlugin{
+    private static final Log log = LogFactory.getLog(ActionPrintScreen.class);
 
     private static final String DUMMY_PROPERTY = "dummy property that will be print out";
     private static final String NAME = "PrintOnStdout";
@@ -45,9 +49,9 @@ public class ActionPrintScreen implements BNActionPlugin{
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         if(propertiesMap.containsKey(DUMMY_PROPERTY)){
-            System.out.println("###########DUMMY ACTION#######"+ propertiesMap.get(DUMMY_PROPERTY));
+            log.debug("###########DUMMY ACTION#######" + propertiesMap.get(DUMMY_PROPERTY));
         }  else{
-            System.out.println("###########DUMMY ACTION#######");
+            log.debug("###########DUMMY ACTION#######");
         }
 
         return new ActionResult() {

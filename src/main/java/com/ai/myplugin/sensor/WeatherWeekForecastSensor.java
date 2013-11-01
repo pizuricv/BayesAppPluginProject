@@ -3,12 +3,15 @@ package com.ai.myplugin.sensor;
 
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import com.ai.bayes.scenario.TestResult;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Arrays;
 
 @PluginImplementation
 
 public class WeatherWeekForecastSensor extends WeatherAbstractSensor{
+    private static final Log log = LogFactory.getLog(WeatherWeekForecastSensor.class);
     private Boolean exactDay = false;
     private Integer days = 7;
     public static String EXACT_DAY = "exactDay";
@@ -63,34 +66,34 @@ public class WeatherWeekForecastSensor extends WeatherAbstractSensor{
         WeatherWeekForecastSensor weatherSensor = new WeatherWeekForecastSensor();
         weatherSensor.setProperty("city", "Gent");
         TestResult testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "London");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "Sidney");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "Bangalore");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "Chennai");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "Moscow");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "Belgrade");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverStates());
+        log.debug(testResult.getObserverStates());
     }
 }

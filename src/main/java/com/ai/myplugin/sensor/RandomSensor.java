@@ -6,6 +6,9 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class RandomSensor implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(RandomSensor.class);
 
     private static final String NAME = "Random";
     private double res;
@@ -20,7 +24,7 @@ public class RandomSensor implements BNSensorPlugin {
     private Map<String, Object> map = new ConcurrentHashMap<String, Object>();
 
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         String nodeName = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
         BayesianNetwork bayesianNetwork = (BayesianNetwork) testSessionContext.getAttribute(NodeSessionParams.BN_NETWORK);
 
@@ -30,22 +34,22 @@ public class RandomSensor implements BNSensorPlugin {
         double incr = 0;
         double value;
 
-        System.out.println("assign priors for the game");
+        log.debug("assign priors for the game");
         int i = 0;
         String [] states = new String [probs.size()];
         for(String key : probs.keySet()){
-            System.out.println("state " + key + " width probability " + probs.get(key));
+            log.debug("state " + key + " width probability " + probs.get(key));
             value = probs.get(key) ;
             coins[i] = value + incr;
             incr += value;
-            System.out.println("for state " + key + " assign the coin value " + coins[i]);
+            log.debug("for state " + key + " assign the coin value " + coins[i]);
             states[i] = key;
             i++;
         }
 
         res = Math.random();
         final String observedState = findStateForIndex(res, coins, states);
-        System.out.println("state that will be injected is " + observedState);
+        log.debug("state that will be injected is " + observedState);
         return new TestResult() {
             public boolean isSuccess() {
                 return true;
@@ -109,6 +113,6 @@ public class RandomSensor implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 }

@@ -10,6 +10,8 @@ import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import com.ai.bayes.plugins.BNActionPlugin;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.net.*;
@@ -19,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class NetworkWire implements BNActionPlugin{
+    private static final Log log = LogFactory.getLog(NetworkWire.class);
 
     private static final String SERVER_ADDRESS = "server address";
     private static final String USER_NAME = "username";
@@ -56,7 +59,7 @@ public class NetworkWire implements BNActionPlugin{
 
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
-        System.out.println("####### action triggered " + getDescription());
+        log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         boolean testSuccess = true;
         Integer scenarioID = -1;
@@ -72,12 +75,12 @@ public class NetworkWire implements BNActionPlugin{
         try {
             scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
         } catch (Exception e){
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
         if(server == null || scenarioID.equals(-1)) {
             String errorMessage = "error in the configuration of the sensor " + getDescription();
-            System.err.println(errorMessage);
+            log.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
@@ -88,7 +91,7 @@ public class NetworkWire implements BNActionPlugin{
         try {
             url = new URL(server+ "/scenarios/" + scenarioID + "/"+ node);
         } catch (MalformedURLException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
 
@@ -98,13 +101,13 @@ public class NetworkWire implements BNActionPlugin{
         try {
             query = String.format("state=%s", URLEncoder.encode(state, charset));
         } catch (UnsupportedEncodingException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         }
         try {
             connection = url.openConnection();
         } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         }
         connection.setDoOutput(true); // Triggers POST.
@@ -115,7 +118,7 @@ public class NetworkWire implements BNActionPlugin{
             output = connection.getOutputStream();
             output.write(query.getBytes(charset));
         } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         } finally {
             if (output != null)
@@ -123,7 +126,7 @@ public class NetworkWire implements BNActionPlugin{
                     output.flush();
                     output.close();
                 } catch (IOException e) {
-                    System.err.println(e.getLocalizedMessage());
+                    log.error(e.getLocalizedMessage());
                 }
         }
 
@@ -134,6 +137,7 @@ public class NetworkWire implements BNActionPlugin{
                 is = connection.getInputStream();
             } catch (IOException e) {
                 e.printStackTrace();
+                log.error(e.getLocalizedMessage());
             }
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String line;
@@ -144,14 +148,14 @@ public class NetworkWire implements BNActionPlugin{
                     response.append('\r');
                 }
             } catch (IOException e) {
-                System.err.println(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage());
             }
             try {
                 rd.close();
             } catch (IOException e) {
-                System.err.println(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage());
             }
-            System.out.println(response.toString());
+            log.debug(response.toString());
         }
 
         final boolean finalTestSuccess = testSuccess;

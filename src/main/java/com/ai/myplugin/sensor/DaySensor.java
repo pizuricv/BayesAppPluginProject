@@ -17,6 +17,6 @@ public class DaySensor extends TimeAbstractSensor {
 
     public static void main (String []args){
         DaySensor daySensor = new DaySensor();
-        System.out.println(daySensor.execute(null).getObserverState());
+        log.debug(daySensor.execute(null).getObserverState());
     }
 }

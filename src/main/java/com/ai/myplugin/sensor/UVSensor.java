@@ -10,6 +10,8 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,6 +24,7 @@ import java.util.*;
 @PluginImplementation
 
 public class UVSensor implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(UVSensor.class);
     private static String ZIPCODE = "zipcode";
     private static String zipCode = null;
     static final String server = "http://iaspub.epa.gov/enviro/efservice/getEnvirofactsUVHOURLY/ZIP/";
@@ -54,7 +57,7 @@ public class UVSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.debug("execute " + getName() + ", sensor type:" + this.getClass().getName());
 
         if(zipCode == null){
             throw new RuntimeException("Zip code not defined");
@@ -66,7 +69,7 @@ public class UVSensor implements BNSensorPlugin {
         String pathURL = server+ zipCode + "/JSON";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            System.out.println(stringToParse);
+            log.debug(stringToParse);
         } catch (Exception e) {
             testSuccess = false;
         }
@@ -128,7 +131,7 @@ public class UVSensor implements BNSensorPlugin {
 
         }
         Collections.sort(list);
-        //System.out.println(list.toString());
+        //log.debug(list.toString());
         // TODO fix this later, once you know more about the order and you also need to get the right time zone from the zip code
         //let's take the max, otherwise really no idea, the ordering is a mess
         Long max = -1l;
@@ -221,14 +224,14 @@ public class UVSensor implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : " + this.getClass().getName());
     }
 
 
     public static void main(String []args ) {
         UVSensor uvSensor = new UVSensor();
         uvSensor.setProperty(ZIPCODE, "20050");
-        System.out.println(uvSensor.execute(null).getObserverState());
+        log.debug(uvSensor.execute(null).getObserverState());
     }
     //http://iaspub.epa.gov/enviro/efservice/getEnvirofactsUVHOURLY/ZIP/20050/JSON
     /*

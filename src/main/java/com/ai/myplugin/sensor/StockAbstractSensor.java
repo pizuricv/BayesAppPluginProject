@@ -10,6 +10,8 @@ import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.net.URL;
 import java.text.ParseException;
@@ -18,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class StockAbstractSensor implements BNSensorPlugin{
+    protected static final Log log = LogFactory.getLog(StockAbstractSensor.class);
 
     public static final String STOCK = "stock";
     public static final String THRESHOLD = "threshold";
@@ -67,18 +70,20 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         boolean testSuccess = true;
         final Double threshold = Utils.getDouble(getProperty(THRESHOLD));
         final String tag = getTag();
-        System.out.println("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
+        log.debug("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
         String urlPath = server+ getProperty(STOCK) + FORMAT_QUERY;
 
         String stringToParse = null;
         try {
             stringToParse = Rest.httpGet(urlPath);
-            System.out.println("Response for " + getProperty(STOCK) + " >>" + stringToParse);
+            log.debug("Response for " + getProperty(STOCK) + " >>" + stringToParse);
         } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
             testSuccess = false;
         }
 
@@ -99,7 +104,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
             String dateString = stringTokenizer.nextToken() + " " + stringTokenizer.nextToken();
             try {
                 Date parsed = format.parse(dateString);
-                System.out.println("Date is " + parsed.toString());
+                log.debug("Date is " + parsed.toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -188,10 +193,10 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
         try{
             String string = stringTokenizer.nextToken();
             Double value = Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", ""));
-            System.out.println(tag + " = " + value);
+            log.debug(tag + " = " + value);
             parsing.put(tag, value);
         } catch (Exception e){
-            System.err.println("Error parsing [" + tag + "] " + e.getMessage());
+            log.error("Error parsing [" + tag + "] " + e.getMessage());
         }
     }
 
@@ -207,7 +212,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String[] args){
@@ -224,17 +229,17 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
         };
         stockSensor.setProperty(STOCK, "MSFT");
         stockSensor.setProperty(THRESHOLD, 36);
-        System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
-        System.out.println(stockSensor.execute(null).getObserverState());
+        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
+        log.debug(stockSensor.execute(null).getObserverState());
 
 
         stockSensor.setProperty(STOCK, "GOOG");
         stockSensor.setProperty(THRESHOLD, "800.0");
-        System.out.println(stockSensor.execute(null).getObserverState());
+        log.debug(stockSensor.execute(null).getObserverState());
 
         stockSensor.setProperty(STOCK, "BAR.BR");
         stockSensor.setProperty(THRESHOLD, "-1.0");
-        System.out.println(stockSensor.execute(null).getObserverState());
-        System.out.println(stockSensor.execute(null).getRawData());
+        log.debug(stockSensor.execute(null).getObserverState());
+        log.debug(stockSensor.execute(null).getRawData());
     }
 }

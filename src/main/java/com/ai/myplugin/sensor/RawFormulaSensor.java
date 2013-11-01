@@ -13,6 +13,8 @@ import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -24,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class RawFormulaSensor implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
 
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";
@@ -51,6 +54,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
     }
 
     private Double executeFormula(String formula) throws Exception {
+        log.debug("executeFormula(" + formula + ")");
         return FormulaParser.executeFormula(formula);
     }
 
@@ -62,10 +66,10 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         double res = 0;
         String parseFormula = (String) getProperty(FORMULA);
-        System.out.println("Formula to parse: "+parseFormula);
+        log.debug("Formula to parse: "+parseFormula);
         if(parseFormula.indexOf("dt") > -1) {
             Long delta = (Long) deltaMap.get("prevTime");
             if(delta == null)   {
@@ -80,11 +84,11 @@ public class RawFormulaSensor implements BNSensorPlugin {
         boolean success = false;
         try {
             parseFormula = FormulaParser.parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA), parseFormula) ;
-            System.out.println("Formula to parse after processing: "+parseFormula);
+            log.debug("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
             success = true;
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage() + ", for formula: "+ parseFormula);
+            log.error(e.getLocalizedMessage() + ", for formula: "+ parseFormula);
         }
         final double finalRes = res;
         if(!success)
@@ -162,16 +166,16 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
         TestResult testResult = rawFormulaSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
 
         StockPriceSensor stockPriceSensor = new StockPriceSensor();
         stockPriceSensor.setProperty(StockPriceSensor.STOCK, "GOOG");
         stockPriceSensor.setProperty(StockPriceSensor.THRESHOLD, "800.0");
         testResult = stockPriceSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
         JSONObject obj = new JSONObject();
         obj.put("time", time);
         obj.put("rawData", testResult.getRawData());
@@ -182,21 +186,21 @@ public class RawFormulaSensor implements BNSensorPlugin {
         rawFormulaSensor.setProperty("formula", "GOOG->price - GOOG->moving_average");
         rawFormulaSensor.setProperty("threshold", 100);
         testResult = rawFormulaSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
 
         rawFormulaSensor.setProperty("formula", "GOOG->price");
         rawFormulaSensor.setProperty("threshold", 100);
         testResult = rawFormulaSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
 
     }
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 }

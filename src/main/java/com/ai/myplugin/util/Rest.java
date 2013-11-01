@@ -6,6 +6,9 @@
 package com.ai.myplugin.util;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,13 +19,14 @@ import java.net.URL;
 import java.util.Map;
 
 public class Rest {
+    private static final Log log = LogFactory.getLog(Rest.class);
     public static String httpGet(String urlPath, Map<String, String> httpSettings) throws Exception {
         URL url;
 
         try {
             url = new URL(urlPath);
         } catch (MalformedURLException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new Exception(e);
         }
         HttpURLConnection conn;
@@ -35,14 +39,14 @@ public class Rest {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new Exception(e);
         }
         assert conn != null;
         try {
             conn.setRequestMethod("GET");
         } catch (ProtocolException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new Exception(e);
         }
 
@@ -50,7 +54,7 @@ public class Rest {
         try {
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new Exception(e);
         }
         String inputLine;
@@ -62,7 +66,7 @@ public class Rest {
                 stringBuffer.append(inputLine);
             }
         } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new Exception(e);
         }
         conn.disconnect();
@@ -70,6 +74,7 @@ public class Rest {
             rd.close();
         } catch (IOException e) {
             e.printStackTrace();
+            log.error(e.getLocalizedMessage());
         }
         return stringBuffer.toString();
     }

@@ -8,10 +8,13 @@ import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import twitter4j.DirectMessage;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.FileInputStream;
@@ -23,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class TwitterDMAction implements BNActionPlugin {
+    private static final Log log = LogFactory.getLog(TwitterDMAction.class);
 
     private final String CONSUMER_KEY = "OAuthConsumerKey";
     private final String CONSUMER_SECRET = "OAuthConsumerSecret";
@@ -76,6 +80,7 @@ public class TwitterDMAction implements BNActionPlugin {
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
+        Configuration configuration;
         boolean success = true;
         try {
             fetchTwitterPropertiesFromFile();

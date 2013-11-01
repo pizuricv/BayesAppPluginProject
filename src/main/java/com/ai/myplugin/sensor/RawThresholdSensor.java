@@ -12,6 +12,8 @@ import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -21,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class RawThresholdSensor implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
     private ArrayList<Long> threshold = new ArrayList<Long>();
     private ArrayList<String> states = new ArrayList<String>();
     //in case that states are defined via property
@@ -93,10 +96,10 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
         if(mapTestResult == null){
-            System.out.println("no map found");
+            log.debug("no map found");
             return new EmptyTestResult();
         }
 
@@ -109,6 +112,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
             value = ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(rawData);
         } catch (ParseException e) {
             e.printStackTrace();
+            log.error(e.getLocalizedMessage());
             return new EmptyTestResult();
         }
         final Double dataD = Utils.getDouble(value);
@@ -181,14 +185,14 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String []args){
         WeatherSensor weatherSensor = new WeatherSensor();
         weatherSensor.setProperty("city", "London");
         TestResult testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
         //this is injected by scenario
         RawThresholdSensor rawThresholdSensor = new RawThresholdSensor();
         rawThresholdSensor.setProperty("rawData", "temperature");
@@ -201,8 +205,8 @@ public class RawThresholdSensor implements BNSensorPlugin {
         mapTestResult.put("node1", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
         testResult = rawThresholdSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
 
         rawThresholdSensor = new RawThresholdSensor();
@@ -211,7 +215,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         rawThresholdSensor.setProperty("states", "[low,medium,high, heat]");
         rawThresholdSensor.setProperty("node", "node1");
         testResult = rawThresholdSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 }

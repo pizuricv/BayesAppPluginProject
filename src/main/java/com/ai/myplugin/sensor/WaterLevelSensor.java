@@ -6,6 +6,8 @@ import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
 import java.util.List;
@@ -31,6 +33,7 @@ http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Pluviog
 
 @PluginImplementation
 public class WaterLevelSensor implements BNSensorPlugin{
+    private static final Log log = LogFactory.getLog(WaterLevelSensor.class);
     public static final String LOCATION = "location";
     private String location = null;
     public static final String DAILY_THRESHOLD = "daily_threshold";
@@ -74,7 +77,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         for(String property : getRequiredProperties()){
             if(getProperty(property) == null)
@@ -89,7 +92,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
         String pathURL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/PluviograafTabel&KL=nl&mode=P";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            //System.out.println(stringToParse);
+            //log.debug(stringToParse);
         } catch (Exception e) {
             testSuccess = false;
         }
@@ -106,7 +109,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
                     String dailyString = stringTokenizer.nextToken();
                     total = Double.parseDouble(totalString.substring(0, totalString.indexOf("mm")).trim());
                     daily = Double.parseDouble(dailyString.substring(0, dailyString.indexOf("mm")).trim());
-                    System.out.println("DAILY: "+daily + ", TOTAL:" + total);
+                    log.debug("DAILY: "+daily + ", TOTAL:" + total);
                 }
             }
 
@@ -166,7 +169,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String []args){
@@ -175,8 +178,8 @@ public class WaterLevelSensor implements BNSensorPlugin{
         waterLevelSensor.setProperty(DAILY_THRESHOLD, 15);
         waterLevelSensor.setProperty(TOTAL_THRESHOLD, 1);
         TestResult testResult = waterLevelSensor.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 }
 

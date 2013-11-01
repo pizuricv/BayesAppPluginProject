@@ -7,6 +7,8 @@ import com.ai.myplugin.util.TwitterConfig;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import twitter4j.*;
 import twitter4j.TwitterException;
@@ -20,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @PluginImplementation
 public class TwitterSentimentSensor implements BNSensorPlugin{
+    private static final Log log = LogFactory.getLog(TwitterSentimentSensor.class);
     private static final String SEARCH_TERMS = "search_terms";
     private static final String WINDOW = "window";
     private int window = 15;
@@ -30,7 +33,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     private SlidingWindowCounter mentions = new SlidingWindowCounter(15, "mentions");
     private boolean running = false;
     private String [] positiveTerms = new String[] {"great", "super", "awesome", "nice", "lol", "cute", "happy", "good", "love"};
-    private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty"};
+    private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty", "unhappy", "hate"};
     TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
 
 
@@ -62,7 +65,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
 
         if(!running){
             int w = getProperty(WINDOW) != null? ((Double)getProperty(WINDOW)).intValue(): window;
@@ -142,37 +145,37 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
             public void onStatus(Status status) {
                 for (String token: searchSep){
                     if (status.getText().toLowerCase().indexOf(token.toLowerCase()) > 0) {
-                        System.out.println("********* Found *************");
-                        //System.out.println("User is : " + status.getUser().getName());
-                        //System.out.println("Text is : " + status.getText());
+                        log.debug("********* Found *************");
+                        //log.debug("User is : " + status.getUser().getName());
+                        //log.debug("Text is : " + status.getText());
                         mentions.incrementAndGet();
                         weightSearchTerm(status.getText().toLowerCase());
-                        //System.out.println("Counter positive is: " + counterPositive.getTotalCount());
-                        //System.out.println("Counter negative is: " + counterNegative.getTotalCount());
+                        //log.debug("Counter positive is: " + counterPositive.getTotalCount());
+                        //log.debug("Counter negative is: " + counterNegative.getTotalCount());
                     }
                 }
             }
             public void onDeletionNotice(
                     StatusDeletionNotice statusDeletionNotice) {
-                //System.out.print(".");
-                /*System.out.println("Got a status deletion notice id:"
-                                + statusDeletionNotice.getStatusId());    */
+                log.debug("Got a status deletion notice id:"
+                                + statusDeletionNotice.getStatusId());
             }
             public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-                System.out.println("Got track limitation notice:"
+                log.warn("Got track limitation notice:"
                         + numberOfLimitedStatuses);
             }
             public void onScrubGeo(long userId, long upToStatusId) {
-                System.out.println("Got scrub_geo event userId:" + userId
+                log.debug("Got scrub_geo event userId:" + userId
                         + " upToStatusId:" + upToStatusId);
             }
 
             @Override
             public void onStallWarning(StallWarning stallWarning) {
-                System.out.println("Got StallWarning: "+stallWarning.getMessage());
+                log.warn("Got StallWarning: " + stallWarning.getMessage());
             }
 
             public void onException(Exception ex) {
+                log.error(ex.getLocalizedMessage());
                 ex.printStackTrace();
             }
         };
@@ -183,7 +186,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
         running = false;
         counterNegative.reset();
         counterPositive.reset();
@@ -201,10 +204,10 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
                 while(true){
                     try {
                         Thread.sleep(10000);
-                        System.out.println("execute...");
+                        log.debug("execute...");
                         TestResult testResult = twitterSentimentSensor.execute(null);
-                        System.out.println("RAW data: " +testResult.getRawData());
-                        System.out.println("Observed state: " + testResult.getObserverState());
+                        log.debug("RAW data: " +testResult.getRawData());
+                        log.debug("Observed state: " + testResult.getObserverState());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         return;

@@ -4,6 +4,8 @@ import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.UnknownFunctionException;
 import de.congrace.exp4j.UnparsableExpressionException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,12 +21,13 @@ import java.util.regex.Pattern;
  * On Date: 28/10/13
  */
 public class FormulaParser {
+    private static final Log log = LogFactory.getLog(FormulaParser.class);
 
     public static double executeFormula(String formula) throws Exception {
-        System.out.println("execute formula " + formula);
+        log.debug("execute formula " + formula);
         Calculable calc = new ExpressionBuilder(formula).build();
         double res = calc.calculate();
-        System.out.println("result is " + res);
+        log.debug("result is " + res);
         return res;
     }
 

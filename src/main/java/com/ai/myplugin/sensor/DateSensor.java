@@ -24,6 +24,6 @@ public class DateSensor extends TimeAbstractSensor {
         DateSensor daySensor = new DateSensor();
         daySensor.setProperty(DATE_FORMAT, "2013-09-10T00:00:00.000Z");
         daySensor.setProperty(TIME_ZONE, "UTC");
-        System.out.println(daySensor.execute(null).getObserverState());
+        log.debug(daySensor.execute(null).getObserverState());
     }
 }

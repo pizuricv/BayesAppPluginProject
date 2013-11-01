@@ -9,6 +9,8 @@ package com.ai.myplugin.sensor;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -16,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public abstract class TimeAbstractSensor implements BNSensorPlugin{
+    protected static final Log log = LogFactory.getLog(TimeAbstractSensor.class);
     String timeZone;
     private String dateString;
     String [] returnStates;
@@ -67,7 +70,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         return new TestResult() {
             @Override
             public boolean isSuccess() {
@@ -102,6 +105,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
                                 gregorianCalendar.get(Calendar.MONTH) == dateToCompare.get(Calendar.MONTH) &&
                                 gregorianCalendar.get(Calendar.DAY_OF_MONTH) == dateToCompare.get(Calendar.DAY_OF_MONTH) ?  "true" : "false";
                     } catch (ParseException e) {
+                        log.error(e.getLocalizedMessage());
                         e.printStackTrace();
                         throw new RuntimeException(e);
                     }
@@ -155,7 +159,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String args []){
@@ -171,7 +175,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
             }
         };
         timeSensor.setProperty(TIME_ZONE, "");
-        System.out.println(timeSensor.execute(null).getObserverState());
-        System.out.println(Arrays.toString(timeSensor.getSupportedStates()));
+        log.debug(timeSensor.execute(null).getObserverState());
+        log.debug(Arrays.toString(timeSensor.getSupportedStates()));
     }
 }

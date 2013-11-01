@@ -8,11 +8,14 @@ import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 @PluginImplementation
 
 public class ScriptSensor implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(ScriptSensor.class);
     private String scriptBody;
 
     @Override
@@ -39,7 +42,7 @@ public class ScriptSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.debug("execute " + getName() + ", sensor type:" + this.getClass().getName());
         return null;
     }
 
@@ -55,6 +58,6 @@ public class ScriptSensor implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : " + this.getClass().getName());
     }
 }

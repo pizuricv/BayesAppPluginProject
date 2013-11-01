@@ -2,6 +2,8 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
 import junit.framework.TestCase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Map;
  * On Date: 23/10/13
  */
 public class WeatherWeekForecastSensorTest extends TestCase{
+    private static final Log log = LogFactory.getLog(WeatherWeekForecastSensorTest.class);
 
     public void testWeatherSensorCumulativeValue(){
         WeatherWeekForecastSensor weatherSensor = new WeatherWeekForecastSensor();
@@ -21,7 +24,7 @@ public class WeatherWeekForecastSensorTest extends TestCase{
         double value = 0;
         for(String key: list.get(0).keySet())  {
             value += list.get(0).get(key).doubleValue();
-            System.out.println("State " + key + " = "+list.get(0).get(key).doubleValue());
+            log.debug("State " + key + " = " + list.get(0).get(key).doubleValue());
         }
         assertEquals(1., value);
     }
@@ -36,7 +39,7 @@ public class WeatherWeekForecastSensorTest extends TestCase{
         double value = 0;
         for(String key: list.get(0).keySet())  {
             value += list.get(0).get(key).doubleValue();
-            System.out.println("State " + key + " = "+list.get(0).get(key).doubleValue());
+            log.debug("State " + key + " = " + list.get(0).get(key).doubleValue());
         }
         assertEquals(1., value);
 
@@ -49,7 +52,7 @@ public class WeatherWeekForecastSensorTest extends TestCase{
         value = 0;
         for(String key: list.get(0).keySet())  {
             value += list.get(0).get(key).doubleValue();
-            System.out.println("State " + key + " = "+list.get(0).get(key).doubleValue());
+            log.debug("State " + key + " = " + list.get(0).get(key).doubleValue());
         }
         assertEquals(1., value);
     }

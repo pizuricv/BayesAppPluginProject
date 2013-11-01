@@ -1,6 +1,10 @@
 package com.ai.myplugin.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class Utils {
+    private static final Log log = LogFactory.getLog(Utils.class);
 
     public static Double getDouble(Object obj){
         Number number = null;
@@ -29,9 +33,9 @@ public class Utils {
     }
 
     public static void main(String []args) {
-        System.out.println(Utils.getDouble(new Integer(23)));
-        System.out.println(Utils.getDouble(new Double(23)));
-        System.out.println(Utils.getDouble("23"));
-        System.out.println(Utils.getDouble(23));
+        log.debug(Utils.getDouble(new Integer(23)));
+        log.debug(Utils.getDouble(new Double(23)));
+        log.debug(Utils.getDouble("23"));
+        log.debug(Utils.getDouble(23));
     }
 }

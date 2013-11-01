@@ -7,6 +7,8 @@ import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +18,7 @@ import java.util.*;
 
 @PluginImplementation
 public class ShellCmdSensor implements BNSensorPlugin{
-
-
+    private static final Log log = LogFactory.getLog(ShellCmdSensor.class);
     private String command;
     private ArrayList<Long> threshold = new ArrayList<Long>();
     private ArrayList<String> states = new ArrayList<String>();
@@ -79,7 +80,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         try {
 
             Runtime rt = Runtime.getRuntime();
@@ -93,7 +94,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
             exitVal = process.waitFor();
 
-            System.out.println(getName() + " ExitValue: " + exitVal);
+            log.debug(getName() + " ExitValue: " + exitVal);
 
             return new TestResult() {
                 {
@@ -143,7 +144,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
             }  ;
 
         } catch (Throwable t) {
-            System.err.println(t.getLocalizedMessage());
+            log.error(t.getLocalizedMessage());
             t.printStackTrace();
             throw new RuntimeException(t);
         }
@@ -186,15 +187,15 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
         private void logLine(String line, StdType type) {
             if(type.equals(StdType.ERROR)){
-                System.err.println("Error executing the script >" + line);
+                log.error("Error executing the script >" + line);
                 throw new RuntimeException("Error executing the script "+ getName() + " : error is "+ line);
             } else{
                 if(line.startsWith(parseString)){
                     output += line;
-                    System.out.println("Found result " + line);
+                    log.debug("Found result " + line);
                     result = mapResult(line.replaceAll(parseString,""));
                 } else{
-                    System.out.println(line);
+                    log.debug(line);
                 }
             }
         }
@@ -214,6 +215,6 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 }

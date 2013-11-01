@@ -4,6 +4,8 @@ import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,10 +21,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.stringtemplate.v4.*;
-
 @PluginImplementation
 public class MailAction implements BNActionPlugin {
+    private static final Log log = LogFactory.getLog(MailAction.class);
     private static String CONFIG_FILE = "bn.properties";
 
     private static final String NAME = "Mail";
@@ -93,11 +94,13 @@ public class MailAction implements BNActionPlugin {
      */
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
+        log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
         boolean success = true;
         try {
             fetchMailPropertiesFromFile();
         } catch (IOException e) {
             e.printStackTrace();
+            log.error(e.getLocalizedMessage());
             success = false;
         }
         if(success){
@@ -126,7 +129,7 @@ public class MailAction implements BNActionPlugin {
                 if(testSessionContext.getAttribute(MESSAGE_TEMPLATE) != null){
 //                    ST hello = new ST("Hello, <name>");
 //                    hello.add("name", "World");
-                    ST template = new ST((String) testSessionContext.getAttribute(MESSAGE_TEMPLATE));
+//                    ST template = new ST((String) testSessionContext.getAttribute(MESSAGE_TEMPLATE));
 
 
                 } else {

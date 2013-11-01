@@ -8,6 +8,8 @@ import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.OpenWeatherParser;
 import com.ai.util.resource.TestSessionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 
 
@@ -18,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class WeatherAbstractSensor implements BNSensorPlugin {
+    protected static final Log log = LogFactory.getLog(WeatherAbstractSensor.class);
     String city;
     public static final String TEMP = "temperature";
     public static final String HUMIDITY = "humidity";
@@ -70,7 +73,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.debug("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(city == null){
             throw new RuntimeException("City not defined");
         }
@@ -317,7 +320,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
     private String mapHumidity(int humidityId) {
         //    String [] humidityStates = {"Low", "Normal", "High"};
-        //System.out.println("Map humidity "+ humidityId);
+        //log.debug("Map humidity "+ humidityId);
         if(humidityId < 70) {
             return "Low";
         } else if(humidityId < 90) {
@@ -327,7 +330,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     }
 
     private String mapTemperature(int temperature) {
-        //System.out.println("Map temperature "+ temperature);
+        //log.debug("Map temperature "+ temperature);
         if(temperature < 0) {
             return "Freezing";
         }  else if(temperature < 8) {
@@ -362,7 +365,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String[] args){
@@ -379,44 +382,44 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
         };
         weatherSensor.setProperty("city", "Gent");
         TestResult testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
 
         weatherSensor.setProperty("city", "London");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Sidney");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Bangalore");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Chennai");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Moscow");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Belgrade");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
-        System.out.println(testResult.getObserverState());
+        log.debug(testResult.getObserverState());
         testResult.getRawData();
 
 
-        System.out.println("@@@@");
+        log.debug("@@@@");
         WeatherSensor weatherSensor1 = new WeatherSensor();
         weatherSensor1.setProperty("city", "ffffff");
         testResult = weatherSensor1.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 }

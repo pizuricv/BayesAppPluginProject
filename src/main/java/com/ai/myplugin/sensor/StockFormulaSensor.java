@@ -3,6 +3,8 @@ package com.ai.myplugin.sensor;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.FormulaParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -15,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @PluginImplementation
 public class StockFormulaSensor extends StockAbstractSensor {
+    private static final Log log = LogFactory.getLog(StockFormulaSensor.class);
 
     @Override
     public String[] getRequiredProperties() {
@@ -34,6 +37,7 @@ public class StockFormulaSensor extends StockAbstractSensor {
     @Override
     //only used by StockFormulaSensor
     protected double getFormulaResult(ConcurrentHashMap<String, Double> hashMap) throws Exception{
+        log.debug("getFormulaResult()");
         JSONObject object = new JSONObject();
         JSONObject raw = new JSONObject();
         for(Map.Entry<String, Double> entry : hashMap.entrySet())  {
@@ -46,6 +50,7 @@ public class StockFormulaSensor extends StockAbstractSensor {
             return FormulaParser.executeFormula(FormulaParser.parse(map, (String) getProperty(FORMULA_DEFINITION)));
         } catch (Exception e) {
             e.printStackTrace();
+            log.error(e.getLocalizedMessage());
             throw new Exception("Error getting Stock result " + e.getLocalizedMessage());
         }
     }
@@ -56,16 +61,16 @@ public class StockFormulaSensor extends StockAbstractSensor {
         stockFormulaSensor.setProperty(THRESHOLD, 0);
         stockFormulaSensor.setProperty(FORMULA_DEFINITION, "this->price - this->moving_average");
         TestResult testResult = stockFormulaSensor.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
 
         stockFormulaSensor.setProperty(STOCK, "GOOG");
         stockFormulaSensor.setProperty(THRESHOLD, .15);
         stockFormulaSensor.setProperty(FORMULA_DEFINITION, "(this->price - this->moving_average)/this->moving_average");
         testResult = stockFormulaSensor.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
     }
 }

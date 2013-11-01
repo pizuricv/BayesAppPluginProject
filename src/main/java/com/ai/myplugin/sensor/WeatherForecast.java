@@ -11,6 +11,8 @@ import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Mashape;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //currently not exposed, TODO check if that one should be removed later
 //@PluginImplementation
 public class WeatherForecast implements BNSensorPlugin {
+    private static final Log log = LogFactory.getLog(WeatherForecast.class);
 
     static final String server = "https://george-vustrey-weather.p.mashape.com/api.php?_method=getForecasts&location=";
     static final String CITY = "city";
@@ -54,13 +57,14 @@ public class WeatherForecast implements BNSensorPlugin {
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
         try {
             String str = Rest.httpGet(server + city, map);
-            System.out.println(str);
+            log.debug(str);
         } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
             e.printStackTrace();
         }
         return new EmptyTestResult();
@@ -78,7 +82,7 @@ public class WeatherForecast implements BNSensorPlugin {
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String []args){

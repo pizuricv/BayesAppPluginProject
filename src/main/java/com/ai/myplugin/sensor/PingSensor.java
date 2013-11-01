@@ -10,6 +10,8 @@ import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class PingSensor implements BNSensorPlugin{
+    private static final Log log = LogFactory.getLog(PingSensor.class);
+
     private static final String IP_ADDRESS = "address";
     private static final String TIMEOUT = "timeout";
     private static final String ALIVE = "Alive";
@@ -39,7 +43,7 @@ public class PingSensor implements BNSensorPlugin{
             try {
                 propertiesMap.put(string,InetAddress.getByName(obj.toString()));
             } catch (UnknownHostException e) {
-                System.err.println(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage());
             }
         } else if(string.equals(TIMEOUT)){
             propertiesMap.put(string, Utils.getDouble(obj));
@@ -57,7 +61,7 @@ public class PingSensor implements BNSensorPlugin{
     }
 
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         boolean reachable = false;
         boolean testSuccess = true;
 
@@ -65,7 +69,7 @@ public class PingSensor implements BNSensorPlugin{
             reachable = getAddress().isReachable(getTimeOut());
         } catch (Exception e) {
             testSuccess = false;
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
         }
         final boolean finalTestFailed = testSuccess;
         final boolean finalReachable = reachable;
@@ -121,6 +125,6 @@ public class PingSensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 }

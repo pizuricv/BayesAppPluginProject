@@ -1,5 +1,7 @@
 package com.ai.myplugin.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
@@ -17,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 25/10/13
  */
 public class TwitterConfig {
+    private static final Log log = LogFactory.getLog(TwitterConfig.class);
     private static final String CONSUMER_KEY = "OAuthConsumerKey";
     private static final String CONSUMER_SECRET = "OAuthConsumerSecret";
     private static final String ACCESS_TOKEN = "OAuthAccessToken";
@@ -31,6 +34,7 @@ public class TwitterConfig {
             properties.load(new FileInputStream(CONFIG_FILE));
         } catch (IOException e) {
             e.printStackTrace();
+            log.error(e.getLocalizedMessage());
         }
         cb.setDebugEnabled(true)
                 .setOAuthConsumerKey((String) properties.get(CONSUMER_KEY))

@@ -9,6 +9,8 @@ import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -21,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class ScenarioControlAction implements BNActionPlugin{
+    private static final Log log = LogFactory.getLog(ScenarioControlAction.class);
     private static final String SERVER_ADDRESS = "server address";
     private static final String USER_NAME = "username";
     private static final String USER_PASSWORD = "password";
@@ -41,7 +44,7 @@ public class ScenarioControlAction implements BNActionPlugin{
                 || string.equals(USER_NAME) || string.equals(USER_PASSWORD) || string.equals(COMMAND)) {
             propertiesMap.put(string, obj);
         } else {
-            System.out.println("property " + string + " not known by the action");
+            throw new RuntimeException("Property "+ string + " not in the required settings");
         }
     }
 
@@ -57,7 +60,7 @@ public class ScenarioControlAction implements BNActionPlugin{
 
     @Override
     public ActionResult action(TestSessionContext testSessionContext) {
-        System.out.println("####### action triggered " + getDescription());
+        log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         boolean testSuccess = true;
         Integer scenarioID = -1;
@@ -73,19 +76,19 @@ public class ScenarioControlAction implements BNActionPlugin{
         try {
             scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
         } catch (Exception e){
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
         if(server == null || scenarioID.equals(-1)) {
             String errorMessage = "error in the configuration of the sensor " + getDescription();
-            System.err.println(errorMessage);
+            log.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
         try {
             url = new URL(server+ "/scenarios/" + scenarioID);
         } catch (MalformedURLException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
 
@@ -95,13 +98,13 @@ public class ScenarioControlAction implements BNActionPlugin{
         try {
             query = String.format("action=%s", URLEncoder.encode((String) getProperty(COMMAND), charset));
         } catch (UnsupportedEncodingException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         }
         try {
             connection = url.openConnection();
         } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         }
         connection.setDoOutput(true); // Triggers POST.
@@ -112,7 +115,7 @@ public class ScenarioControlAction implements BNActionPlugin{
             output = connection.getOutputStream();
             output.write(query.getBytes(charset));
         } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         } finally {
             if (output != null)
@@ -120,7 +123,7 @@ public class ScenarioControlAction implements BNActionPlugin{
                     output.flush();
                     output.close();
                 } catch (IOException e) {
-                    System.err.println(e.getLocalizedMessage());
+                    log.error(e.getLocalizedMessage());
                 }
         }
 
@@ -130,6 +133,7 @@ public class ScenarioControlAction implements BNActionPlugin{
             try {
                 is = connection.getInputStream();
             } catch (IOException e) {
+                log.error(e.getLocalizedMessage());
                 e.printStackTrace();
             }
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
@@ -141,14 +145,14 @@ public class ScenarioControlAction implements BNActionPlugin{
                     response.append('\r');
                 }
             } catch (IOException e) {
-                System.err.println(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage());
             }
             try {
                 rd.close();
             } catch (IOException e) {
-                System.err.println(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage());
             }
-            System.out.println(response.toString());
+            log.debug(response.toString());
         }
 
         final boolean finalTestSuccess = testSuccess;

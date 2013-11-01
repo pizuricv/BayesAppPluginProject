@@ -6,6 +6,8 @@ package com.ai.myplugin.util;
 
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.sensor.WeatherAbstractSensor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OpenWeatherParser {
+    private static final Log log = LogFactory.getLog(OpenWeatherParser.class);
     private static final String server = "http://api.openweathermap.org/data/2.5/";
 
     private static String getServerDailyAddress(String city){
@@ -28,11 +31,13 @@ public class OpenWeatherParser {
     };
 
     private static JSONObject getWeatherResult(String city, String pathURL) {
+        log.debug("getWeatherResult("+city +","+ pathURL+")");
         String stringToParse;
         try{
             stringToParse = Rest.httpGet(pathURL);
-            System.out.println(stringToParse);
+            log.debug(stringToParse);
         } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
 
@@ -41,6 +46,7 @@ public class OpenWeatherParser {
         try {
             obj = (JSONObject) parser.parse(stringToParse);
         } catch (ParseException e) {
+            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
 
@@ -50,6 +56,7 @@ public class OpenWeatherParser {
     }
 
     public static List<Map<String, Number>> getWeatherResultForWeekCodes(String city){
+        log.debug("getWeatherResultForWeekCodes("+city +")");
         String pathURL = getServerForecastAddress(city);
 
         ArrayList<Map<String, Number>> list = new ArrayList<Map<String, Number>>();
@@ -79,6 +86,7 @@ public class OpenWeatherParser {
     }
 
     public static ConcurrentHashMap<String, Number> getWeatherResultCodes(String city){
+        log.debug("getWeatherResultCodes("+city +")");
         String pathURL = getServerDailyAddress(city);
         JSONObject obj = getWeatherResult(city, pathURL);
 

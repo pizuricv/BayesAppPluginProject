@@ -6,11 +6,12 @@ import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Created by User: veselin
@@ -52,6 +53,7 @@ http://luchtkwaliteit.vmm.be/lijst.php
 
 @PluginImplementation
 public class AirQualitySensor implements BNSensorPlugin{
+    private static final Log log = LogFactory.getLog(AirQualitySensor.class);
     public static final String LOCATION = "location";
     private String location = null;
 
@@ -83,7 +85,7 @@ public class AirQualitySensor implements BNSensorPlugin{
 
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
-        System.out.println("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         for(String property : getRequiredProperties()){
             if(getProperty(property) == null)
                 throw new RuntimeException("Required property "+property + " not defined");
@@ -96,8 +98,9 @@ public class AirQualitySensor implements BNSensorPlugin{
         String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            //System.out.println(stringToParse);
+            //log.debug(stringToParse);
         } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
             testSuccess = false;
         }
         if(testSuccess){
@@ -120,7 +123,7 @@ public class AirQualitySensor implements BNSensorPlugin{
                     }
                 }
             }catch (Exception e){
-                System.err.println(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage());
                 testSuccess = false;
             }
         }
@@ -162,7 +165,7 @@ public class AirQualitySensor implements BNSensorPlugin{
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
-        System.out.println("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     private String mapValue(int finalValue) {
@@ -191,13 +194,13 @@ public class AirQualitySensor implements BNSensorPlugin{
         AirQualitySensor airQualitySensor = new AirQualitySensor();
         airQualitySensor.setProperty(LOCATION, "Gent");
         TestResult testResult = airQualitySensor.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
 
         airQualitySensor.setProperty(LOCATION, "Antwerp");
         testResult = airQualitySensor.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 }
 

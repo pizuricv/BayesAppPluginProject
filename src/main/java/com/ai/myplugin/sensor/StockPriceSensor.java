@@ -27,14 +27,14 @@ public class StockPriceSensor extends StockAbstractSensor {
         StockPriceSensor stockSensor = new StockPriceSensor();
         stockSensor.setProperty(STOCK, "MSFT");
         stockSensor.setProperty(THRESHOLD, "36");
-        System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
-        System.out.println(stockSensor.execute(null).getObserverState());
+        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
+        log.debug(stockSensor.execute(null).getObserverState());
 
 
         stockSensor.setProperty(STOCK, "GOOG");
         stockSensor.setProperty(THRESHOLD, "800.0");
         TestResult testResult = stockSensor.execute(null);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        log.debug(testResult.getObserverState());
+        log.debug(testResult.getRawData());
     }
 }

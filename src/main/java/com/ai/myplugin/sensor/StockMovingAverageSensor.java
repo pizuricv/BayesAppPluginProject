@@ -27,16 +27,16 @@ public class StockMovingAverageSensor extends StockAbstractSensor {
         StockMovingAverageSensor stockSensor = new StockMovingAverageSensor();
         stockSensor.setProperty(StockAbstractSensor.STOCK, "MSFT");
         stockSensor.setProperty(StockAbstractSensor.THRESHOLD, "36");
-        System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
-        System.out.println(stockSensor.execute(null).getObserverState());
+        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
+        log.debug(stockSensor.execute(null).getObserverState());
 
 
         stockSensor.setProperty(STOCK, "GOOG");
         stockSensor.setProperty(THRESHOLD, "800.0");
-        System.out.println(stockSensor.execute(null).getObserverState());
+        log.debug(stockSensor.execute(null).getObserverState());
 
         stockSensor.setProperty(STOCK, "BAR.BR");
         stockSensor.setProperty(THRESHOLD, "-1.0");
-        System.out.println(stockSensor.execute(null).getObserverState());
+        log.debug(stockSensor.execute(null).getObserverState());
     }
 }
