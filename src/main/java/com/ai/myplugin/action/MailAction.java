@@ -2,13 +2,18 @@ package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
+import com.ai.myplugin.util.RawDataParser;
+import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -124,7 +129,7 @@ public class MailAction implements BNActionPlugin {
                 message.setRecipients(Message.RecipientType.TO,
                         InternetAddress.parse((String) getProperty(MAIL_TO)));
                 message.setSubject((String) getProperty(SUBJECT));
-                StringBuffer messageToAppend = new StringBuffer();
+
 
                 if(testSessionContext.getAttribute(MESSAGE_TEMPLATE) != null){
 //                    ST hello = new ST("Hello, <name>");
@@ -133,23 +138,24 @@ public class MailAction implements BNActionPlugin {
 
 
                 } else {
-                    Map attributes = testSessionContext.getAllAttributes();
-                    messageToAppend.append("message: ").append(getProperty(MESSAGE)).append("\n\n");
-                    for(Object key :attributes.keySet()){
-                        messageToAppend.append(key)
-                                .append(": ")
-                                .append(attributes.get(key))
-                                .append("\n");
+                    Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+                    String messageString = (String) getProperty(MESSAGE);
+                    try {
+                        messageString = "message: "  + RawDataParser.parse(map, messageString);
+                        String explainReason = RawDataParser.parseNodesData(testSessionContext);
+                        message.setText(messageString + explainReason);
+                        Transport.send(message);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        log.error(e.getLocalizedMessage());
+                        success = false;
                     }
-                    message.setText(messageToAppend.toString());
                 }
-                Transport.send(message);
 
             } catch (MessagingException e) {
                 e.printStackTrace();
                 success = false;
             }
-
         }
 
         final boolean finalSuccess = success;
@@ -175,8 +181,25 @@ public class MailAction implements BNActionPlugin {
         MailAction mail = new MailAction();
         mail.setProperty(MAIL_TO, "veselin.pizurica@gmail.com");
         mail.setProperty(SUBJECT, "test the action");
-        mail.setProperty(MESSAGE, "hello vele");
-        mail.action(null);
+        mail.setProperty(MESSAGE, "hello vele node1->value1");
+
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject objRaw = new JSONObject();
+        objRaw.put("value1", 1);
+        objRaw.put("time", 123);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node1", objRaw);
+
+        objRaw = new JSONObject();
+        objRaw.put("value2", 1);
+        objRaw.put("time", 213213);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node2", objRaw);
+
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+
+        mail.action(testSessionContext);
 
     }
 }

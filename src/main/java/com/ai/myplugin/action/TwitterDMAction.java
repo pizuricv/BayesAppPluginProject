@@ -6,10 +6,13 @@ package com.ai.myplugin.action;
 
 import com.ai.bayes.plugins.BNActionPlugin;
 import com.ai.bayes.scenario.ActionResult;
+import com.ai.myplugin.util.RawDataParser;
+import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
 import twitter4j.DirectMessage;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -20,6 +23,7 @@ import twitter4j.conf.ConfigurationBuilder;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,6 +99,12 @@ public class TwitterDMAction implements BNActionPlugin {
         TwitterFactory tf = new TwitterFactory(cb.build());
         Twitter twitter = tf.getInstance();
         String twitterMessage = getProperty(TWITTER_MESSAGE) + " , on " + (new Date()).toString();
+        Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+        try {
+            twitterMessage = RawDataParser.parse(map, twitterMessage);
+        }catch (Exception e){
+            log.warn(e.getLocalizedMessage());
+        }
 
         try {
             DirectMessage message = twitter.sendDirectMessage((String) getProperty(TWITTER_ACCOUNT),
@@ -144,8 +154,24 @@ public class TwitterDMAction implements BNActionPlugin {
             System.exit(-1);
         }*/
         TwitterDMAction twitterDMAction = new TwitterDMAction();
-        twitterDMAction.setProperty("twitter account", "pizurican");
-        twitterDMAction.setProperty("twitter message", "hello test");
-        twitterDMAction.action(null);
+        twitterDMAction.setProperty("twitter account", "pizuricv");
+        twitterDMAction.setProperty("twitter message", "hello test node1->value1 ahh");
+
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject objRaw = new JSONObject();
+        objRaw.put("value1", 1);
+        objRaw.put("time", 123);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node1", objRaw);
+
+        objRaw = new JSONObject();
+        objRaw.put("value2", 1);
+        objRaw.put("time", 213213);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node2", objRaw);
+
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        twitterDMAction.action(testSessionContext);
     }
 }
