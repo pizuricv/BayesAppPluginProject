@@ -2,10 +2,12 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.action.MailAction;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.SlidingWindowCounter;
 import com.ai.myplugin.util.TwitterConfig;
 import com.ai.myplugin.util.Utils;
+import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -144,9 +146,23 @@ public class TwitterQuerySensor implements BNSensorPlugin{
         TwitterQuerySensor twitterQuerySensor = new TwitterQuerySensor();
         twitterQuerySensor.setProperty(FROM, "nmbs");
         twitterQuerySensor.setProperty(DATE, "2013-10-12");
-        TestResult result = twitterQuerySensor.execute(null);
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        TestResult result = twitterQuerySensor.execute(testSessionContext);
         log.info(result.getObserverState());
         log.info(result.getRawData());
+
+
+        MailAction mail = new MailAction();
+        mail.setProperty("address", "veselin.pizurica@gmail.com");
+        mail.setProperty("subject", "test the action");
+        mail.setProperty("message", "hello vele node1->tweets");
+
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("rawData", result.getRawData());
+        mapTestResult.put("node1", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        mail.action(testSessionContext);
     }
 
 }
