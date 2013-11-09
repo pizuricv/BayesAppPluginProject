@@ -88,8 +88,20 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
 
             @Override
             public String getRawData() {
+                int positive = 0;
+                int negative = 0;
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("tweets", listFoundItems);
+                for(String item : listFoundItems){
+                    int n = SentimentAnalysis.sentimentForString(item);
+                    if(n > 0)
+                        positive ++;
+                    else if(n < 0)
+                        negative ++;
+                }
+                jsonObject.put("positiveCounter", positive);
+                jsonObject.put("negativeCounter", negative);
+                jsonObject.put("mentions", listFoundItems.size());
                 return jsonObject.toJSONString();
             }
         };
