@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.SentimentAnalysis;
 import com.ai.myplugin.util.TwitterConfig;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -25,7 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TwitterStreamSearchSensor implements BNSensorPlugin{
     private static final Log log = LogFactory.getLog(TwitterStreamSearchSensor.class);
     private static final String SEARCH_TERMS = "search_terms";
-    private int window = 15;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     private boolean running = false;
     private List<String> listFoundItems = Collections.synchronizedList(new ArrayList<String>());
@@ -101,7 +101,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
             public void run() {
                 while (true){
                     if(atomicBoolean.get()){
-                        log.debug("delete from the list #tweets: " +listFoundItems.size());
+                        log.debug("delete from the list #tweets: " + listFoundItems.size());
                         listFoundItems.clear();
                         atomicBoolean.set(false);
                     }
@@ -125,17 +125,14 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
         return new String[] {"Found", "Not Found"};
     }
 
-    public synchronized void runSentiment(String searchTerms){
-        final String [] searchSep = searchTerms.split(";");
+    public synchronized void runSentiment(final String searchTerms){
         StatusListener listener = new StatusListener() {
             public void onStatus(Status status) {
-                for (String token: searchSep){
-                    if (status.getText().toLowerCase().indexOf(token.toLowerCase()) > 0) {
-                        log.debug("********* Found *************");
-                        //log.debug("User is : " + status.getUser().getName());
-                        //log.debug("Text is : " + status.getText());
-                        listFoundItems.add(status.getText());
-                    }
+                if(SentimentAnalysis.isMatching(searchTerms, status.getText())){
+                    log.debug("********* Found *************");
+                    //log.debug("User is : " + status.getUser().getName());
+                    //log.debug("Text is : " + status.getText());
+                    listFoundItems.add(status.getText());
                 }
             }
             public void onDeletionNotice(

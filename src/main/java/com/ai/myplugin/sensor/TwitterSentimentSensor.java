@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.SentimentAnalysis;
 import com.ai.myplugin.util.SlidingWindowCounter;
 import com.ai.myplugin.util.TwitterConfig;
 import com.ai.myplugin.util.Utils;
@@ -27,17 +28,11 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     private static final String WINDOW = "window";
     private int window = 15;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-    //TODO add real analysis!!!
     private SlidingWindowCounter counterPositive = new SlidingWindowCounter(15, "positive sentiment");
     private SlidingWindowCounter counterNegative = new SlidingWindowCounter(15, "negative sentiment");
     private SlidingWindowCounter mentions = new SlidingWindowCounter(15, "mentions");
     private boolean running = false;
-    private String [] positiveTerms = new String[] {"great", "super", "awesome", "nice", "lol", "cute", "happy", "good", "love"};
-    private String [] negativeTerms = new String[] {"bad", "ugly", "fuck", "sad", "shit", "nasty", "unhappy", "hate"};
     TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
-
-
-
 
     @Override
     public String[] getRequiredProperties() {
@@ -121,38 +116,21 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
         return new String[] {"Positive", "Neutral", "Negative"};
     }
 
-    private void weightSearchTerm(String searchItem){
-        for(String positiveString : positiveTerms){
-            if(searchItem.indexOf(positiveString) > -1)
-                if(searchItem.indexOf(" not ") > -1)
-                    counterNegative.incrementAndGet();
-                else
-                    counterPositive.incrementAndGet();
-        }
-        for(String negativeString : negativeTerms){
-            if(searchItem.indexOf(negativeString) > -1)
-                if(searchItem.indexOf(" not ") > -1)
-                    counterPositive.incrementAndGet();
-                else
-                    counterNegative.incrementAndGet();
-        }
-    }
-
-    public synchronized void runSentiment(String searchTerms){
-        final String [] searchSep = searchTerms.split(";");
-
+    public synchronized void runSentiment(final String searchTerms){
         StatusListener listener = new StatusListener() {
             public void onStatus(Status status) {
-                for (String token: searchSep){
-                    if (status.getText().toLowerCase().indexOf(token.toLowerCase()) > 0) {
-                        log.debug("********* Found *************");
-                        //log.debug("User is : " + status.getUser().getName());
-                        //log.debug("Text is : " + status.getText());
-                        mentions.incrementAndGet();
-                        weightSearchTerm(status.getText().toLowerCase());
-                        //log.debug("Counter positive is: " + counterPositive.getTotalCount());
-                        //log.debug("Counter negative is: " + counterNegative.getTotalCount());
-                    }
+                if (SentimentAnalysis.isMatching(searchTerms, status.getText())) {
+                    log.debug("********* Found *************");
+                    //log.debug("User is : " + status.getUser().getName());
+                    //log.debug("Text is : " + status.getText());
+                    mentions.incrementAndGet();
+                    int num = SentimentAnalysis.sentimentForString(status.getText().toLowerCase());
+                    if(num == 1)
+                        counterPositive.incrementAndGet();
+                    else if(num == -1)
+                        counterNegative.incrementAndGet();
+                    //log.debug("Counter positive is: " + counterPositive.getTotalCount());
+                    //log.debug("Counter negative is: " + counterNegative.getTotalCount());
                 }
             }
             public void onDeletionNotice(
@@ -197,17 +175,17 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     public static void main(String[] args) throws TwitterException, IOException {
         final TwitterSentimentSensor twitterSentimentSensor = new TwitterSentimentSensor();
         twitterSentimentSensor.setProperty(WINDOW, 3);
-        twitterSentimentSensor.setProperty(SEARCH_TERMS, "justin;bieber");
+        twitterSentimentSensor.setProperty(SEARCH_TERMS, "justin bieber");
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 while(true){
                     try {
                         Thread.sleep(10000);
-                        log.debug("execute...");
+                        log.info("execute...");
                         TestResult testResult = twitterSentimentSensor.execute(null);
-                        log.debug("RAW data: " +testResult.getRawData());
-                        log.debug("Observed state: " + testResult.getObserverState());
+                        log.info("RAW data: " +testResult.getRawData());
+                        log.info("Observed state: " + testResult.getObserverState());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         return;
