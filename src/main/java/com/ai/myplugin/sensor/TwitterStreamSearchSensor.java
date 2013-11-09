@@ -2,9 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
-import com.ai.myplugin.util.SlidingWindowCounter;
 import com.ai.myplugin.util.TwitterConfig;
-import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -15,6 +13,9 @@ import twitter4j.TwitterException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by User: veselin
@@ -27,8 +28,10 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
     private int window = 15;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     private boolean running = false;
-    private List<String> listFoundItems = new ArrayList();
+    private List<String> listFoundItems = Collections.synchronizedList(new ArrayList<String>());
     TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+    protected ExecutorService cleanUpService = Executors.newSingleThreadExecutor();
 
     @Override
     public String[] getRequiredProperties() {
@@ -55,9 +58,10 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
-        listFoundItems.clear();
+        atomicBoolean.set(true);
         if(!running){
             runSentiment((String) getProperty(SEARCH_TERMS));
+            startCleanUpThread();
         }
         return new TestResult() {
             @Override
@@ -89,6 +93,26 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
                 return jsonObject.toJSONString();
             }
         };
+    }
+
+    private void startCleanUpThread() {
+        cleanUpService.submit(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    if(atomicBoolean.get()){
+                        log.debug("delete from the list #tweets: " +listFoundItems.size());
+                        listFoundItems.clear();
+                        atomicBoolean.set(false);
+                    }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        log.error(e.getLocalizedMessage());
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -148,11 +172,12 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
         running = false;
         twitterStream.shutdown();
+        cleanUpService.shutdown();
     }
 
     public static void main(String[] args) throws TwitterException, IOException {
         final TwitterStreamSearchSensor twitterSentimentSensor = new TwitterStreamSearchSensor();
-        twitterSentimentSensor.setProperty(SEARCH_TERMS, "justin;bieber");
+        twitterSentimentSensor.setProperty(SEARCH_TERMS, ":)");
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -161,7 +186,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
                         Thread.sleep(10000);
                         log.info("execute...");
                         TestResult testResult = twitterSentimentSensor.execute(null);
-                        log.info("RAW data: " +testResult.getRawData());
+                        log.info("RAW data: " + testResult.getRawData());
                         log.info("Observed state: " + testResult.getObserverState());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
