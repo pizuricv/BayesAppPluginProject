@@ -108,7 +108,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
             @Override
             public String getObserverState() {
                 if(listTweets.size() == 0)
-                    return "Not found";
+                    return "Not Found";
                 return "Found";
             }
 

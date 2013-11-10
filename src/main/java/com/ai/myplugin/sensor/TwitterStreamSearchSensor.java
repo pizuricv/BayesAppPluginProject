@@ -77,7 +77,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
             @Override
             public String getObserverState() {
                 if(listFoundItems.size() == 0)
-                    return "Not found";
+                    return "Not Found";
                 return "Found";
             }
 
@@ -186,7 +186,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
 
     public static void main(String[] args) throws TwitterException, IOException {
         final TwitterStreamSearchSensor twitterSentimentSensor = new TwitterStreamSearchSensor();
-        twitterSentimentSensor.setProperty(SEARCH_TERMS, ":)");
+        twitterSentimentSensor.setProperty(SEARCH_TERMS, "nmbs gent antwerp vertraging");
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
