@@ -138,8 +138,11 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
     }
 
     public synchronized void runSentiment(final String searchTerms){
+        FilterQuery filterQuery = new FilterQuery();
+        final String [] searchSep = searchTerms.split(SentimentAnalysis.SEPARATOR);
         StatusListener listener = new StatusListener() {
             public void onStatus(Status status) {
+                //TODO this is a way to make the search logical AND, rather than logical OR, need better way to do it
                 if(SentimentAnalysis.isMatching(searchTerms, status.getText())){
                     log.debug("********* Found *************");
                     //log.debug("User is : " + status.getUser().getName());
@@ -172,7 +175,9 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
             }
         };
         twitterStream.addListener(listener);
-        twitterStream.sample();
+        // twitterStream.sample();
+        filterQuery.track(searchSep);
+        twitterStream.filter(filterQuery);
         running = true;
     }
 
@@ -186,7 +191,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
 
     public static void main(String[] args) throws TwitterException, IOException {
         final TwitterStreamSearchSensor twitterSentimentSensor = new TwitterStreamSearchSensor();
-        twitterSentimentSensor.setProperty(SEARCH_TERMS, "nmbs gent antwerp vertraging");
+        twitterSentimentSensor.setProperty(SEARCH_TERMS, "nmbs vertraging gent antwerp");
         Runnable runnable = new Runnable() {
             @Override
             public void run() {

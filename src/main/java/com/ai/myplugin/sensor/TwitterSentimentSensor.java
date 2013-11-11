@@ -117,8 +117,12 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     }
 
     public synchronized void runSentiment(final String searchTerms){
+        FilterQuery filterQuery = new FilterQuery();
+        final String [] searchSep = searchTerms.split(SentimentAnalysis.SEPARATOR);
+
         StatusListener listener = new StatusListener() {
             public void onStatus(Status status) {
+                //TODO this is a way to make the search logical AND, rather than logical OR, need better way to do it
                 if (SentimentAnalysis.isMatching(searchTerms, status.getText())) {
                     log.debug("********* Found *************");
                     //log.debug("User is : " + status.getUser().getName());
@@ -158,7 +162,9 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
             }
         };
         twitterStream.addListener(listener);
-        twitterStream.sample();
+        //twitterStream.sample();  //this is the way to get 1% of the stream, below we use the filter instead
+        filterQuery.track(searchSep);
+        twitterStream.filter(filterQuery);
         running = true;
     }
 
