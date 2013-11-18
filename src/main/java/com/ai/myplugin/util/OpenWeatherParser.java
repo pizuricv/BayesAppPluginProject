@@ -23,7 +23,7 @@ public class OpenWeatherParser {
     private static final String server = "http://api.openweathermap.org/data/2.5/";
 
     private static String getServerDailyAddress(String city){
-        return server + "weather?q=" + city + "&mode=json&units=metric&cnt=0";
+        return server + "weather?q=" + city + "&mode=json&units=metric";
     };
 
     private static String getServerForecastAddress(String city){

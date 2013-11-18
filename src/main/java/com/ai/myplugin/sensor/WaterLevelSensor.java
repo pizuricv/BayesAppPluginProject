@@ -40,6 +40,8 @@ public class WaterLevelSensor implements BNSensorPlugin{
     private Integer dailyThreshold = null;
     public static final String TOTAL_THRESHOLD = "total_threshold";
     private Integer totalThreshold = null;
+    private Integer dailyForecastThreshold = null;
+    private Integer totalForecastThreshold = null;
 
     @Override
     public String[] getRequiredProperties() {
@@ -88,11 +90,13 @@ public class WaterLevelSensor implements BNSensorPlugin{
         String stringToParse = "";
         double total = Double.MAX_VALUE;
         double daily = Double.MAX_VALUE;
+        double totalForecast = Double.MAX_VALUE;
+        double dailyForecast = Double.MAX_VALUE;
 
-        String pathURL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/PluviograafTabel&KL=nl&mode=P";
+        String pathURL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Neerslagtabellen&XSLTArg_TableID=benedenschelde&XSLTArg_ShowAll=1";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            //log.debug(stringToParse);
+            log.info(stringToParse);
         } catch (Exception e) {
             testSuccess = false;
         }
@@ -102,14 +106,19 @@ public class WaterLevelSensor implements BNSensorPlugin{
                 String tmp = stringToParse.substring(len);
                 tmp = tmp.replaceAll("#dddddd\">", "|");
                 StringTokenizer stringTokenizer = new StringTokenizer(tmp, "|");
-                if(stringTokenizer.countTokens() > 4){
+                if(stringTokenizer.countTokens() > 6){
+                    stringTokenizer.nextToken();
                     stringTokenizer.nextToken();
                     stringTokenizer.nextToken();
                     String totalString = stringTokenizer.nextToken();
                     String dailyString = stringTokenizer.nextToken();
+                    String dailyForecastString = stringTokenizer.nextToken();
+                    String totalForecastString = stringTokenizer.nextToken();
                     total = Double.parseDouble(totalString.substring(0, totalString.indexOf("mm")).trim());
                     daily = Double.parseDouble(dailyString.substring(0, dailyString.indexOf("mm")).trim());
-                    log.debug("DAILY: "+daily + ", TOTAL:" + total);
+                    totalForecast = Double.parseDouble(totalForecastString.substring(0, totalString.indexOf("mm")).trim());
+                    dailyForecast = Double.parseDouble(dailyForecastString.substring(0, dailyString.indexOf("mm")).trim());
+                    log.info("DAILY: "+daily + ", TOTAL:" + total + ", DAILY FORECAST: "+daily + ", TOTAL FORECAST:" + total);
                 }
             }
 
@@ -122,6 +131,8 @@ public class WaterLevelSensor implements BNSensorPlugin{
             final String finalRet = ret;
             final double finalDaily = daily;
             final double finalTotal = total;
+            final double finalForecastDaily = dailyForecast;
+            final double finalForecastTotal = totalForecast;
             return new TestResult() {
                 @Override
                 public boolean isSuccess() {
@@ -148,6 +159,8 @@ public class WaterLevelSensor implements BNSensorPlugin{
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("dailyLevel", new Double(finalDaily));
                     jsonObject.put("totalLevel", new Double(finalTotal));
+                    jsonObject.put("dailyForecastLevel", new Double(finalForecastDaily));
+                    jsonObject.put("totalForecastLevel", new Double(finalForecastTotal));
                     return jsonObject.toJSONString();
                 }
             };
@@ -174,12 +187,12 @@ public class WaterLevelSensor implements BNSensorPlugin{
 
     public static void main(String []args){
         WaterLevelSensor waterLevelSensor = new WaterLevelSensor();
-        waterLevelSensor.setProperty(LOCATION, "Neerslag Vinderhoute");
+        waterLevelSensor.setProperty(LOCATION, "PDM-438-R");
         waterLevelSensor.setProperty(DAILY_THRESHOLD, 15);
         waterLevelSensor.setProperty(TOTAL_THRESHOLD, 1);
         TestResult testResult = waterLevelSensor.execute(null);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
     }
 }
 

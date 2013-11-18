@@ -26,26 +26,26 @@ public class TemperatureSensor extends WeatherAbstractSensor{
         TemperatureSensor weatherSensor = new TemperatureSensor();
         weatherSensor.setProperty("city", "London");
         TestResult testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Bangalore");
         testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Chennai");
         testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Moscow");
         testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Belgrade");
         testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
     }
 }
