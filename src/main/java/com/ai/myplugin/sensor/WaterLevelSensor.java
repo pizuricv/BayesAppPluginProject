@@ -96,7 +96,7 @@ public class WaterLevelSensor implements BNSensorPlugin{
         String pathURL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Neerslagtabellen&XSLTArg_TableID=benedenschelde&XSLTArg_ShowAll=1";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            log.info(stringToParse);
+            log.debug(stringToParse);
         } catch (Exception e) {
             testSuccess = false;
         }
