@@ -116,8 +116,8 @@ public class WaterLevelSensor implements BNSensorPlugin{
                     String totalForecastString = stringTokenizer.nextToken();
                     total = Double.parseDouble(totalString.substring(0, totalString.indexOf("mm")).trim());
                     daily = Double.parseDouble(dailyString.substring(0, dailyString.indexOf("mm")).trim());
-                    totalForecast = Double.parseDouble(totalForecastString.substring(0, totalString.indexOf("mm")).trim());
-                    dailyForecast = Double.parseDouble(dailyForecastString.substring(0, dailyString.indexOf("mm")).trim());
+                    totalForecast = Double.parseDouble(totalForecastString.substring(0, totalForecastString.indexOf("mm")).trim());
+                    dailyForecast = Double.parseDouble(dailyForecastString.substring(0, dailyForecastString.indexOf("mm")).trim());
                     log.info("DAILY: "+daily + ", TOTAL:" + total + ", DAILY FORECAST: "+daily + ", TOTAL FORECAST:" + total);
                 }
             }
