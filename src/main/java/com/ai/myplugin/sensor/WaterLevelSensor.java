@@ -106,19 +106,20 @@ public class WaterLevelSensor implements BNSensorPlugin{
                 String tmp = stringToParse.substring(len);
                 tmp = tmp.replaceAll("#dddddd\">", "|");
                 StringTokenizer stringTokenizer = new StringTokenizer(tmp, "|");
-                if(stringTokenizer.countTokens() > 6){
+                if(stringTokenizer.countTokens() > 7){
                     stringTokenizer.nextToken();
                     stringTokenizer.nextToken();
                     stringTokenizer.nextToken();
                     String totalString = stringTokenizer.nextToken();
                     String dailyString = stringTokenizer.nextToken();
+                    stringTokenizer.nextToken();
                     String dailyForecastString = stringTokenizer.nextToken();
                     String totalForecastString = stringTokenizer.nextToken();
                     total = Double.parseDouble(totalString.substring(0, totalString.indexOf("mm")).trim());
                     daily = Double.parseDouble(dailyString.substring(0, dailyString.indexOf("mm")).trim());
-                    totalForecast = Double.parseDouble(totalForecastString.substring(0, totalForecastString.indexOf("mm")).trim());
                     dailyForecast = Double.parseDouble(dailyForecastString.substring(0, dailyForecastString.indexOf("mm")).trim());
-                    log.info("DAILY: "+daily + ", TOTAL:" + total + ", DAILY FORECAST: "+daily + ", TOTAL FORECAST:" + total);
+                    totalForecast = Double.parseDouble(totalForecastString.substring(0, totalForecastString.indexOf("mm")).trim());
+                    log.info("DAILY: "+daily + ", TOTAL:" + total + ", DAILY FORECAST: "+dailyForecast + ", TOTAL FORECAST:" + totalForecast);
                 }
             }
 
