@@ -67,9 +67,14 @@ public class RawFormulaSensor implements BNSensorPlugin {
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        double res = 0;
         String parseFormula = (String) getProperty(FORMULA);
         log.debug("Formula to parse: "+parseFormula);
+        //if the formula is string match, should have "~" character
+        if(parseFormula.indexOf("~")> -1){
+            return stringMatchingFormula(testSessionContext, parseFormula);
+        }
+
+        double res = 0;
         if(parseFormula.indexOf("dt") > -1) {
             Long delta = (Long) deltaMap.get("prevTime");
             if(delta == null)   {
@@ -78,7 +83,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
             }
             Long currentTime = System.currentTimeMillis()/1000;
             deltaMap.put("prevTime", currentTime);
-            parseFormula.replaceAll("dt", Long.toBinaryString(currentTime - delta));
+            parseFormula.replaceAll("dt", Long.toString(currentTime - delta));
         }
 
         boolean success = false;
@@ -128,6 +133,50 @@ public class RawFormulaSensor implements BNSensorPlugin {
             }
 
         };
+    }
+
+    private TestResult stringMatchingFormula(TestSessionContext testSessionContext, String parseFormula) {
+        log.info("String matching formula");
+        try {
+            final int value = FormulaParser.count((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA), parseFormula);
+            return new TestResult() {
+                @Override
+                public boolean isSuccess() {
+                    return true;
+                }
+
+                @Override
+                public String getName() {
+                    return "Raw Data Sensor Result";
+                }
+
+                @Override
+                public String getObserverState() {
+                    if(value == Utils.getDouble(getProperty(THRESHOLD)))
+                        return "Equal";
+                    if(value > Utils.getDouble(getProperty(THRESHOLD)))
+                        return "Above";
+                    else
+                        return "Below";
+                }
+
+                @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    return null;
+                }
+
+                @Override
+                public String getRawData() {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("formulaValue", value);
+                    return  jsonObject.toJSONString();
+                }
+            };
+
+        } catch (ParseException e) {
+            log.error(e.getLocalizedMessage());
+            return new EmptyTestResult();
+        }
     }
 
 

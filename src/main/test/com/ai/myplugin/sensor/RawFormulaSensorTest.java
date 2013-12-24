@@ -102,4 +102,28 @@ public class RawFormulaSensorTest extends TestCase {
         value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
         assertEquals(value1, 0.);
     }
+
+
+    public void testCountStringFormula() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "node1->value1~Gent";
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "1");
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        jsonRaw.put("value1", "GentHelloGent");
+        jsonRaw.put("value2", 3);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node1", jsonObject);
+        mapTestResult.put("node2", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
+        log.debug("formula = " + formula);
+        log.debug("value = " + value);
+        assertEquals(value, 2.0);
+    }
 }
