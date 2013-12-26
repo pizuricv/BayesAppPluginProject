@@ -39,6 +39,11 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
         return new String []{SEARCH_TERMS, WINDOW};
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
             if(string.equalsIgnoreCase(WINDOW))

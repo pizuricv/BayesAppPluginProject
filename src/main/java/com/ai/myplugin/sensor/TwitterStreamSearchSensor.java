@@ -38,6 +38,11 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
         return new String []{SEARCH_TERMS};
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
             propertiesMap.put(string, obj);

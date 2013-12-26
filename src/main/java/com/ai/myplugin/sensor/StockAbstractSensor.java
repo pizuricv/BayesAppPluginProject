@@ -51,6 +51,11 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     }
 
     @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
+    @Override
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
             propertiesMap.put(string, obj);

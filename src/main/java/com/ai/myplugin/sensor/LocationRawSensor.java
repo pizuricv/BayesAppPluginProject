@@ -25,7 +25,7 @@ public class LocationRawSensor implements BNSensorPlugin{
 
     static final String server = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=";
     static final String LOCATION = "location";
-    String city;
+    String location;
     String [] states = {"Collected", "Not Collected"};
     private static final String NAME = "LocationRawSensor";
     @Override
@@ -34,9 +34,14 @@ public class LocationRawSensor implements BNSensorPlugin{
     }
 
     @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
+    @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(LOCATION)) {
-            city = URLEncoder.encode((String) obj);
+            location = URLEncoder.encode((String) obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -44,7 +49,7 @@ public class LocationRawSensor implements BNSensorPlugin{
 
     @Override
     public Object getProperty(String s) {
-        return city;
+        return location;
     }
 
     @Override
@@ -58,7 +63,7 @@ public class LocationRawSensor implements BNSensorPlugin{
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
         try {
-            final String str = Rest.httpGet(server + city, map);
+            final String str = Rest.httpGet(server + location, map);
             log.info(str);
             return new TestResult() {
                 @Override

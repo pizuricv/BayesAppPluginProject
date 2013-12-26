@@ -39,6 +39,11 @@ public class LatitudeLongitudeRawSensor implements BNSensorPlugin {
     }
 
     @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
+    @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(LATITUDE)) {
             latitudeCoordinate = LATITUDE + "="+ URLEncoder.encode(Utils.getDouble(obj).toString());

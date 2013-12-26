@@ -34,12 +34,14 @@ public class TwitterQuerySensor implements BNSensorPlugin{
     private Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     Twitter twitter = new TwitterFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
 
-
-
-
     @Override
     public String[] getRequiredProperties() {
         return new String []{SEARCH_TERMS, DATE, FROM, TIME_ZONE};
+    }
+
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
     }
 
     public void setProperty(String string, Object obj) {

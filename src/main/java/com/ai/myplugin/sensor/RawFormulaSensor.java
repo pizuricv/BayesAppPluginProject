@@ -41,6 +41,11 @@ public class RawFormulaSensor implements BNSensorPlugin {
         return new String [] {THRESHOLD, FORMULA} ;
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
             propertiesMap.put(string, obj);

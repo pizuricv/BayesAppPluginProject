@@ -33,6 +33,11 @@ public class ShellCmdSensor implements BNSensorPlugin{
         return new String [] {"threshold", "command"} ;
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
 
     //comma separated list of thresholds
     @Override

@@ -41,6 +41,11 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
         return new String[] {TIME_ZONE};
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     //@TODO implement the time zone
     @Override
     public void setProperty(String s, Object o) {

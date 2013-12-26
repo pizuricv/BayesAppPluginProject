@@ -14,7 +14,7 @@ public class WaterLevelSensorTest extends TestCase {
 
     public void testWaterLevelSensorAlarm(){
         WaterLevelSensor waterLevelSensor = new WaterLevelSensor();
-        waterLevelSensor.setProperty(WaterLevelSensor.LOCATION, "Neerslag Vinderhoute");
+        waterLevelSensor.setProperty(WaterLevelSensor.LOCATION, "PDM-438-R");
         waterLevelSensor.setProperty(WaterLevelSensor.DAILY_THRESHOLD, 1500);
         waterLevelSensor.setProperty(WaterLevelSensor.TOTAL_THRESHOLD, -100);
         TestResult testResult = waterLevelSensor.execute(null);
@@ -25,7 +25,7 @@ public class WaterLevelSensorTest extends TestCase {
 
     public void testWaterLevelSensorNoAlarm(){
         WaterLevelSensor waterLevelSensor = new WaterLevelSensor();
-        waterLevelSensor.setProperty(WaterLevelSensor.LOCATION, "Neerslag Vinderhoute");
+        waterLevelSensor.setProperty(WaterLevelSensor.LOCATION, "PDM-438-R");
         waterLevelSensor.setProperty(WaterLevelSensor.DAILY_THRESHOLD, 1500);
         waterLevelSensor.setProperty(WaterLevelSensor.TOTAL_THRESHOLD, 1500);
         TestResult testResult = waterLevelSensor.execute(null);

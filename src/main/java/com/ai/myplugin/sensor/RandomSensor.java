@@ -99,6 +99,11 @@ public class RandomSensor implements BNSensorPlugin {
         return new String[]{};
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     public void setProperty(String string, Object obj) {
         map.put(string, obj);
     }

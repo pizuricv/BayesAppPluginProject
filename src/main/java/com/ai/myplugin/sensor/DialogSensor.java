@@ -29,6 +29,11 @@ public class DialogSensor implements BNSensorPlugin {
         return new String[] {"Question to ask"};
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     public void setProperty(String string, Object obj) {
         question = obj.toString();
 

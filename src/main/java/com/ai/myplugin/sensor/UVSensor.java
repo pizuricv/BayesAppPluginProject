@@ -35,6 +35,11 @@ public class UVSensor implements BNSensorPlugin {
     }
 
     @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
+    @Override
     public void setProperty(String s, Object o) {
         if(ZIPCODE.equals(s)) {
             zipCode = (String) o;

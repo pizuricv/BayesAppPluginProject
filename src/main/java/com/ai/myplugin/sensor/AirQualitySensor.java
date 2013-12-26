@@ -63,6 +63,11 @@ public class AirQualitySensor implements BNSensorPlugin{
     }
 
     @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
+    @Override
     public void setProperty(String s, Object o) {
         if(LOCATION.equals(s))
             location = o.toString();

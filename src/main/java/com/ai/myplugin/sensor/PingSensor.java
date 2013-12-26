@@ -38,6 +38,11 @@ public class PingSensor implements BNSensorPlugin{
         return new String[] {IP_ADDRESS, TIMEOUT};
     }
 
+    @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
     public void setProperty(String string, Object obj) {
         if(string.equals(IP_ADDRESS)) {
             try {

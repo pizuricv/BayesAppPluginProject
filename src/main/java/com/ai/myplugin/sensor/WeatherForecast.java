@@ -38,6 +38,11 @@ public class WeatherForecast implements BNSensorPlugin {
     }
 
     @Override
+    public String[] getRuntimeProperties() {
+        return new String[]{};
+    }
+
+    @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(CITY)) {
             city = URLEncoder.encode((String) obj);
