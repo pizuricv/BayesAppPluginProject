@@ -10,7 +10,7 @@ public class LocationSensorTest extends TestCase{
 
     public void testExecuteLocation() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
-        locationSensor.setProperty("city", "Gent");
+        locationSensor.setProperty("location", "Gent");
         assertNotNull(locationSensor.execute(null).getRawData());
     }
 }

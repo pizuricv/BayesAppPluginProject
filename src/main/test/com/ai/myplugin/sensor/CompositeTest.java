@@ -1,7 +1,6 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
-import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
@@ -112,9 +111,9 @@ public class CompositeTest extends TestCase{
         //System.out.println(Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue")));
         assertEquals("Above", testResult.getObserverState());
 
-        jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
+        /*jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
         jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
-        /*System.out.println("Distance: "+ FormulaParser.calculateDistance(Utils.getDouble(jsonObject1.get("latitude")),
+        System.out.println("Distance: "+ FormulaParser.calculateDistance(Utils.getDouble(jsonObject1.get("latitude")),
                 Utils.getDouble(jsonObject1.get("longitude")), Utils.getDouble(jsonObject2.get("latitude")),
                 Utils.getDouble(jsonObject2.get("longitude"))));    */
 

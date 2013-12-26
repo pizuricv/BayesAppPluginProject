@@ -24,18 +24,18 @@ public class LocationSensor implements BNSensorPlugin{
     protected static final Log log = LogFactory.getLog(LocationSensor.class);
 
     static final String server = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=";
-    static final String CITY = "city";
+    static final String LOCATION = "location";
     String city;
     String [] states = {"Collected", "Not Collected"};
     private static final String NAME = "LocationSensor";
     @Override
     public String[] getRequiredProperties() {
-        return new String []{"City"};
+        return new String []{"Location"};
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(string.equalsIgnoreCase(CITY)) {
+        if(string.equalsIgnoreCase(LOCATION)) {
             city = URLEncoder.encode((String) obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
@@ -135,7 +135,7 @@ public class LocationSensor implements BNSensorPlugin{
 
     public static void main(String []args){
         LocationSensor locationSensor = new LocationSensor();
-        locationSensor.setProperty("city", "Gent");
+        locationSensor.setProperty(LocationSensor.LOCATION, "Gent");
         System.out.println(locationSensor.execute(null).getRawData());
     }
 }
