@@ -23,8 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 24/12/13
  */
 @PluginImplementation
-public class LatitudeLongitudeSensor  implements BNSensorPlugin {
-    protected static final Log log = LogFactory.getLog(LocationSensor.class);
+public class LatitudeLongitudeRawSensor implements BNSensorPlugin {
+    protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
 
     static final String server = "https://montanaflynn-geocode-location-information.p.mashape.com/reverse?";
     static final String LATITUDE = "latitude";
@@ -32,7 +32,7 @@ public class LatitudeLongitudeSensor  implements BNSensorPlugin {
     String latitudeCoordinate;
     String longitudeCoordinate;
     String [] states = {"Collected", "Not Collected"};
-    private static final String NAME = "LatitudeLongitudeSensor";
+    private static final String NAME = "LatitudeLongitudeRawSensor";
     @Override
     public String[] getRequiredProperties() {
         return new String []{"latitude", "longitude"};
@@ -147,7 +147,7 @@ public class LatitudeLongitudeSensor  implements BNSensorPlugin {
     }
 
     public static void main(String []args) throws ParseException {
-        LatitudeLongitudeSensor locationSensor = new LatitudeLongitudeSensor();
+        LatitudeLongitudeRawSensor locationSensor = new LatitudeLongitudeRawSensor();
         locationSensor.setProperty(LONGITUDE, 19.851858);
         locationSensor.setProperty(LATITUDE, 45.262231);
         System.out.println(locationSensor.execute(null).getRawData());

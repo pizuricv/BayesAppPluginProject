@@ -19,7 +19,7 @@ import java.util.Map;
 public class CompositeTest extends TestCase{
 
     public void testLocationAndFormula() throws ParseException {
-        LatitudeLongitudeSensor locationSensor = new LatitudeLongitudeSensor();
+        LatitudeLongitudeRawSensor locationSensor = new LatitudeLongitudeRawSensor();
         locationSensor.setProperty("longitude", 19.851858);
         locationSensor.setProperty("latitude", 45.262231);
 
@@ -57,22 +57,22 @@ public class CompositeTest extends TestCase{
 
 
     public void testLocationsAndFormula() throws ParseException {
-        LocationSensor locationSensor1 = new LocationSensor();
-        locationSensor1.setProperty("city", "Gent");
+        LocationRawSensor locationRawSensor1 = new LocationRawSensor();
+        locationRawSensor1.setProperty("location", "Gent");
 
-        LocationSensor locationSensor2 = new LocationSensor();
-        locationSensor2.setProperty("city", "Novi Sad");
+        LocationRawSensor locationRawSensor2 = new LocationRawSensor();
+        locationRawSensor2.setProperty("location", "Novi Sad");
 
         TestSessionContext testSessionContext = new TestSessionContext(1);
 
         JSONObject jsonObject1 = new JSONObject();
 
-        jsonObject1.put("rawData", locationSensor1.execute(null).getRawData());
+        jsonObject1.put("rawData", locationRawSensor1.execute(null).getRawData());
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         mapTestResult.put("node1", jsonObject1);
 
         JSONObject jsonObject2 = new JSONObject();
-        jsonObject2.put("rawData", locationSensor2.execute(null).getRawData());
+        jsonObject2.put("rawData", locationRawSensor2.execute(null).getRawData());
         mapTestResult.put("node2", jsonObject2);
 
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);

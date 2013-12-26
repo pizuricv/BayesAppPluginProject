@@ -26,7 +26,7 @@ public class WeatherWeekForecastSensorTest extends TestCase{
             value += list.get(0).get(key).doubleValue();
             log.debug("State " + key + " = " + list.get(0).get(key).doubleValue());
         }
-        assertEquals(1., value);
+        assertEquals(1., value, 0.1);
     }
 
     public void testWeatherSensorCumulativeValueForDays(){

@@ -20,14 +20,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 @PluginImplementation
-public class LocationSensor implements BNSensorPlugin{
-    protected static final Log log = LogFactory.getLog(LocationSensor.class);
+public class LocationRawSensor implements BNSensorPlugin{
+    protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
 
     static final String server = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=";
     static final String LOCATION = "location";
     String city;
     String [] states = {"Collected", "Not Collected"};
-    private static final String NAME = "LocationSensor";
+    private static final String NAME = "LocationRawSensor";
     @Override
     public String[] getRequiredProperties() {
         return new String []{"Location"};
@@ -134,8 +134,8 @@ public class LocationSensor implements BNSensorPlugin{
     }
 
     public static void main(String []args){
-        LocationSensor locationSensor = new LocationSensor();
-        locationSensor.setProperty(LocationSensor.LOCATION, "Gent");
-        System.out.println(locationSensor.execute(null).getRawData());
+        LocationRawSensor locationRawSensor = new LocationRawSensor();
+        locationRawSensor.setProperty(LocationRawSensor.LOCATION, "Gent");
+        System.out.println(locationRawSensor.execute(null).getRawData());
     }
 }
