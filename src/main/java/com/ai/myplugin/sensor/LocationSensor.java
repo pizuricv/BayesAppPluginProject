@@ -73,14 +73,15 @@ public class LocationSensor implements BNSensorPlugin{
         if(getProperty(DISTANCE) == null)
             throw new RuntimeException("distance not set");
 
-        Double runtime_latitude = Utils.getDouble(testSessionContext.getAttribute(RUNTIME_LATITUDE));
-        Double runtime_longitude = Utils.getDouble(testSessionContext.getAttribute(RUNTIME_LONGITUDE));
-        log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
-
-        if(runtime_latitude == null && runtime_longitude == null){
-            log.warn("no runtime longitude and latitude given");
+        Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
+        Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
+        if(rt1 == null || rt2 == null){
+            log.warn("no runtime longitude or latitude given");
             return new EmptyTestResult();
         }
+        Double runtime_latitude = Utils.getDouble(rt1);
+        Double runtime_longitude = Utils.getDouble(rt2);
+        log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
 
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
