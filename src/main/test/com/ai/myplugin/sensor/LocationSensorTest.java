@@ -28,13 +28,14 @@ public class LocationSensorTest extends TestCase{
 
     public void testDistanceCalculation() throws ParseException {
         LocationRawSensor locationRawSensor1 = new LocationRawSensor();
-        locationRawSensor1.setProperty("location", "Gent");
+        locationRawSensor1.setProperty("location", "Krekelstraat 60, 9052 Gent, Belgium");
         TestResult testResult1 = locationRawSensor1.execute(null);
         LocationRawSensor locationRawSensor2 = new LocationRawSensor();
         locationRawSensor2.setProperty("location", "Novi Sad");
         TestResult testResult2 = locationRawSensor2.execute(null);
 
         JSONObject res1 = (JSONObject) new JSONParser().parse(testResult1.getRawData());
+        System.out.println(res1.toString());
         JSONObject res2 = (JSONObject) new JSONParser().parse(testResult2.getRawData());
 
 
@@ -52,8 +53,13 @@ public class LocationSensorTest extends TestCase{
         assertEquals("Out", testResult.getObserverState());
         assertEquals(1355, (Double) res.get("distance"), 200);
 
-
         locationSensor.setProperty(LocationSensor.DISTANCE, 1400);
+        testResult = locationSensor.execute(testSessionContext);
+        assertEquals("Within", testResult.getObserverState());
+
+        locationSensor.setProperty(LocationSensor.LOCATION, "Krekelstraat 60, 9052 Gent, Belgium");
+        locationSensor.setProperty(LocationSensor.LONGITUDE, 1);
+
         testResult = locationSensor.execute(testSessionContext);
         assertEquals("Within", testResult.getObserverState());
 

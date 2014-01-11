@@ -51,8 +51,6 @@ public class LocationSensor implements BNSensorPlugin{
     @Override
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
-            if(LOCATION.equals(string))
-                string = URLEncoder.encode(string);
             propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
@@ -92,7 +90,7 @@ public class LocationSensor implements BNSensorPlugin{
             String str;
             try {
                 if(getProperty(LOCATION) != null){
-                    str = Rest.httpGet(LocationRawSensor.server + getProperty(LOCATION), map);
+                    str = Rest.httpGet(LocationRawSensor.server + URLEncoder.encode(getProperty(LOCATION).toString()), map);
                 } else if (getProperty(LONGITUDE)!= null && getProperty(LATITUDE)!= null){
                     String configuredLatitudeStr = LATITUDE + "="+ URLEncoder.encode(getProperty(LATITUDE).toString());
                     String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(getProperty(LONGITUDE).toString());
