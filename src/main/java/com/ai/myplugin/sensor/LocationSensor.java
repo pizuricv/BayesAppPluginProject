@@ -51,6 +51,8 @@ public class LocationSensor implements BNSensorPlugin{
     @Override
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
+            if(LOCATION.equals(string))
+                string = URLEncoder.encode(string);
             propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
