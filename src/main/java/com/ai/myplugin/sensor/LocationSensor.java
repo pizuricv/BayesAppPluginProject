@@ -30,8 +30,6 @@ public class LocationSensor implements BNSensorPlugin{
     static final String DISTANCE = "distance";
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
-    Double configuredLatitude = Double.MAX_VALUE;
-    Double configuredLongitude = Double.MAX_VALUE;
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -85,7 +83,12 @@ public class LocationSensor implements BNSensorPlugin{
 
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
-        JSONObject jsonObject = null;
+
+        JSONObject jsonObject = new JSONObject();
+
+        Double configuredLatitude = getProperty(LATITUDE) == null? Double.MAX_VALUE: Utils.getDouble(getProperty(LATITUDE));
+        Double configuredLongitude = getProperty(LONGITUDE) == null? Double.MAX_VALUE: Utils.getDouble(getProperty(LONGITUDE));
+
         if(configuredLatitude.equals(Double.MAX_VALUE) || configuredLongitude.equals(Double.MAX_VALUE)){
             String str;
             try {

@@ -58,10 +58,16 @@ public class LocationSensorTest extends TestCase{
         assertEquals("Within", testResult.getObserverState());
 
         locationSensor.setProperty(LocationSensor.LOCATION, "Krekelstraat 60, 9052 Gent, Belgium");
-        locationSensor.setProperty(LocationSensor.LONGITUDE, 1);
+        locationSensor.setProperty(LocationSensor.LONGITUDE, Double.MAX_VALUE);
 
         testResult = locationSensor.execute(testSessionContext);
         assertEquals("Within", testResult.getObserverState());
+
+        locationSensor.setProperty(LocationSensor.LOCATION, "London");
+        locationSensor.setProperty(LocationSensor.LONGITUDE, Double.MAX_VALUE);
+
+        testResult = locationSensor.execute(testSessionContext);
+        assertEquals("Out", testResult.getObserverState());
 
     }
 }
