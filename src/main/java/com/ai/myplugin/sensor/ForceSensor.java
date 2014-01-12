@@ -32,7 +32,7 @@ public class ForceSensor implements BNSensorPlugin {
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
-    String [] states = {"NOT_CROSSED", "CROSSED"};
+    String [] states = {"Below", "Above"};
     private static final String NAME = "ForceSensor";
 
     @Override
