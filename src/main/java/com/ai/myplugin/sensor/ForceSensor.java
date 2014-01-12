@@ -82,17 +82,11 @@ public class ForceSensor implements BNSensorPlugin {
 
         Double configuredThreshold = Utils.getDouble(getProperty(FORCE_THRESHOLD));
 
-
-
-        double delta = configuredThreshold - runtime_force;
-
-        log.info("Computed dela: "+ delta);
-        jsonObject.put("delta", delta);
         jsonObject.put("runtime_force", runtime_force);
         jsonObject.put("configured_threshold", configuredThreshold);
 
         final String state;
-        if(delta  > 0)
+        if(configuredThreshold > runtime_force)
             state = states[0];
         else
             state = states[1];

@@ -83,16 +83,11 @@ public class AcceleratorSensor implements BNSensorPlugin {
         Double configuredThreshold = Utils.getDouble(getProperty(ACCELERATOR_THRESHOLD));
 
 
-
-        double delta = configuredThreshold - runtime_force;
-
-        log.info("Computed dela: "+ delta);
-        jsonObject.put("delta", delta);
         jsonObject.put(RUNTIME_ACCELERATOR, runtime_force);
         jsonObject.put(ACCELERATOR_THRESHOLD, configuredThreshold);
 
         final String state;
-        if(delta  > 0)
+        if(configuredThreshold  > runtime_force)
             state = states[0];
         else
             state = states[1];
