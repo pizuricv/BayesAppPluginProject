@@ -86,17 +86,19 @@ public class LocationSensor implements BNSensorPlugin{
 
         JSONObject jsonObject = new JSONObject();
 
-        Double configuredLatitude = getProperty(LATITUDE) == null? Double.MAX_VALUE: Utils.getDouble(getProperty(LATITUDE));
-        Double configuredLongitude = getProperty(LONGITUDE) == null? Double.MAX_VALUE: Utils.getDouble(getProperty(LONGITUDE));
+        Double configuredLatitude = getProperty(LATITUDE) == null || "".equals(getProperty(LATITUDE))?
+                Double.MAX_VALUE: Utils.getDouble(getProperty(LATITUDE));
+        Double configuredLongitude = getProperty(LONGITUDE) == null || "".equals(getProperty(LONGITUDE))?
+                Double.MAX_VALUE: Utils.getDouble(getProperty(LONGITUDE));
 
         if(configuredLatitude.equals(Double.MAX_VALUE) || configuredLongitude.equals(Double.MAX_VALUE)){
             String str;
             try {
                 if(getProperty(LOCATION) != null){
                     str = Rest.httpGet(LocationRawSensor.server + URLEncoder.encode(getProperty(LOCATION).toString()), map);
-                } else if (getProperty(LONGITUDE)!= null && getProperty(LATITUDE)!= null){
-                    String configuredLatitudeStr = LATITUDE + "="+ URLEncoder.encode(getProperty(LATITUDE).toString());
-                    String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(getProperty(LONGITUDE).toString());
+                } else if(!configuredLatitude.equals(Double.MAX_VALUE) && !configuredLongitude.equals(Double.MAX_VALUE)){
+                    String configuredLatitudeStr = LATITUDE + "="+ URLEncoder.encode(configuredLatitude.toString());
+                    String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(configuredLongitude.toString());
                     str = Rest.httpGet(LatitudeLongitudeRawSensor.server + longitudeCoordinateStr + "&"+
                             configuredLatitudeStr, map);
                 } else
