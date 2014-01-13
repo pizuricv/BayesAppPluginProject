@@ -33,7 +33,7 @@ public class AcceleratorSensor implements BNSensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Below", "Above"};
-    private static final String NAME = "AcceleratorSensor";
+    private static final String NAME = "AccelerationSensor";
 
     @Override
     public String[] getRequiredProperties() {
