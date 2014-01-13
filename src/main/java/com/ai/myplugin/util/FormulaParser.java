@@ -2,19 +2,17 @@ package com.ai.myplugin.util;
 
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
-import de.congrace.exp4j.UnknownFunctionException;
-import de.congrace.exp4j.UnparsableExpressionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by User: veselin
@@ -22,6 +20,7 @@ import java.util.regex.Pattern;
  */
 public class FormulaParser {
     private static final Log log = LogFactory.getLog(FormulaParser.class);
+    static Map memory = new ConcurrentHashMap();
 
     public static double executeFormula(String formula) throws Exception {
         log.debug("execute formula " + formula);
@@ -33,8 +32,6 @@ public class FormulaParser {
 
     /**
      *  formula in format node1->param1 OPER node->param3 OPER node->param3 .
-     *  if formula includes delta: delta(node1->param1) means delta from previous collection
-     *  dt means delta in time from previous collection
      * @param nodeParams  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
@@ -52,8 +49,30 @@ public class FormulaParser {
                     String node = s2[0];
                     String value = s2[1];
                     JSONObject jsonObject = (JSONObject) (nodeParams.get(node));
-                    Object rawValue =  ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value);
-                    map.put(s1, Utils.getDouble(rawValue));
+                    if(value.indexOf("<-") > -1){
+                        log.info("parse prev data " + value);
+                        value = value.substring(0, value.indexOf("<"));
+                        Double valueD = Utils.getDouble(((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value));
+                        int num = getNum(s2[1]);
+                        ArrayList stack;
+                        if(memory.get(s1) != null){
+                            stack = (ArrayList) memory.get(s1);
+                        }  else {
+                            stack = new ArrayList();
+                            memory.put(s1, stack);
+                        }
+                        stack.add(valueD);
+                        log.info("put in the stack[" + num + "] " + s1 + " " + valueD);
+                        if(stack.size() > num)   {
+                            Double prevD = (Double) stack.remove(stack.size() - num -1);
+                            log.info("put in the formula " + s1 + " " + prevD);
+                            map.put(s1, prevD);
+                        }
+                    } else {
+                        Object rawValue =  ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value);
+                        log.info("put in the formula " + s1 + " " + rawValue);
+                        map.put(s1, Utils.getDouble(rawValue));
+                    }
                 }
                 catch (Exception e){
                     log.error(e.getLocalizedMessage());
@@ -61,6 +80,10 @@ public class FormulaParser {
             }
         }
 
+        for(Map.Entry<String, Double> entry: map.entrySet()){
+            if(entry.getKey().contains("<"))
+                returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
+        }
         for(Map.Entry<String, Double> entry: map.entrySet()){
             returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
         }
@@ -89,12 +112,14 @@ public class FormulaParser {
         }
         log.debug("returnString " + returnString);
         return returnString;
-    };
+    }
+
+    private static int getNum(String value) {
+        return Integer.parseInt(value.substring(value.indexOf("<-")+2, value.indexOf(">")));
+    }
 
     /**
      *  formula in format node1->param1~Text1 OPER node->param3~Text2.
-     *  if formula includes delta: delta(node1->param1) means delta from previous collection
-     *  dt means delta in time from previous collection
      * @param nodeParams  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
