@@ -211,4 +211,46 @@ public class RawFormulaSensorTest extends TestCase {
         log.info("value = " + value);
         assertEquals(value, 7.0);
     }
+
+    public void testDeltaTimeCalculation2() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "abs( node1->value1 - node1->value1<-1> + node2->value2 - node2->value2<-1> - node2->value2<-1> ) / dt";
+        log.info("formula "+formula);
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "4");
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        jsonRaw.put("value1", 1);
+        jsonRaw.put("value2", 3);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node1", jsonObject);
+        mapTestResult.put("node2", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        rawFormulaSensor.execute(testSessionContext);
+
+        jsonRaw.put("value1", 2);
+        jsonRaw.put("value2", 4);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node1", jsonObject);
+        mapTestResult.put("node2", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+
+
+        jsonRaw.put("value1", 6);
+        jsonRaw.put("value2", 10);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node1", jsonObject);
+        mapTestResult.put("node2", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
+        log.info("formula = " + formula);
+        log.info("value = " + value);
+        assertEquals(value, 7.0);
+    }
 }

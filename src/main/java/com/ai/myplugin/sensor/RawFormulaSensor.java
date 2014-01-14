@@ -81,14 +81,14 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
         double res = 0;
         if(parseFormula.indexOf("dt") > -1) {
-            Long delta = (Long) deltaMap.get("prevTime");
-            if(delta == null)   {
+            Long prev = (Long) deltaMap.get("prevTime");
+            if(prev == null)   {
                 deltaMap.put("prevTime", System.currentTimeMillis()/1000);
                 return new EmptyTestResult();
             }
             Long currentTime = System.currentTimeMillis()/1000;
             deltaMap.put("prevTime", currentTime);
-            parseFormula.replaceAll("dt", Long.toString(currentTime - delta));
+            parseFormula = parseFormula.replaceAll("dt", Long.toString(currentTime - prev));
         }
 
         boolean success = false;
