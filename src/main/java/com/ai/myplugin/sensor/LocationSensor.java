@@ -95,26 +95,22 @@ public class LocationSensor implements BNSensorPlugin{
 
         String str;
 
-        log.info("try to from runtime data");
-        String latitude_str = LATITUDE + "="+ URLEncoder.encode(runtime_latitude.toString());
-        String longitude_str = LONGITUDE + "="+ URLEncoder.encode(runtime_longitude.toString());
+        Map currentData = new ConcurrentHashMap();
         try {
+            log.info("try to get more from runtime data");
+            String latitude_str = LATITUDE + "="+ URLEncoder.encode(runtime_latitude.toString());
+            String longitude_str = LONGITUDE + "="+ URLEncoder.encode(runtime_longitude.toString());
             str = Rest.httpGet(LatitudeLongitudeRawSensor.server + longitude_str + "&"+
                     latitude_str, map);
             JSONObject jsonObjectRuntime = (JSONObject) new JSONParser().parse(str);
-            String city = jsonObjectRuntime.get("city").toString();
-            String country = jsonObjectRuntime.get("country").toString();
-            jsonObject.put("current_city", city);
-            jsonObject.put("current_country", country);
-            try {     //not sure that is always there
-                String streetName = jsonObjectRuntime.get("street_name").toString();
-                String number = jsonObjectRuntime.get("street_number").toString();
-                jsonObject.put("current_street", streetName);
-                jsonObject.put("current_street_number", number);
-            }  catch (Exception e) {
-                e.printStackTrace();
-                log.warn(e.getMessage());
-            }
+            String city = jsonObjectRuntime.get("city") == null ? "not found" : jsonObjectRuntime.get("city").toString();
+            String country = jsonObjectRuntime.get("country") == null ? "not found" : jsonObjectRuntime.get("country").toString();
+            String streetName = jsonObjectRuntime.get("street_name") == null ? "not found" : jsonObjectRuntime.get("street_name").toString();
+            String number = jsonObjectRuntime.get("street_number") == null ? "not found " : jsonObjectRuntime.get("street_number").toString();
+            currentData.put("current_city", city);
+            currentData.put("current_country", country);
+            currentData.put("current_street", streetName);
+            currentData.put("current_street_number", number);
         } catch (Exception e) {
             e.printStackTrace();
             log.warn(e.getMessage());
@@ -151,12 +147,16 @@ public class LocationSensor implements BNSensorPlugin{
                 return new EmptyTestResult();
             }
         }
+        if(currentData.size() > 0){
+           jsonObject.putAll(currentData);
+        }
         log.info("Configured location: "+ configuredLatitude + ","+configuredLongitude);
         double distance = FormulaParser.calculateDistance(runtime_latitude, runtime_longitude,
                 configuredLatitude, configuredLongitude);
         log.info("Computed distance: " + distance);
-        if(jsonObject != null)
-            jsonObject.put("distance", distance);
+        jsonObject.put("distance", distance);
+
+        log.info("raw data is "+jsonObject.toJSONString());
 
         final String state;
         if(distance  < Utils.getDouble(getProperty(DISTANCE)))
