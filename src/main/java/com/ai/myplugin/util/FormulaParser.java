@@ -88,7 +88,7 @@ public class FormulaParser {
             returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
         }
         if(returnString.indexOf("distance") > -1){
-            log.debug("parse distance " + formula);
+            log.info("parse distance " + formula);
             try{
                 String toReplace = returnString.substring(returnString.indexOf("distance"));
                 toReplace = toReplace.substring(0, toReplace.indexOf(")")+1);
@@ -101,10 +101,19 @@ public class FormulaParser {
                 JSONObject jsonObject2 = (JSONObject) (nodeParams.get(node2));
                 jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
                 jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
-                double distance = FormulaParser.calculateDistance(Utils.getDouble(jsonObject1.get("latitude")),
-                        Utils.getDouble(jsonObject1.get("longitude")), Utils.getDouble(jsonObject2.get("latitude")),
-                        Utils.getDouble(jsonObject2.get("longitude")));
-                log.debug("Distance: "+ distance);
+                log.info("parse distance first node=" + jsonObject1.toJSONString());
+                log.info("parse distance second node=" + jsonObject1.toJSONString());
+                Double latitude, longitude, latitude1, longitude1;
+                latitude = jsonObject1.get("runtime_latitude") != null ? Utils.getDouble(jsonObject1.get("runtime_latitude")) :
+                        Utils.getDouble(jsonObject1.get("latitude"));
+                longitude = jsonObject1.get("runtime_longitude") != null ? Utils.getDouble(jsonObject1.get("runtime_longitude")) :
+                        Utils.getDouble(jsonObject1.get("longitude"));
+                latitude1 = jsonObject2.get("runtime_latitude") != null ? Utils.getDouble(jsonObject2.get("runtime_latitude")) :
+                        Utils.getDouble(jsonObject2.get("latitude"));
+                longitude1 = jsonObject2.get("runtime_longitude") != null ? Utils.getDouble(jsonObject2.get("runtime_longitude")) :
+                        Utils.getDouble(jsonObject2.get("longitude"));
+                double distance = FormulaParser.calculateDistance(latitude,longitude, latitude1, longitude1);
+                log.info("Distance: " + distance);
                 returnString = returnString.replace(toReplace, Double.toString(distance));
             } catch (Exception e){
                 log.error(e.getLocalizedMessage());
@@ -163,6 +172,7 @@ public class FormulaParser {
 
     public final static double AVERAGE_RADIUS_OF_EARTH = 6371;
     public static int calculateDistance(double userLat, double userLng, double venueLat, double venueLng) {
+        log.info("calculateDistance("+userLat + ", "+ userLng + ", "+venueLat + ", "+ venueLng +")");
 
         double latDistance = Math.toRadians(userLat - venueLat);
         double lngDistance = Math.toRadians(userLng - venueLng);
@@ -175,7 +185,10 @@ public class FormulaParser {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return (int) (Math.round(AVERAGE_RADIUS_OF_EARTH * c));
+
+        int round = (int) (Math.round(AVERAGE_RADIUS_OF_EARTH * c));
+        log.info("calculateDistance=" + round);
+        return round;
 
     }
 }
