@@ -81,41 +81,51 @@ public class LocationSensor implements BNSensorPlugin{
         Double runtime_longitude = Utils.getDouble(rt2);
         log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
 
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
+
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
-
-        JSONObject jsonObject = new JSONObject();
 
         Double configuredLatitude = getProperty(LATITUDE) == null || "".equals(getProperty(LATITUDE))?
                 Double.MAX_VALUE: Utils.getDouble(getProperty(LATITUDE));
         Double configuredLongitude = getProperty(LONGITUDE) == null || "".equals(getProperty(LONGITUDE))?
                 Double.MAX_VALUE: Utils.getDouble(getProperty(LONGITUDE));
 
-        if(configuredLatitude.equals(Double.MAX_VALUE) || configuredLongitude.equals(Double.MAX_VALUE)){
-            String str;
+        String str;
+        if(!configuredLatitude.equals(Double.MAX_VALUE) && !configuredLongitude.equals(Double.MAX_VALUE)){
+            log.info("Location configured, try to get more data");
+            String configuredLatitudeStr = LATITUDE + "="+ URLEncoder.encode(configuredLatitude.toString());
+            String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(configuredLongitude.toString());
+            try {
+                str = Rest.httpGet(LatitudeLongitudeRawSensor.server + longitudeCoordinateStr + "&"+
+                        configuredLatitudeStr, map);
+                jsonObject = (JSONObject) new JSONParser().parse(str);
+            } catch (Exception e) {
+                    e.printStackTrace();
+                    log.warn(e.getMessage());
+            }
+        }
+        else {
             try {
                 if(getProperty(LOCATION) != null){
+                    log.info("Location configured as the address: " + getProperty(LOCATION) +  " , try to get coordinates");
                     str = Rest.httpGet(LocationRawSensor.server + URLEncoder.encode(getProperty(LOCATION).toString()), map);
-                } else if(!configuredLatitude.equals(Double.MAX_VALUE) && !configuredLongitude.equals(Double.MAX_VALUE)){
-                    String configuredLatitudeStr = LATITUDE + "="+ URLEncoder.encode(configuredLatitude.toString());
-                    String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(configuredLongitude.toString());
-                    str = Rest.httpGet(LatitudeLongitudeRawSensor.server + longitudeCoordinateStr + "&"+
-                            configuredLatitudeStr, map);
+                    jsonObject = (JSONObject) new JSONParser().parse(str);
+                    configuredLongitude = Utils.getDouble(jsonObject.get("longitude"));
+                    configuredLatitude = Utils.getDouble(jsonObject.get("latitude"));
+                    jsonObject.put("configured_latitude", configuredLatitude);
+                    jsonObject.put("configured_longitude", configuredLongitude);
                 } else
-                    throw new RuntimeException("location not properly set");
-                jsonObject = (JSONObject) new JSONParser().parse(str);
-                jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
-                jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
-                configuredLongitude = Utils.getDouble(jsonObject.get("longitude"));
-                configuredLatitude = Utils.getDouble(jsonObject.get("latitude"));
-                log.info("Configured location: "+ getProperty(LATITUDE) + ","+getProperty(LONGITUDE));
-            }
-            catch (Exception e) {
+                    throw new RuntimeException("configured location not properly set");
+            } catch (Exception e) {
                 e.printStackTrace();
-                log.error(e.getLocalizedMessage());
+                log.error(e.getMessage());
                 return new EmptyTestResult();
             }
         }
+        log.info("Configured location: "+ configuredLatitude + ","+configuredLongitude);
         double distance = FormulaParser.calculateDistance(runtime_latitude, runtime_longitude,
                 configuredLatitude, configuredLongitude);
         log.info("Computed distance: "+ distance);

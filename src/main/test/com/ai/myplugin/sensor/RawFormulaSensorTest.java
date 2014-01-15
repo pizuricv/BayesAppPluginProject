@@ -237,7 +237,7 @@ public class RawFormulaSensorTest extends TestCase {
         mapTestResult.put("node1", jsonObject);
         mapTestResult.put("node2", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        rawFormulaSensor.execute(testSessionContext);
 
 
         jsonRaw.put("value1", 6);
@@ -246,11 +246,15 @@ public class RawFormulaSensorTest extends TestCase {
         mapTestResult.put("node1", jsonObject);
         mapTestResult.put("node2", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        testResult = rawFormulaSensor.execute(testSessionContext);
 
-        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
-        log.info("formula = " + formula);
-        log.info("value = " + value);
-        assertEquals(value, 7.0);
+
+
+        try{
+           rawFormulaSensor.execute(testSessionContext);
+        } catch (ArithmeticException e) {
+            if(!e.getMessage().contains("zero"))
+                fail();
+        }
+
     }
 }
