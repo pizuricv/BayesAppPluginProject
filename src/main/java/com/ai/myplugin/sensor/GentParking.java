@@ -28,7 +28,7 @@ public class GentParking implements BNSensorPlugin{
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Found", "Not Found"};
-    private static final String NAME = "LocationSensor";
+    private static final String NAME = "GentParking";
 
     @Override
     public String[] getRequiredProperties() {
