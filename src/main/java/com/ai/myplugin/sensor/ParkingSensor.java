@@ -19,20 +19,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 26/12/13
  */
 @PluginImplementation
-public class GentParking implements BNSensorPlugin{
-    protected static final Log log = LogFactory.getLog(GentParking.class);
+public class ParkingSensor implements BNSensorPlugin{
+    protected static final Log log = LogFactory.getLog(ParkingSensor.class);
     static final String DISTANCE = "distance";
+    static final String CITY = "city";
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Found", "Not Found"};
-    private static final String NAME = "GentParking";
+    private static final String NAME = "ParkingSensor";
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{DISTANCE};
+        return new String[]{DISTANCE, CITY};
     }
 
     @Override
@@ -64,6 +65,10 @@ public class GentParking implements BNSensorPlugin{
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(getProperty(DISTANCE) == null)
             throw new RuntimeException("distance not set");
+        if(getProperty(CITY) == null)
+            throw new RuntimeException("city not set");
+        if(!getProperty(CITY).toString().equalsIgnoreCase("Gent"))
+            throw new RuntimeException("only Gent supported for now");
 
         Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
         Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
@@ -161,8 +166,9 @@ public class GentParking implements BNSensorPlugin{
     }
 
     public static void main(String []args) throws ParseException {
-        GentParking locationSensor = new GentParking();
+        ParkingSensor locationSensor = new ParkingSensor();
         locationSensor.setProperty(DISTANCE, 10);
+        locationSensor.setProperty(CITY, "Gent");
         TestSessionContext testSessionContext = new TestSessionContext(1);
         testSessionContext.setAttribute(RUNTIME_LONGITUDE, 3.68);
         testSessionContext.setAttribute(RUNTIME_LATITUDE, 50.99);
@@ -197,7 +203,7 @@ public class GentParking implements BNSensorPlugin{
                 formulaCalc = 1d/distance * free/capacity;
             else
                 formulaCalc = 1d/distance;
-            GentParking.this.log.info(this.toString());
+            ParkingSensor.this.log.info(this.toString());
         }
 
         @Override
