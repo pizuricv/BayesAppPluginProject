@@ -140,7 +140,7 @@ public class LocationRawSensor implements BNSensorPlugin{
 
     public static void main(String []args){
         LocationRawSensor locationRawSensor = new LocationRawSensor();
-        locationRawSensor.setProperty(LocationRawSensor.LOCATION, "Gent");
+        locationRawSensor.setProperty(LocationRawSensor.LOCATION, "Gent, Mahy Lien Wondelgemstraat 160 ");
         System.out.println(locationRawSensor.execute(null).getRawData());
     }
 }
