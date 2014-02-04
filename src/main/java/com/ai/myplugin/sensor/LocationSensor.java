@@ -82,8 +82,6 @@ public class LocationSensor implements BNSensorPlugin{
         log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
 
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", Mashape.getKey());
@@ -128,8 +126,7 @@ public class LocationSensor implements BNSensorPlugin{
                     e.printStackTrace();
                     log.warn(e.getMessage());
             }
-        }
-        else {
+        } else {
             try {
                 if(getProperty(LOCATION) != null){
                     log.info("Location configured as the address: " + getProperty(LOCATION) +  " , try to get coordinates");
@@ -155,6 +152,8 @@ public class LocationSensor implements BNSensorPlugin{
                 configuredLatitude, configuredLongitude);
         log.info("Computed distance: " + distance);
         jsonObject.put("distance", distance);
+        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
 
         log.info("raw data is "+jsonObject.toJSONString());
 
