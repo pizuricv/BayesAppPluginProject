@@ -24,9 +24,10 @@ public class DialogSensor implements BNSensorPlugin {
 
     private String question = null;
     private static final String NAME = "Dialog";
+    private static final String property = "Question";
 
     public String[] getRequiredProperties() {
-        return new String[] {"Question to ask"};
+        return new String[] {property};
     }
 
     @Override
@@ -35,8 +36,8 @@ public class DialogSensor implements BNSensorPlugin {
     }
 
     public void setProperty(String string, Object obj) {
-        question = obj.toString();
-
+        if(property.equals(string))
+            question = obj.toString();
     }
 
     public Object getProperty(String string) {
