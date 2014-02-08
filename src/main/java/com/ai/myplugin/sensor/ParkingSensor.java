@@ -231,7 +231,7 @@ public class ParkingSensor implements BNSensorPlugin{
             jsonObject.put("address", address.replace("<br>"," "));
             jsonObject.put("url", mapURL);
             jsonObject.put("latitude", latitude);
-            jsonObject.put("longitude", latitude);
+            jsonObject.put("longitude", longitude);
             jsonObject.put("capacity", capacity.intValue());
             jsonObject.put("free", free.intValue());
             jsonObject.put("distance", distance.intValue());

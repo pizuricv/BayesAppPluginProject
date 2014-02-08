@@ -344,7 +344,7 @@ public class PharmacySensor implements BNSensorPlugin {
             jsonObject.put("url", mapURL);
             jsonObject.put("web_url", mapURL);
             jsonObject.put("latitude", latitude);
-            jsonObject.put("longitude", latitude);
+            jsonObject.put("longitude", longitude);
             jsonObject.put("distance", distance.intValue());
             return jsonObject;
         }
