@@ -149,8 +149,8 @@ public class PharmacySensor implements BNSensorPlugin {
             jsonArray.add(data.getAsJSON());
 
         }
-        jsonObject.put("pharmacies", jsonArray);
-        jsonObject.put("best", jsonArray.get(0));
+        jsonObject.put("locations", jsonArray);
+        jsonObject.put("bestLocation", jsonArray.get(0));
 
 
         //log.info("Computed parking: " + Arrays.asList(parkingDatas).toString());

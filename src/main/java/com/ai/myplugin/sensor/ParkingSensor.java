@@ -105,8 +105,8 @@ public class ParkingSensor implements BNSensorPlugin{
             jsonArray.add(parkingData.getAsJSON());
 
         }
-        jsonObject.put("parkings", jsonArray);
-        jsonObject.put("best", jsonArray.get(0));
+        jsonObject.put("locations", jsonArray);
+        jsonObject.put("bestLocation", jsonArray.get(0));
 
 
         //log.info("Computed parking: " + Arrays.asList(parkingDatas).toString());
