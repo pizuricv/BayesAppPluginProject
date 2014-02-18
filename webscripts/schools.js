@@ -14,6 +14,7 @@ request({
     for(location in locations.rawData.locations){
       locations.rawData.locations[location].longitude = locations.rawData.locations[location].long;
       locations.rawData.locations[location].latitude = locations.rawData.locations[location].lat;
+      locations.rawData.locations[location].address = locations.rawData.locations[location].straat;
    }
     console.log(JSON.stringify(locations));
   }
