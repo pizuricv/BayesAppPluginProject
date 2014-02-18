@@ -1,5 +1,5 @@
 var request = require("request");
-var url = "http://datatank.gent.be/Onderwijs&Opvoeding/Basisscholen.json"
+var url = "http://datatank.gent.be/Onderwijs&Opvoeding/Basisscholen.json";
 request({
     url: url,
     json: true
