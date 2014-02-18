@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 public class NodeJSCommand implements BNSensorPlugin{
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
-    private static final int WAIT_FOR_RESULT = 8;
+    private static final int WAIT_FOR_RESULT = 15;
     private static String CONFIG_FILE = "bn.properties";
     private String command;
     private String nodePath = "/usr/local/bin/node";
@@ -235,7 +235,7 @@ public class NodeJSCommand implements BNSensorPlugin{
         private void logLine(String line, StdType type) {
             if(type.equals(StdType.ERROR)){
                 log.error("Error executing the script >" + line);
-                throw new RuntimeException("Error executing the script "+ getName() + " : error is "+ line);
+                //throw new RuntimeException("Error executing the script "+ getName() + " : error is "+ line);
             } else{
                 result += line;
                 log.info(line);
@@ -265,10 +265,39 @@ public class NodeJSCommand implements BNSensorPlugin{
                 "console.log(a)" ;
         nodeJSCommand.setProperty("javaScript", javaScript);
 
+       // TestResult testResult = nodeJSCommand.execute(null);
+       // log.info(testResult.toString());
+       // log.info("state " + testResult.getObserverState());
+       // log.info("rawData " + testResult.getRawData());
+       // log.info("states " + testResult.getObserverStates());
+
+        javaScript = "var request = require(\"request\");\n" +
+                "var url = \"http://datatank.gent.be/Onderwijs&Opvoeding/Basisscholen.json\";\n" +
+                "request({\n" +
+                "    url: url,\n" +
+                "    json: true\n" +
+                "}, function (error, response, body) {\n" +
+                "\n" +
+                " if (!error && response.statusCode === 200) {\n" +
+                "    var locations = {\n" +
+                "       observedState: \"Found\",\n" +
+                "       rawData : {\n" +
+                "         locations: body.Basisscholen\n" +
+                "       }\n" +
+                "    };\n" +
+                "    for(location in locations.rawData.locations){\n" +
+                "      locations.rawData.locations[location].longitude = locations.rawData.locations[location].long;\n" +
+                "      locations.rawData.locations[location].latitude = locations.rawData.locations[location].lat;\n" +
+                "   }\n" +
+                "    console.log(JSON.stringify(locations));\n" +
+                "  }\n" +
+                "});";
+        nodeJSCommand.setProperty("javaScript", javaScript);
+
         TestResult testResult = nodeJSCommand.execute(null);
         log.info(testResult.toString());
         log.info("state " + testResult.getObserverState());
         log.info("rawData " + testResult.getRawData());
-        log.info("states " + testResult.getObserverStates());
+        //log.info("states " + testResult.getObserverStates());
     }
 }
