@@ -109,27 +109,25 @@ public class NodeJSCommand implements BNSensorPlugin{
             log.debug(getName() + " ExitValue: " + exitVal);
             file.delete();
 
-            return new TestResult() {
-                {
-                    (new Runnable() {
-                        //waitForResult is not a timeout for the command itself, but how long you wait before the stream of
-                        //output data is processed, should be really fast.
-                        private int waitForResult = 3;
-                        @Override
-                        public void run() {
-                            while(!result.endsWith("END") && waitForResult > 0)
-                                try {
-                                    Thread.sleep(1000);
-                                    System.out.print(".");
-                                    waitForResult --;
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                    break;
-                                }
-                            result = result.substring(0, result.indexOf("END"));
+            (new Runnable() {
+                //waitForResult is not a timeout for the command itself, but how long you wait before the stream of
+                //output data is processed, should be really fast.
+                private int waitForResult = 3;
+                @Override
+                public void run() {
+                    while(!result.endsWith("END") && waitForResult > 0)
+                        try {
+                            Thread.sleep(1000);
+                            System.out.print(".");
+                            waitForResult --;
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
                         }
-                    } ).run();
+                    result = result.substring(0, result.indexOf("END"));
                 }
+            } ).run();
+            return new TestResult() {
                 @Override
                 public boolean isSuccess() {
                     return  exitVal == 0 && !("error").equals("command");
@@ -264,7 +262,7 @@ public class NodeJSCommand implements BNSensorPlugin{
                 "}\n" +
                 "\n" +
                 "console.log(a)" ;
-        nodeJSCommand.setProperty("command", javaScript);
+        nodeJSCommand.setProperty("javaScript", javaScript);
 
         TestResult testResult = nodeJSCommand.execute(null);
         log.info(testResult.toString());
