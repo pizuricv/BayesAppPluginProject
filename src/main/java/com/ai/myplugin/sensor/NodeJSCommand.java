@@ -30,7 +30,7 @@ public class NodeJSCommand implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String [] {"script"} ;
+        return new String [] {"javaScript"} ;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class NodeJSCommand implements BNSensorPlugin{
 
     @Override
     public void setProperty(String s, Object o) {
-        if("command".equals(s)){
+        if("javaScript".equals(s)){
             command = o.toString();
         } else if ("nodePath".equals(s)){
             nodePath = o.toString();
