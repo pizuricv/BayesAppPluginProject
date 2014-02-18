@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 public class NodeJSCommand implements BNSensorPlugin{
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
+    private static final int WAIT_FOR_RESULT = 8;
     private static String CONFIG_FILE = "bn.properties";
     private String command;
     private String nodePath = "/usr/local/bin/node";
@@ -112,7 +113,7 @@ public class NodeJSCommand implements BNSensorPlugin{
             (new Runnable() {
                 //waitForResult is not a timeout for the command itself, but how long you wait before the stream of
                 //output data is processed, should be really fast.
-                private int waitForResult = 3;
+                private int waitForResult = WAIT_FOR_RESULT;
                 @Override
                 public void run() {
                     while(!result.endsWith("END") && waitForResult > 0)
