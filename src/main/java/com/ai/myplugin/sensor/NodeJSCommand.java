@@ -49,7 +49,7 @@ public class NodeJSCommand implements BNSensorPlugin{
 
     @Override
     public Object getProperty(String s) {
-        if("command".endsWith(s)){
+        if("javaScript".endsWith(s)){
             return command;
         }
         else{
