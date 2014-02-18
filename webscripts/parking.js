@@ -12,6 +12,6 @@ request({
          locations: body.Parkings11.parkings
        }
     };
-    console.log(JSON.stringify(parkings), null, 4);
+    console.log(JSON.stringify(parkings, null, 4));
   }
 });
