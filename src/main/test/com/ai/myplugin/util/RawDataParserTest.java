@@ -4,8 +4,7 @@ import junit.framework.TestCase;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by User: veselin
@@ -36,4 +35,19 @@ public class RawDataParserTest extends TestCase {
         test = RawDataParser.parse(mapTestResult, "Hello World...");
         assertTrue("Hello World...".equals(test));
     }
+
+    public void testTemplate() {
+        Set set = RawDataParser.parseKeyArgs("Hello World <node2> dsfsdf <value2> if x <3  then  hello");
+        assertEquals(2, set.size());
+        assertEquals("[[node2, value2]]", Arrays.asList(set).toString());
+
+    }
+
+    public void testTemplate2() {
+        Set set = RawDataParser.getRuntimePropertiesFromTemplate("Hello World <runtime_node2> dsfsdf <runtime_value2> if x <3  then  hello", "runtime_");
+        assertEquals(2, set.size());
+        assertEquals("[[runtime_node2, runtime_value2]]", Arrays.asList(set).toString());
+
+    }
+
 }

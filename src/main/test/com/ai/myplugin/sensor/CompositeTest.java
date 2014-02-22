@@ -1,6 +1,7 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
@@ -127,6 +128,27 @@ public class CompositeTest extends TestCase{
         testResult = rawFormulaSensor.execute(testSessionContext);
         assertEquals("Below", testResult.getObserverState());
         assertEquals(855, Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue")), 10);
+    }
+
+
+    public void testSensorTemplate() throws Exception {
+        LocationSensor locationSensor = new LocationSensor();
+        locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
+        locationSensor.setProperty(LocationSensor.LATITUDE, 45.262231);
+        locationSensor.setProperty(LocationSensor.DISTANCE, 100);
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        testSessionContext.setAttribute(LocationSensor.RUNTIME_LONGITUDE, 19.851858);
+        testSessionContext.setAttribute(LocationSensor.RUNTIME_LATITUDE, 45.262231);
+
+        JSONObject jsonObject1 = new JSONObject();
+
+        jsonObject1.put("rawData", locationSensor.execute(testSessionContext).getRawData());
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        mapTestResult.put("node1", jsonObject1);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        String template = "Location is <node1.rawData.current_country>, <node1.rawData.current_city>, <node1.rawData.current_street>";
+        System.out.println(RawDataParser.parseTemplateFromContext(template, testSessionContext));
+
     }
 
 
