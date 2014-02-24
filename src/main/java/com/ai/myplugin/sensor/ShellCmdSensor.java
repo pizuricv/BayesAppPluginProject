@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginImplementation
 public class ShellCmdSensor implements BNSensorPlugin{
@@ -24,9 +25,10 @@ public class ShellCmdSensor implements BNSensorPlugin{
     private ArrayList<String> states = new ArrayList<String>();
     private static final String parseString = "result=";
     private int exitVal = -1;
-    private String result = "error";
+    private String result ="";
     private static final String NAME = "ShellCommand";
     private String output = "";
+    private AtomicBoolean done = new AtomicBoolean(false);
 
     @Override
     public String[] getRequiredProperties() {
@@ -109,7 +111,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
                         private int waitForResult = 3;
                         @Override
                         public void run() {
-                            while("error".equals(result) && waitForResult > 0)
+                            while(!done.get() && waitForResult > 0)
                                 try {
                                     Thread.sleep(1000);
                                     System.out.print(".");
@@ -185,6 +187,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
                 String line;
                 while ((line = br.readLine()) != null)
                     logLine(line, stdType);
+                done.set(true);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
