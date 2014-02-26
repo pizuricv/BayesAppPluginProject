@@ -2,12 +2,14 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
-import com.ai.myplugin.util.Mashape;
+import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LocationRawSensor implements BNSensorPlugin{
     protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
 
-    static final String server = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=";
+
     static final String LOCATION = "location";
     String location;
     String [] states = {"Collected", "Not Collected"};
@@ -60,11 +62,9 @@ public class LocationRawSensor implements BNSensorPlugin{
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Map<String, String> map = new ConcurrentHashMap<String, String>();
-        map.put("X-Mashape-Authorization", Mashape.getKey());
+
         try {
-            final String str = Rest.httpGet(server + location, map);
-            log.info(str);
+            final JSONObject jsonObject = getLongitudeLatitudeForAddress(location);
             return new TestResult() {
                 @Override
                 public boolean isSuccess() {
@@ -88,7 +88,7 @@ public class LocationRawSensor implements BNSensorPlugin{
 
                 @Override
                 public String getRawData() {
-                    return str;
+                    return jsonObject.toJSONString();
                 }
             };
         } catch (Exception e) {
@@ -136,6 +136,22 @@ public class LocationRawSensor implements BNSensorPlugin{
     @Override
     public String[] getSupportedStates() {
         return states;
+    }
+
+    public static JSONObject getLongitudeLatitudeForAddress(String address) throws Exception {
+        Map<String, String> map = new ConcurrentHashMap<String, String>();
+        map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
+
+        String url = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=" + URLEncoder.encode(address);
+        //String url = "https://metropolis-api-geocode.p.mashape.com/solve?address=" + URLEncoder.encode(address);
+        String ret = Rest.httpGet(url, map);
+
+        //curl "https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false&key=AIzaSyAB4NA8aZi1wXgKRbMN8Z5BdNm7NkI9nb0"
+
+        /*String url =  "https://maps.googleapis.com/maps/api/geocode/json?address="  + URLEncoder.encode(address) +
+                "&sensor=false&key="+APIKeys.getGoogleKey(); */
+        //String ret = Rest.httpGet(url);
+        return (JSONObject) new JSONParser().parse(ret);
     }
 
     public static void main(String []args){

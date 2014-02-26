@@ -84,7 +84,7 @@ public class LocationSensor implements BNSensorPlugin{
         JSONObject jsonObject = new JSONObject();
 
         Map<String, String> map = new ConcurrentHashMap<String, String>();
-        map.put("X-Mashape-Authorization", Mashape.getKey());
+        map.put("X-APIKeys-Authorization", APIKeys.getMashapeKey());
 
         Double configuredLatitude = getProperty(LATITUDE) == null || "".equals(getProperty(LATITUDE))?
                 Double.MAX_VALUE: Utils.getDouble(getProperty(LATITUDE));
@@ -96,11 +96,7 @@ public class LocationSensor implements BNSensorPlugin{
         Map currentData = new ConcurrentHashMap();
         try {
             log.info("try to get more from runtime data");
-            String latitude_str = LATITUDE + "="+ URLEncoder.encode(runtime_latitude.toString());
-            String longitude_str = LONGITUDE + "="+ URLEncoder.encode(runtime_longitude.toString());
-            str = Rest.httpGet(LatitudeLongitudeRawSensor.server + longitude_str + "&"+
-                    latitude_str, map);
-            JSONObject jsonObjectRuntime = (JSONObject) new JSONParser().parse(str);
+            JSONObject jsonObjectRuntime = LatitudeLongitudeRawSensor.reverseLookupAddress(runtime_longitude, runtime_latitude) ;
             String city = jsonObjectRuntime.get("city") == null ? "not found" : jsonObjectRuntime.get("city").toString();
             String country = jsonObjectRuntime.get("country") == null ? "not found" : jsonObjectRuntime.get("country").toString();
             String streetName = jsonObjectRuntime.get("street_name") == null ? "not found" : jsonObjectRuntime.get("street_name").toString();
@@ -116,22 +112,17 @@ public class LocationSensor implements BNSensorPlugin{
 
         if(!configuredLatitude.equals(Double.MAX_VALUE) && !configuredLongitude.equals(Double.MAX_VALUE)){
             log.info("Location configured, try to get more data");
-            String configuredLatitudeStr = LATITUDE + "="+ URLEncoder.encode(configuredLatitude.toString());
-            String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(configuredLongitude.toString());
             try {
-                str = Rest.httpGet(LatitudeLongitudeRawSensor.server + longitudeCoordinateStr + "&"+
-                        configuredLatitudeStr, map);
-                jsonObject = (JSONObject) new JSONParser().parse(str);
+                jsonObject = LatitudeLongitudeRawSensor.reverseLookupAddress(configuredLongitude, configuredLatitude);
             } catch (Exception e) {
-                    e.printStackTrace();
-                    log.warn(e.getMessage());
+                e.printStackTrace();
+                log.warn(e.getMessage());
             }
         } else {
             try {
                 if(getProperty(LOCATION) != null){
                     log.info("Location configured as the address: " + getProperty(LOCATION) +  " , try to get coordinates");
-                    str = Rest.httpGet(LocationRawSensor.server + URLEncoder.encode(getProperty(LOCATION).toString()), map);
-                    jsonObject = (JSONObject) new JSONParser().parse(str);
+                    jsonObject = LocationRawSensor.getLongitudeLatitudeForAddress(getProperty(LOCATION).toString());
                     configuredLongitude = Utils.getDouble(jsonObject.get("longitude"));
                     configuredLatitude = Utils.getDouble(jsonObject.get("latitude"));
                     jsonObject.put("configured_latitude", configuredLatitude);

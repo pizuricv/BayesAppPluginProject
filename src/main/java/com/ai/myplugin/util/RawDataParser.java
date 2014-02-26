@@ -2,6 +2,8 @@ package com.ai.myplugin.util;
 
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 04/11/13
  */
 public class RawDataParser {
+    private static final Log log = LogFactory.getLog(RawDataParser.class);
 
     /**
      *  format node1->param1
@@ -54,42 +57,20 @@ public class RawDataParser {
     }
 
     public static String parseTemplateFromContext(String template, TestSessionContext testSessionContext){
+        return parseTemplateFromRawMap(template, (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA));
+    };
+
+    public static String parseTemplateFromRawMap(String template, Map sessionMap){
+        log.debug("parseTemplateFromRawMap " + template);
         Set<String> set = parseKeyArgs(template);
         Map<String, String> map = new ConcurrentHashMap<String, String>();
-        Map sessionMap = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
         JSONObject jsonObject = new JSONObject(sessionMap);
-        String nodeKey;
         for(String key: set){
-            if(key.indexOf(".") > -1)   {
-                nodeKey = key.substring(0, key.indexOf("."));
-                JSONObject jso;
-                if(jsonObject.get(nodeKey) != null){
-                    Object obj = null;
-                    //first node must be a json
-                    jso = (JSONObject) jsonObject.get(nodeKey);
-                    String delims = ".";
-                    StringTokenizer tokens = new StringTokenizer(key, delims);
-                    tokens.nextToken();
-                    while (tokens.hasMoreTokens()){
-                        obj = jso.get(tokens.nextElement());
-                        if(obj instanceof JSONObject)
-                            jso = (JSONObject) obj;
-                        else if(obj instanceof JSONArray)
-                            jso = (JSONObject) ((JSONArray) obj).get(0);
-                        else {
-                            try{
-                                jso = (JSONObject) new JSONParser().parse(obj.toString());
-                            } catch (Exception e){
-                                break;
-                            }
-                        }
-                    }
-                    if(obj != null)
-                        map.put(key, obj.toString());
-                }
-
-            }
+            Object obj = foundObjForKey(key, jsonObject);
+            if(obj != null)
+                map.put(key, obj.toString());
         }
+        //template keys can't have dots
         for(String key : map.keySet()) {
             template = template.replaceAll(key, key.replaceAll("\\.",""));
         }
@@ -98,9 +79,58 @@ public class RawDataParser {
             hello.add(key.replaceAll("\\.",""), map.get(key));
         }
         return hello.render();
-    };
+    }
 
+    private static Object foundObjForKey(String key, JSONObject jsonObject) {
+        return foundObjForKey(key, jsonObject, null);
+    }
+
+    private static Object foundObjForKey(String key, JSONObject jsonObject, String nodeSeparator) {
+        log.debug("foundObjForKey "+key + " , "+jsonObject.toJSONString());
+        if(nodeSeparator == null)
+            nodeSeparator = ".";   //how the node is separated from the raw data . or -> for instance
+        String delims = "."; //json notation for walking the graph
+        String nodeKey;
+        if(key.indexOf(nodeSeparator) > -1)   {
+            nodeKey = key.substring(0, key.indexOf(nodeSeparator));
+            key = key.substring(key.indexOf(nodeSeparator));
+            JSONObject jso;
+            if(jsonObject.get(nodeKey) != null){
+                Object obj = null;
+                //first node in the tree must be a json object, not an array
+                jso = (JSONObject) jsonObject.get(nodeKey);
+                StringTokenizer tokens = new StringTokenizer(key, delims);
+                while (tokens.hasMoreTokens()){
+                    obj = jso.get(tokens.nextElement());
+                    if(obj instanceof JSONObject)
+                        jso = (JSONObject) obj;
+                    else if(obj instanceof JSONArray)
+                        jso = (JSONObject) ((JSONArray) obj).get(0);
+                    else {
+                        try{
+                            jso = (JSONObject) new JSONParser().parse(obj.toString());
+                        } catch (Exception e){
+                            break;
+                        }
+                    }
+                }
+                if(obj != null){
+                    log.debug("found object "+obj.toString() + ", for the mashapeKey " +key);
+                    return obj;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * find strings that are between < >
+     * @param template
+     * @return
+     */
     public static Set<String> parseKeyArgs(String template){
+        log.debug("parseKeyArgs "+template);
         String delims = ">";
         Set<String> set = new HashSet<String>();
         StringTokenizer tokens = new StringTokenizer(template, delims);
@@ -111,6 +141,7 @@ public class RawDataParser {
             if(str.indexOf(" ") == -1)
                 set.add(str);
         }
+        log.debug("found keys "+Arrays.asList(set).toString());
         return set;
     };
 

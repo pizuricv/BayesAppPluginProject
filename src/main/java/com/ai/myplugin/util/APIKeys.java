@@ -9,23 +9,28 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class Mashape {
-    static String key;
-    private static final Object MASHAPE_KEY = "mashapeKey";
+public class APIKeys {
+    static String mashapeKey;
+    static String googleKey;
 
     static {
        String CONFIG_FILE = "bn.properties";
        Properties properties = new Properties();
        try {
            properties.load(new FileInputStream(CONFIG_FILE));
-           key = (String) properties.get(MASHAPE_KEY);
+           mashapeKey = (String) properties.get("mashapeKey");
+           googleKey = (String) properties.get("googleKey");
        } catch (IOException e) {
            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
        }
    }
 
-    public static String getKey(){
-        return key;
+    public static String getMashapeKey(){
+        return mashapeKey;
+    }
+
+    public static String getGoogleKey(){
+        return googleKey;
     }
 
 

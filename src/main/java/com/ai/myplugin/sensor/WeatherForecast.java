@@ -7,15 +7,14 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptyTestResult;
-import com.ai.myplugin.util.Mashape;
 import com.ai.myplugin.util.Rest;
 import com.ai.util.resource.TestSessionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,7 +63,7 @@ public class WeatherForecast implements BNSensorPlugin {
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Map<String, String> map = new ConcurrentHashMap<String, String>();
-        map.put("X-Mashape-Authorization", Mashape.getKey());
+        map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
         try {
             String str = Rest.httpGet(server + city, map);
             log.debug(str);
