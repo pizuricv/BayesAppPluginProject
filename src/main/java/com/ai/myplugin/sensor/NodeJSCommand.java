@@ -37,7 +37,11 @@ public class NodeJSCommand implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
+        if(getProperty("javaScript") == null)
+            return new String[] {"javaScript"};
         Set<String> set = RawDataParser.parseKeyArgs((String) getProperty("javaScript"));
+        Set<String> set2 = RawDataParser.getRuntimePropertiesFromTemplate((String) getProperty("javaScript"), "runtime_");
+        set.removeAll(set2);
         set.add("javaScript");
         String [] ret = new String[set.size()];
         for(int i=0 ; i< set.size(); i++)
@@ -287,6 +291,7 @@ public class NodeJSCommand implements BNSensorPlugin{
 
     public static void main(String [] args) {
         NodeJSCommand nodeJSCommand = new NodeJSCommand();
+        nodeJSCommand.getRequiredProperties();
         String javaScript =  "a = { observedState:\"world\",\n" +
                 "      observedStates: {\n" +
                 "        state1 : 0.5,\n" +
@@ -300,6 +305,7 @@ public class NodeJSCommand implements BNSensorPlugin{
                 "\n" +
                 "console.log(a)" ;
         nodeJSCommand.setProperty("javaScript", javaScript);
+        System.out.println(Arrays.asList(nodeJSCommand.getRequiredProperties()).toString());
 
        // TestResult testResult = nodeJSCommand.execute(null);
        // log.info(testResult.toString());
