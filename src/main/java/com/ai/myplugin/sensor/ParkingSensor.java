@@ -192,7 +192,13 @@ public class ParkingSensor implements BNSensorPlugin{
             latitude = Utils.getDouble(obj.get("latitude"));
             longitude = Utils.getDouble(obj.get("longitude"));
             capacity = Utils.getDouble(obj.get("totalCapacity"));
-            free = Utils.getDouble(obj.get("availableCapacity"));
+            //jesus
+            try{
+                free = Utils.getDouble(obj.get("availableCapacity"));
+            } catch (Exception e){
+                //"availableCapacity":"VOL", that is full in Dutch :)
+                free = 0.0;
+            }
             mapURL = "https://maps.google.com/maps?q="  +latitude + "," + longitude ;
 
 
