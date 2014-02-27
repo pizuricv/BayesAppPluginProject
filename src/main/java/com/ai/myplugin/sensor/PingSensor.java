@@ -6,18 +6,23 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
+import com.ai.myplugin.util.APIKeys;
+import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.net.InetAddress;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
-import java.lang.System;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -25,8 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PingSensor implements BNSensorPlugin{
     private static final Log log = LogFactory.getLog(PingSensor.class);
 
-    private static final String IP_ADDRESS = "address";
-    private static final String TIMEOUT = "timeout";
+    private static final String ADDRESS = "address";
     private static final String ALIVE = "Alive";
     private static final String NOT_ALIVE = "Not Alive";
     private static final String NAME = "Ping";
@@ -35,7 +39,7 @@ public class PingSensor implements BNSensorPlugin{
 
 
     public String[] getRequiredProperties() {
-        return new String[] {IP_ADDRESS, TIMEOUT};
+        return new String[] {ADDRESS};
     }
 
     @Override
@@ -44,16 +48,8 @@ public class PingSensor implements BNSensorPlugin{
     }
 
     public void setProperty(String string, Object obj) {
-        if(string.equals(IP_ADDRESS)) {
-            try {
-                propertiesMap.put(string,InetAddress.getByName(obj.toString()));
-            } catch (UnknownHostException e) {
-                log.error(e.getLocalizedMessage());
-            }
-        } else if(string.equals(TIMEOUT)){
-            propertiesMap.put(string, Utils.getDouble(obj));
-        } else {
-            throw new RuntimeException("Property "+ string + " not in the required settings");
+        if(string.equalsIgnoreCase(ADDRESS)) {
+            propertiesMap.put(ADDRESS, obj.toString());
         }
     }
 
@@ -67,7 +63,7 @@ public class PingSensor implements BNSensorPlugin{
 
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        boolean reachable = false;
+        /*boolean reachable = false;
         boolean testSuccess = true;
 
         try {
@@ -77,10 +73,24 @@ public class PingSensor implements BNSensorPlugin{
             log.error(e.getLocalizedMessage());
         }
         final boolean finalTestFailed = testSuccess;
-        final boolean finalReachable = reachable;
+        final boolean finalReachable = reachable;  */
+        JSONObject pingObj = null;
+        try {
+            pingObj = pingAddress((String) getProperty(ADDRESS));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            return new EmptyTestResult();
+        }
+        final JSONObject finalPingObj = pingObj;
+        final Boolean isReachable = ((String) finalPingObj.get("result")).equalsIgnoreCase("true");
         TestResult result = new TestResult() {
             public boolean isSuccess() {
-                return finalTestFailed;
+                if(finalPingObj == null)
+                    return false;
+                else{
+                    return isReachable;
+                }
             }
             /*
             you need to return the node name, since the diagnosis result for the node is linked to the node name of the test result 
@@ -90,7 +100,7 @@ public class PingSensor implements BNSensorPlugin{
             }
 
             public String getObserverState() {
-                if(finalReachable){
+                if(isReachable){
                     return ALIVE;
                 } else {
                     return NOT_ALIVE;
@@ -103,7 +113,7 @@ public class PingSensor implements BNSensorPlugin{
             }
 
             public String getRawData(){
-                return null;
+                return finalPingObj.toJSONString();
             }
         };
         return result;
@@ -120,16 +130,38 @@ public class PingSensor implements BNSensorPlugin{
         return new String[] {ALIVE, NOT_ALIVE} ;
     }
 
-    private InetAddress getAddress(){
-        return (InetAddress) getProperty(IP_ADDRESS);
-    }
+    /*
+    RESPONSE
+        {
+          "result": "true",
+          "time": "71.511"
+        }
+     */
+    public static JSONObject pingAddress(String address) throws Exception {
+        Map<String, String> map = new ConcurrentHashMap<String, String>();
+        map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
 
-    private int getTimeOut(){
-        return ((Double) getProperty(TIMEOUT)).intValue();
+        String url = "https://igor-zachetly-ping-uin.p.mashape.com/pinguin.php?address=" + URLEncoder.encode(address);
+        String ret = Rest.httpGet(url, map);
+
+        return (JSONObject) new JSONParser().parse(ret);
     }
 
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
+    public static void main(String [] args){
+        PingSensor pingSensor = new PingSensor();
+        pingSensor.setProperty(ADDRESS, "www.waylay.io");
+        TestResult testResult = pingSensor.execute(null);
+        System.out.println(testResult.getRawData());
+        System.out.println(testResult.getObserverState());
+
+        pingSensor.setProperty(ADDRESS, "www.waylaay.io");
+        testResult = pingSensor.execute(null);
+        System.out.println(testResult.getRawData());
+        System.out.println(testResult.getObserverState());
     }
 }
