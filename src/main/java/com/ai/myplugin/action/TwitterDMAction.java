@@ -101,7 +101,7 @@ public class TwitterDMAction implements BNActionPlugin {
         String twitterMessage = getProperty(TWITTER_MESSAGE) + " , on " + (new Date()).toString();
         Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
         try {
-            twitterMessage = RawDataParser.parse(map, twitterMessage);
+            twitterMessage = RawDataParser.parseTemplateFromRawMap(twitterMessage, map);
         }catch (Exception e){
             log.warn(e.getLocalizedMessage());
         }

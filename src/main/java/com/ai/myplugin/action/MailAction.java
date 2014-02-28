@@ -9,7 +9,6 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,7 +39,6 @@ public class MailAction implements BNActionPlugin {
     private static final String MAIL_FROM = "e-mailFrom";
     private static final String MESSAGE = "message";
     private static final String SUBJECT = "subject";
-    private static final String MESSAGE_TEMPLATE = "messageTemplate";
     private String eMailAddress = "" ;
     private String message = "" ;
     private String subject = "" ;
@@ -131,29 +129,18 @@ public class MailAction implements BNActionPlugin {
                 message.setSubject((String) getProperty(SUBJECT));
 
 
-                if(testSessionContext.getAttribute(MESSAGE_TEMPLATE) != null){
-//                    ST hello = new ST("Hello, <name>");
-//                    hello.add("name", "World");
-//                    ST template = new ST((String) testSessionContext.getAttribute(MESSAGE_TEMPLATE));
+                Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+                String messageString = (String) getProperty(MESSAGE);
+                messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
 
+                String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
+                message.setText(messageString + explainReason);
+                Transport.send(message);
 
-                } else {
-                    Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
-                    String messageString = (String) getProperty(MESSAGE);
-                    try {
-                        messageString = "message: "  + RawDataParser.parse(map, messageString);
-                        String explainReason = RawDataParser.parseNodesData(testSessionContext);
-                        message.setText(messageString + explainReason);
-                        Transport.send(message);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        log.error(e.getLocalizedMessage());
-                        success = false;
-                    }
-                }
 
             } catch (MessagingException e) {
                 e.printStackTrace();
+                log.error(e.getMessage());
                 success = false;
             }
         }

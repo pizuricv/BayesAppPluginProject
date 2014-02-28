@@ -1,6 +1,7 @@
 package com.ai.myplugin.util;
 
 import junit.framework.TestCase;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
@@ -17,23 +18,59 @@ public class RawDataParserTest extends TestCase {
         JSONObject objRaw = new JSONObject();
         objRaw.put("value1", 1);
         objRaw.put("hello", "hello vele");
-        objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node1", objRaw);
 
         objRaw = new JSONObject();
         objRaw.put("value2", 1);
         objRaw.put("time", 1234);
-        objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node2", objRaw);
 
-        String test = RawDataParser.parse(mapTestResult, "Hello World node2->value2");
+        String test = RawDataParser.parseTemplateFromRawMap("Hello World <node2.value2>", mapTestResult);
         assertTrue("Hello World 1".equals(test));
 
-        test = RawDataParser.parse(mapTestResult, "Hello World node1->hello");
+        test = RawDataParser.parseTemplateFromRawMap("Hello World <node1.hello>", mapTestResult);
         assertTrue("Hello World hello vele".equals(test));
 
-        test = RawDataParser.parse(mapTestResult, "Hello World...");
+        test = RawDataParser.parseTemplateFromRawMap("Hello World...", mapTestResult);
         assertTrue("Hello World...".equals(test));
+
+        JSONArray jsonArray = new JSONArray();
+        objRaw = new JSONObject();
+        objRaw.put("value3", 1);
+        objRaw.put("time", 1234);
+        jsonArray.add(objRaw);
+
+        objRaw = new JSONObject();
+        objRaw.put("value3", 2);
+        objRaw.put("time", 1234);
+        jsonArray.add(objRaw);
+
+        objRaw = new JSONObject();
+        objRaw.put("value3", 3);
+        objRaw.put("time", 1234);
+        jsonArray.add(objRaw);
+
+        objRaw  = new JSONObject();
+        objRaw.put("x", "hello");
+        jsonArray.add(objRaw);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("array", jsonArray);
+
+        mapTestResult.put("node3", jsonObject);
+
+
+        test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array.2.value3>", mapTestResult);
+        assertTrue("Hello World 3".equals(test));
+
+        test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array.first.value3>", mapTestResult);
+        assertTrue("Hello World 1".equals(test));
+
+        test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array.last.x>", mapTestResult);
+        assertTrue("Hello World hello".equals(test));
+
+        test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array>", mapTestResult);
+        assertTrue("Hello World {\"time\":1234,\"value3\":1}".equals(test));
     }
 
     public void testTemplate() {
