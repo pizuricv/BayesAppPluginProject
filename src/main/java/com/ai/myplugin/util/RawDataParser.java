@@ -45,7 +45,7 @@ public class RawDataParser {
         return hello.render();
     }
 
-    private static Object findObjForKey(String key, JSONObject jsonObject) {
+    public static Object findObjForKey(String key, JSONObject jsonObject) {
         return findObjForKey(key, jsonObject, null);
     }
 

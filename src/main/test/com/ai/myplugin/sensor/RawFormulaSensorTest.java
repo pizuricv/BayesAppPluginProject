@@ -23,7 +23,7 @@ public class RawFormulaSensorTest extends TestCase {
 
     public void testCalculationFormula() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "node1->value1 + node2->value2";
+        String formula = "<node1.rawData.value1> + <node2.rawData.value2>";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
 
@@ -46,7 +46,7 @@ public class RawFormulaSensorTest extends TestCase {
     }
     public void testCalculationStates() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "node1->value1 + node2->value2";
+        String formula = "<node1.rawData.value1> + <node2.rawData.value2>";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
 
@@ -79,7 +79,7 @@ public class RawFormulaSensorTest extends TestCase {
         log.info(testResult.getRawData());
         assertEquals("Below", testResult.getObserverState());
 
-        formula =  "node1->value1 / node2->value2 + 3 * ( node1->value1 + node2->value2 )";
+        formula =  "<node1.rawData.value1> / <node2.rawData.value2> + 3 * (<node1.rawData.value1> + <node2.rawData.value2> )";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
         testResult = rawFormulaSensor.execute(testSessionContext);
@@ -88,7 +88,7 @@ public class RawFormulaSensorTest extends TestCase {
         assertEquals("Above", testResult.getObserverState());
         Double value1 = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
 
-        formula = "node1->value1 / node2->value2 + 3 * (node1->value1 + node2->value2)";
+        formula = "<node1.rawData.value1> / <node2.rawData.value2> + 3 * (<node1.rawData.value1> + <node2.rawData.value2>)";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
         testResult = rawFormulaSensor.execute(testSessionContext);
@@ -100,7 +100,7 @@ public class RawFormulaSensorTest extends TestCase {
         assertEquals(value1, 12.33, 0.1);
 
 
-        formula = "node1->value1 - node1->value1";
+        formula = "<node1.rawData.value1> - <node1.rawData.value1>";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
         rawFormulaSensor.setProperty("threshold", 0);
@@ -139,7 +139,7 @@ public class RawFormulaSensorTest extends TestCase {
 
     public void testDeltaCalculation() throws ParseException {
             RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-            String formula = "node1->value1 - node1->value1<-1> + node2->value2 - node2->value2<-1>";
+            String formula = "<node1.rawData.value1> - <node1.rawData.value1>[-1] + <node2.rawData.value2> - <node2.rawData.value2>[-1]";
             log.info("formula "+formula);
             rawFormulaSensor.setProperty("formula", formula);
 
@@ -172,7 +172,8 @@ public class RawFormulaSensorTest extends TestCase {
 
     public void testDeltaCalculation2() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "node1->value1 - node1->value1<-1> + node2->value2 - node2->value2<-1> - node2->value2<-2>";
+        String formula = "<node1.rawData.value1> - <node1.rawData.value1>[-1] + <node2.rawData.value2> - " +
+                "<node2.rawData.value2>[-1] - <node2.rawData.value2>[-2]";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
 
@@ -214,7 +215,8 @@ public class RawFormulaSensorTest extends TestCase {
 
     public void testDeltaTimeCalculation2() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "abs( node1->value1 - node1->value1<-1> + node2->value2 - node2->value2<-1> - node2->value2<-1> ) / dt";
+        String formula = "abs( <node1.rawData.value1> - <node1.rawData.value1>[-1] + <node2.rawData.value2> - " +
+                "<node2.rawData.value2>[-1] - <node2.rawData.value2>[-1] ) / dt";
         log.info("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
 

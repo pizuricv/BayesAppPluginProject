@@ -7,12 +7,15 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.stringtemplate.v4.ST;
 
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by User: veselin
@@ -31,62 +34,93 @@ public class FormulaParser {
     }
 
     /**
-     *  formula in format node1->param1 OPER node->param3 OPER node->param3 .
-     * @param nodeParams  are parameters on which formula will be computed
+     *  formula in format <node1.param1> OPER <node1.param3> OPER <node2.param3>
+     *  also can contain a previous values, such as <node1.param1>[-1] OPER <node2.param3>[-2]
+     * @param sessionMap  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
      */
-    public static String parse(Map<String, Object>  nodeParams, String formula) throws ParseException {
-        log.debug("parse formula " + formula);
-        String returnString = formula.replaceAll("\\(", " \\( ").replaceAll("\\)", " \\) ").
-                replaceAll("/", " / ");
-        String [] split = returnString.split("\\s+");
-        Map<String, Double> map = new ConcurrentHashMap<String, Double>();
-        for(String s1 : split)   {
-            String [] s2 = s1.split("->");
-            if(s2.length == 2)  {
-                try{
-                    String node = s2[0];
-                    String value = s2[1];
-                    JSONObject jsonObject = (JSONObject) (nodeParams.get(node));
-                    if(value.indexOf("<-") > -1){
-                        log.info("parse prev data " + value);
-                        value = value.substring(0, value.indexOf("<"));
-                        Double valueD = Utils.getDouble(((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value));
-                        int num = getNum(s2[1]);
+    public static String parseFormula(String formula, Map<String, Object>  sessionMap) throws ParseException {
+        log.info("parsing formula " + formula);
+        Set<String> set = RawDataParser.parseKeyArgs(formula);
+        Map<String, String> map = new ConcurrentHashMap<String, String>();
+        Map<String, Integer> mapAdded = new ConcurrentHashMap<String, Integer>();
+
+        JSONObject jsonObject = new JSONObject(sessionMap);
+        for(String key: set){
+            Object obj = RawDataParser.findObjForKey(key, jsonObject);
+            if(obj != null){
+                map.put(key, obj.toString());
+            }
+        }
+
+        if(formula.indexOf(">[-") > -1){
+            String [] pastValues = formula.split("]");
+            for(String s : pastValues){
+                String []nextPass = s.split("<");
+                for(String sss : nextPass){
+                    if(sss.indexOf(">[-") > -1){
+                        String key = sss.substring(0, sss.indexOf(">")).trim();
+                        if(map.get(key) == null){
+                            throw new ParseException(1, "key" + key + " not in JSON object");
+                        }
                         ArrayList stack;
-                        if(memory.get(s1) != null){
-                            stack = (ArrayList) memory.get(s1);
+                        if(memory.get(key) != null){
+                            stack = (ArrayList) memory.get(key);
                         }  else {
                             stack = new ArrayList();
-                            memory.put(s1, stack);
+                            memory.put(key, stack);
                         }
-                        stack.add(valueD);
-                        log.info("put in the stack[" + num + "] " + s1 + " " + valueD);
-                        if(stack.size() > num)   {
-                            Double prevD = (Double) stack.remove(stack.size() - num -1);
-                            log.info("put in the formula " + s1 + " " + prevD);
-                            map.put(s1, prevD);
+
+                        int stackNum = getStackNum(sss);
+
+                        if(mapAdded.get(key) == null){
+                            mapAdded.put(key, new Integer(1));
+                            Double value = Double.parseDouble(map.get(key));
+                            stack.add(value);
+                            log.info("put in the stack ["+ key + "], value=" + value);
+                        } else {
+                            mapAdded.put(key, mapAdded.get(key) + 1);
+                            log.info("skip in the stack since already added in this run ["+ key + "], value=" +
+                                    map.get(key) );
                         }
-                    } else {
-                        Object rawValue =  ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value);
-                        log.info("put in the formula " + s1 + " " + rawValue);
-                        map.put(s1, Utils.getDouble(rawValue));
+                        String mapKey = key+"S"+stackNum;
+                        if(stack.size() > stackNum)   {
+                            Double prevD = (Double) stack.get(stack.size() - stackNum - 1);
+                            log.info("put in the mapping from the stack: " + mapKey + "= " +  prevD);
+                            map.put(mapKey, prevD.toString());
+                        }
+                        formula = formula.replace("<"+ key + ">" + "[-"+stackNum + "]", "<"+ mapKey + ">");
                     }
-                }
-                catch (Exception e){
-                    log.error(e.getLocalizedMessage());
                 }
             }
         }
 
-        for(Map.Entry<String, Double> entry: map.entrySet()){
-            if(entry.getKey().contains("<"))
-                returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
+        for(String key: mapAdded.keySet()){
+            Integer count = mapAdded.get(key);
+            ArrayList stack = (ArrayList) memory.get(key);
+            if(stack.size() > count){
+                log.info("trim the stack [" + key + "], the size is " + stack.size() +
+                        " and the max count by formula is " + count);
+                for(int i = 0; i < stack.size() - count; i ++){
+                    Object value = stack.remove(0);
+                    log.info("trim key " + key + ", for value " + value);
+                }
+            }
         }
-        for(Map.Entry<String, Double> entry: map.entrySet()){
-            returnString = returnString.replaceAll(entry.getKey() , entry.getValue().toString());
+
+
+        //template keys can't have dots
+        for(String key : map.keySet()) {
+            formula = formula.replaceAll(key, key.replaceAll("\\.",""));
         }
+
+        ST hello = new ST(formula);
+        for(String key : map.keySet()) {
+            hello.add(key.replaceAll("\\.",""), map.get(key));
+        }
+        String returnString =  hello.render();
+
         if(returnString.indexOf("distance") > -1){
             log.info("parse distance " + formula);
             try{
@@ -97,8 +131,8 @@ public class FormulaParser {
                 String [] split3 = sub1.split(",");
                 String node1 = split3[0].trim();
                 String node2 = split3[1].trim();
-                JSONObject jsonObject1 = (JSONObject) (nodeParams.get(node1));
-                JSONObject jsonObject2 = (JSONObject) (nodeParams.get(node2));
+                JSONObject jsonObject1 = (JSONObject) (sessionMap.get(node1));
+                JSONObject jsonObject2 = (JSONObject) (sessionMap.get(node2));
                 jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
                 jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
                 log.info("parse distance first node=" + jsonObject1.toJSONString());
@@ -119,12 +153,12 @@ public class FormulaParser {
                 log.error(e.getLocalizedMessage());
             }
         }
-        log.debug("returnString " + returnString);
+        log.info("parsed formula = " + returnString);
         return returnString;
     }
 
-    private static int getNum(String value) {
-        return Integer.parseInt(value.substring(value.indexOf("<-")+2, value.indexOf(">")));
+    private static int getStackNum(String value) {
+        return Integer.parseInt(value.substring(value.indexOf("[-")+2));
     }
 
     /**

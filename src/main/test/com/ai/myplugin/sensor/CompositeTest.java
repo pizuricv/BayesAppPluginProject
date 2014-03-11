@@ -103,7 +103,7 @@ public class CompositeTest extends TestCase{
 
 
         rawFormulaSensor = new RawFormulaSensor();
-        formula = "node1->latitude - node2->latitude";
+        formula = "<node1.rawData.latitude> - <node2.rawData.latitude>";
         rawFormulaSensor.setProperty("formula", formula);
         rawFormulaSensor.setProperty("threshold", "5");
 

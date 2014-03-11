@@ -93,7 +93,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
         boolean success = false;
         try {
-            parseFormula = FormulaParser.parse((Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA), parseFormula) ;
+            parseFormula = FormulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
             log.debug("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
             success = true;
