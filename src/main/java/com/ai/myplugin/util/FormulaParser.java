@@ -11,11 +11,10 @@ import org.stringtemplate.v4.ST;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by User: veselin
@@ -23,7 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FormulaParser {
     private static final Log log = LogFactory.getLog(FormulaParser.class);
-    static Map memory = new ConcurrentHashMap();
+    static Map<String, ArrayList> prevValues = new ConcurrentHashMap();
+    static Map<String, SimpleStats> statValues = new ConcurrentHashMap();
 
     public static double executeFormula(String formula) throws Exception {
         log.debug("execute formula " + formula);
@@ -36,6 +36,9 @@ public class FormulaParser {
     /**
      *  formula in format <node1.param1> OPER <node1.param3> OPER <node2.param3>
      *  also can contain a previous values, such as <node1.param1>[-1] OPER <node2.param3>[-2]
+     *  there is also the option to make a geo distance calculation such as distance(node1,node2)
+     *  in which case it will be assumed that the raw data has this information (latitude and longitude)
+     *  you can also add a stats in format <avg(node1.param1)>,<min(node1.param1)>, <max(node1.param1)>, <std(node1.param1)>
      * @param sessionMap  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
@@ -44,9 +47,43 @@ public class FormulaParser {
         log.info("parsing formula " + formula);
         Set<String> set = RawDataParser.parseKeyArgs(formula);
         Map<String, String> map = new ConcurrentHashMap<String, String>();
-        Map<String, Integer> mapAdded = new ConcurrentHashMap<String, Integer>();
-
+        Map<String, Integer> addedToStack = new ConcurrentHashMap<String, Integer>();
+        Set<String> addedToCalc= new HashSet<String>();
         JSONObject jsonObject = new JSONObject(sessionMap);
+
+        //first search for stats arguments like avg(node1.param1)
+        for(String key : RawDataParser.parseKeyArgs(formula)){
+            if(key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") || key.startsWith("std")){
+                log.info("applying stats calculation on "+key);
+                String realKey = key.substring(key.indexOf("(")+1, key.indexOf(")"));
+                SimpleStats simpleStats = statValues.get(realKey);
+                if(simpleStats == null) {
+                    simpleStats = new SimpleStats();
+                    statValues.put(realKey, simpleStats);
+                }
+                Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
+                if(!addedToCalc.contains(realKey)){
+                    simpleStats.addSample(Utils.getDouble(obj.toString()));
+                    addedToCalc.add(realKey);
+                }
+
+                log.info("added for key "+ key + ", stats "+ simpleStats.toString());
+                //this is regexp need to get rid of ( chars
+                formula = formula.replaceAll("avg\\(","avg");
+                formula = formula.replaceAll("min\\(","min");
+                formula = formula.replaceAll("max\\(","max");
+                formula = formula.replaceAll("std\\(","std");
+                if(key.startsWith("avg"))
+                    formula = formula.replaceAll("<avg" + realKey + "\\)>" , String.valueOf(simpleStats.avg));
+                if(key.startsWith("min"))
+                    formula = formula.replaceAll("<min" + realKey + "\\)>" , String.valueOf(simpleStats.min));
+                if(key.startsWith("max"))
+                    formula = formula.replaceAll("<max" + realKey + "\\)>" , String.valueOf(simpleStats.max));
+                if(key.startsWith("std"))
+                    formula = formula.replaceAll("<std" + realKey + "\\)>" , String.valueOf(simpleStats.stdev));
+            }
+        }
+
         for(String key: set){
             Object obj = RawDataParser.findObjForKey(key, jsonObject);
             if(obj != null){
@@ -65,22 +102,22 @@ public class FormulaParser {
                             throw new ParseException(1, "key" + key + " not in JSON object");
                         }
                         ArrayList stack;
-                        if(memory.get(key) != null){
-                            stack = (ArrayList) memory.get(key);
+                        if(prevValues.get(key) != null){
+                            stack = prevValues.get(key);
                         }  else {
                             stack = new ArrayList();
-                            memory.put(key, stack);
+                            prevValues.put(key, stack);
                         }
 
                         int stackNum = getStackNum(sss);
 
-                        if(mapAdded.get(key) == null){
-                            mapAdded.put(key, new Integer(1));
+                        if(addedToStack.get(key) == null){
+                            addedToStack.put(key, new Integer(1));
                             Double value = Double.parseDouble(map.get(key));
                             stack.add(value);
                             log.info("put in the stack ["+ key + "], value=" + value);
                         } else {
-                            mapAdded.put(key, mapAdded.get(key) + 1);
+                            addedToStack.put(key, addedToStack.get(key) + 1);
                             log.info("skip in the stack since already added in this run ["+ key + "], value=" +
                                     map.get(key) );
                         }
@@ -96,9 +133,9 @@ public class FormulaParser {
             }
         }
 
-        for(String key: mapAdded.keySet()){
-            Integer count = mapAdded.get(key);
-            ArrayList stack = (ArrayList) memory.get(key);
+        for(String key: addedToStack.keySet()){
+            Integer count = addedToStack.get(key);
+            ArrayList stack = prevValues.get(key);
             if(stack.size() > count){
                 log.info("trim the stack [" + key + "], the size is " + stack.size() +
                         " and the max count by formula is " + count);
@@ -224,5 +261,36 @@ public class FormulaParser {
         log.info("calculateDistance=" + round);
         return round;
 
+    }
+
+    private static class SimpleStats {
+        public int n = 0;
+        public double min  = Double.MAX_VALUE;
+        public double max  = - Double.MAX_VALUE;
+        public double avg = 0;
+        public double stdev = 0;
+
+        public void addSample(double sample){
+            log.info("add sample "+sample);
+            double prevAvg = n * avg;
+            n +=1;
+            avg = (prevAvg + sample) / n;
+            if(min > sample)
+                min = sample;
+            if(max < sample)
+                max = sample;
+            stdev = Math.sqrt(1.0/n * Math.pow(sample - avg, 2));
+        }
+
+        @Override
+        public String toString() {
+            return "SimpleStats{" +
+                    "n=" + n +
+                    ", min=" + min +
+                    ", max=" + max +
+                    ", avg=" + avg +
+                    ", stdev=" + stdev +
+                    '}';
+        }
     }
 }
