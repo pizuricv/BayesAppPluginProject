@@ -17,7 +17,13 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -117,25 +123,32 @@ public class PharmacySensor implements BNSensorPlugin {
         try{
             stringToParse = Rest.httpGet(pathURL);
             log.info(stringToParse);
-            String toSearchFor = "apotheek_view.php";
-            stringToParse = stringToParse.substring(stringToParse.indexOf(toSearchFor));
-            log.info(stringToParse);
-            while (stringToParse.indexOf(toSearchFor) > -1) {
-                try{
-                    String url = stringToParse.substring(0, stringToParse.indexOf("'>"));
-                    stringToParse = stringToParse.substring(url.length() +2);
-                    String address = stringToParse.substring(0, stringToParse.indexOf("</a></td>"));
-                    stringToParse = stringToParse.substring(address.length() +"</a></td>".length());
-                    String startDate =  stringToParse.substring(stringToParse.indexOf("<td>") + "<td>".length(), stringToParse.indexOf("</td>"));
-                    stringToParse = stringToParse.substring(stringToParse.indexOf(startDate) + startDate.length() + "</td>".length());
-                    String endDate =  stringToParse.substring(stringToParse.indexOf("<td>") + "<td>".length(), stringToParse.indexOf("</td>"));
-                    stringToParse = stringToParse.substring(stringToParse.indexOf(endDate));
-                    myNightPharmacyDatas.add(new MyNightPharmacyData(address, url, startDate, endDate, myPharmacyDatas));
-                    if(stringToParse.indexOf(toSearchFor) > -1)
-                        stringToParse = stringToParse.substring(stringToParse.indexOf(toSearchFor));
-                    log.info(stringToParse);
-                }catch (Exception e){
-                    break;
+
+            Document doc = Jsoup.parse(stringToParse);
+            for (Element table : doc.select("table[class=tekst]")) {
+                for (Element row : table.select("tr")) {
+                    Elements tds = row.select("td");
+                    if (tds.size() >2 ) {
+                        StringTokenizer stringTokenizer = new StringTokenizer(tds.get(0).text(), "-");
+                        if(stringTokenizer.countTokens() == 2)      {
+                            String city = stringTokenizer.nextToken().trim();
+                            String street = stringTokenizer.nextToken().trim();
+                            String begin = tds.get(1).text().trim();
+                            String end = tds.get(2).text().trim();
+                            String url = "http://www.coopapotheken.be/" + row.select("a[href]").attr("href");
+                            Date currentDate = new Date();
+                            SimpleDateFormat dt1 = new SimpleDateFormat("dd-MM-yy");
+                            Date beginDate = dt1.parse(begin);
+                            Date endDate = dt1.parse(end);
+                            if(currentDate.compareTo(beginDate) >= 0 && currentDate.compareTo(endDate) <= 0){
+                                log.info("found entry that is within a current day " +street);
+                                myNightPharmacyDatas.add(new MyNightPharmacyData(city, street, url, beginDate, endDate, myPharmacyDatas));
+                            } else{
+                                log.debug("entry not to be added since it is not in the current data window " + street
+                                        + ", current date is " +currentDate + ", end found was: "  +beginDate + ", " + endDate);
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -149,16 +162,22 @@ public class PharmacySensor implements BNSensorPlugin {
             jsonArray.add(data.getAsJSON());
 
         }
+        JSONArray jsonNightArray = new JSONArray();
+        for(MyNightPharmacyData data : myNightPharmacyDatas){
+            jsonNightArray.add(data.getAsJSON());
+
+        }
         jsonObject.put("locations", jsonArray);
+        jsonObject.put("nightLocations", jsonNightArray);
         jsonObject.put("bestLocation", jsonArray.get(0));
-
-
-        //log.info("Computed parking: " + Arrays.asList(parkingDatas).toString());
+        if(myNightPharmacyDatas.size() > 0)
+            jsonObject.put("bestNightLocation", jsonNightArray.get(0));
         log.info("raw data is "+jsonObject.toJSONString());
 
 
         final String state;
-        if(myNightPharmacyDatas.get(0).distance  < Utils.getDouble(getProperty(DISTANCE)))
+        //if(myNightPharmacyDatas.get(0).distance  < Utils.getDouble(getProperty(DISTANCE)))
+        if(myPharmacyDatas.get(0).distance  < Utils.getDouble(getProperty(DISTANCE)))
             state = states[0];
         else
             state = states[1];
@@ -211,17 +230,21 @@ public class PharmacySensor implements BNSensorPlugin {
 
     private class MyNightPharmacyData implements Comparable{
         String address;
+        String city;
         String real_address;
         Double latitude;
         Double longitude;
         Integer distance;
         String mapURL;
         String URL;
-        public MyNightPharmacyData(String address, String url, String startDate, String endDate, ArrayList<MyPharmacyData> datas) {
-            this.address = address.replace("-",",");
-            this.URL = url;
 
+        public MyNightPharmacyData(String city, String address, String url, Date startDate, Date endDate, ArrayList<MyPharmacyData> datas) {
+            PharmacySensor.this.log.info("MyNightPharmacyData" + city + ", " + address + ", " + startDate + ", " + endDate);
+            this.address = address;
+            this.city = city;
+            this.URL = url;
             int addNumber = getNumberFromAddress(address);
+            distance = Integer.MAX_VALUE;
 
             for(MyPharmacyData data: datas){
                 String []splitAddress = data.address.split(" ");
@@ -236,19 +259,22 @@ public class PharmacySensor implements BNSensorPlugin {
                 }
                 if(addNumber == number){
                     for(String split : strings){
-                        if((address.toLowerCase().replace("-","").indexOf(split.toLowerCase()) > 0) &&
-                                address.toLowerCase().replace("-","").contains(data.city.toLowerCase())) {
+                        if(address.toLowerCase().indexOf(split.toLowerCase()) > 0 ||
+                                address.toLowerCase().indexOf(split.replaceAll("-"," ").toLowerCase()) > 0 ||
+                                address.replaceAll("St\\. ", "Sint-").toLowerCase().indexOf(split.toLowerCase()) > 0 ||
+                                address.contains("Fonteineplein") && data.address.contains("Fonteyneplein"))
+                                /*&&  city.equalsIgnoreCase(data.city)*/ {
                             latitude = data.latitude;
                             longitude = data.longitude;
                             mapURL = data.mapURL;
                             distance = data.distance;
                             real_address =  data.address;
+                            PharmacySensor.this.log.info("Found entry to add in the night pharmacies" + this.toString());
                             break;
                         }
                     }
                 }
             }
-            PharmacySensor.this.log.info(this.toString());
         }
 
         @Override
