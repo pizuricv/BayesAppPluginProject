@@ -9,6 +9,10 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.List;
 import java.util.Map;
@@ -18,43 +22,12 @@ import java.util.Map;
  * On Date: 21/10/13
  */
 
-/*
-http://luchtkwaliteit.vmm.be/lijst.php
-</tr>
-            <tr class="trEVEN">
-    <td headers="Details">
-        <a href="details.php?station=44R701" title="Gent-Baudelostraat">
-            <img src="image/information.png" />
-        </a>
-    </td>
-    <td headers="Gemeente">
-        <a href="details.php?station=44R701" title="Gent-Baudelostraat">
-            Gent
-        </a>
-    </td>
-    <td headers="Locatie">
-        <a href="details.php?station=44R701" title="Gent-Baudelostraat">
-            Baudelostraat
-        </a>
-    </td>
-    <td headers="Provincie">
-        <a href="details.php?station=44R701" title="Gent-Baudelostraat">
-            Oost-Vlaanderen
-        </a>
-    </td>
-    <td headers="Index" style="text-align:left;">
-        <a href="details.php?station=44R701" title="Gent-Baudelostraat">
-            <span>&nbsp;<span class="index3">&nbsp;&nbsp;&nbsp;</span>
-                &nbsp;3</span>
-                                </a>
-    </td>
-</tr>
- */
 
 @PluginImplementation
 public class AirQualitySensor implements BNSensorPlugin{
     private static final Log log = LogFactory.getLog(AirQualitySensor.class);
     public static final String LOCATION = "location";
+    String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
     private String location = null;
 
     @Override
@@ -96,76 +69,65 @@ public class AirQualitySensor implements BNSensorPlugin{
                 throw new RuntimeException("Required property "+property + " not defined");
         }
 
-        boolean testSuccess = true;
         int value = -1;
         String stringToParse = "";
 
-        String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
         try{
             stringToParse = Rest.httpGet(pathURL);
-            //log.debug(stringToParse);
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            testSuccess = false;
-        }
-        if(testSuccess){
-            testSuccess = false;
-            int len = stringToParse.indexOf(location);
-            try{
-                if(len > 0){
-                    stringToParse = stringToParse.substring(len);
-                    len = stringToParse.indexOf("Index");
-                    if(len > 0) {
-                        stringToParse = stringToParse.substring(len);
-                        len = stringToParse.indexOf("\t&nbsp;");
-                        if(len > 0){
-                            stringToParse = stringToParse.substring(len);
-                            stringToParse = stringToParse.substring(stringToParse.indexOf("&nbsp;"),
-                                    stringToParse.indexOf("</s")).replaceAll("&nbsp;","").trim();
-                            value = Integer.parseInt(stringToParse);
-                            testSuccess = true;
+            Document doc = Jsoup.parse(stringToParse);
+            for (Element table : doc.select("#stations")) {
+                for (Element row : table.select("tr")) {
+                    Elements tds = row.select("td");
+                    if (tds.size() >4 && !"".equals(tds.get(4).text())) {
+                        String location = tds.get(1).text();
+                        if(location.equalsIgnoreCase((String) getProperty(LOCATION))) {
+                            value = Integer.parseInt(tds.get(4).text().trim().replaceAll("      ",""));
+                            break;
                         }
+                        log.info("Found entry " + tds.get(0).text() + ":" + tds.get(1).text() + ":" +
+                                tds.get(2).text() + ":" + tds.get(3).text() + ":" + tds.get(4).text());
                     }
                 }
-            }catch (Exception e){
-                log.error(e.getLocalizedMessage());
-                testSuccess = false;
             }
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
+            return new EmptyTestResult();
         }
-        if(testSuccess)  {
-            final int finalValue = value;
-            return new TestResult() {
-                @Override
-                public boolean isSuccess() {
-                    return true;
-                }
-
-                @Override
-                public String getName() {
-                    return "Water level result";
-                }
-
-                @Override
-                public String getObserverState() {
-                    return mapValue(finalValue);
-                }
-
-                @Override
-                public List<Map<String, Number>> getObserverStates() {
-                    return null;
-                }
-
-                @Override
-                public String getRawData() {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("value", finalValue);
-                    return jsonObject.toJSONString();
-                }
-            };
-
-
+        if(value == -1){
+            log.error("location not found");
+            return new EmptyTestResult();
         }
-        else return new EmptyTestResult();
+
+        final int finalValue = value;
+        return new TestResult() {
+            @Override
+            public boolean isSuccess() {
+                return true;
+            }
+
+            @Override
+            public String getName() {
+                return "Water level result";
+            }
+
+            @Override
+            public String getObserverState() {
+                return mapValue(finalValue);
+            }
+
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return null;
+            }
+
+            @Override
+            public String getRawData() {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("value", finalValue);
+                return jsonObject.toJSONString();
+            }
+        };
     }
 
     @Override
@@ -199,13 +161,13 @@ public class AirQualitySensor implements BNSensorPlugin{
         AirQualitySensor airQualitySensor = new AirQualitySensor();
         airQualitySensor.setProperty(LOCATION, "Gent");
         TestResult testResult = airQualitySensor.execute(null);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
 
-        airQualitySensor.setProperty(LOCATION, "Antwerp");
+        airQualitySensor.setProperty(LOCATION, "Antwerpen");
         testResult = airQualitySensor.execute(null);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
     }
 }
 
