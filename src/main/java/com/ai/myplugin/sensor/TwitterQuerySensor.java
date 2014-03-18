@@ -82,7 +82,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
 
         Query query = new Query(queryString);
         query.setSince(date);
-        QueryResult result = null;
+        QueryResult result;
         final ArrayList<String> listTweets = new ArrayList<String>();
 
         try {
@@ -90,6 +90,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
         } catch (TwitterException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
+            return new EmptyTestResult();
         }
         for (Status status : result.getTweets()) {
             log.debug("@" + status.getUser().getScreenName() + ":" + status.getText());
