@@ -85,25 +85,25 @@ public class TreeSensor implements BNSensorPlugin{
         jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
         jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
 
-        ArrayList<MyTreeData> parkingDatas = new ArrayList<MyTreeData>();
+        ArrayList<MyTreeData> treeDatas = new ArrayList<MyTreeData>();
         try{
             String stringToParse = Rest.httpGet(pathURL);
             log.debug(stringToParse);
             JSONObject jsonObj = (JSONObject) new JSONParser().parse(stringToParse);
             JSONArray trees = (JSONArray)jsonObj.get("Bomeninventaris");
             for(Object parking : trees){
-                parkingDatas.add(new MyTreeData(parking, runtime_latitude, runtime_longitude));
+                treeDatas.add(new MyTreeData(parking, runtime_latitude, runtime_longitude));
             }
             log.info("sorting...");
-            Collections.sort(parkingDatas);
+            Collections.sort(treeDatas);
             log.info("sorting done");
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             return new EmptyTestResult();
         }
-        log.info("Best spot is "+parkingDatas.get(0));
+        log.info("Best spot is " + treeDatas.get(0));
         JSONArray jsonArray = new JSONArray();
-        for(MyTreeData treeData : parkingDatas){
+        for(MyTreeData treeData : treeDatas){
             jsonArray.add(treeData.getAsJSON());
 
         }
@@ -111,12 +111,12 @@ public class TreeSensor implements BNSensorPlugin{
         jsonObject.put("bestLocation", jsonArray.get(0));
 
 
-        //log.info("Computed parking: " + Arrays.asList(parkingDatas).toString());
+        log.info("Added trees=" + treeDatas.size());
         //log.debug("raw data is "+jsonObject.toJSONString());
 
 
         final String state;
-        if(parkingDatas.get(0).distance  < Utils.getDouble(getProperty(DISTANCE)))
+        if(treeDatas.get(0).distance  < Utils.getDouble(getProperty(DISTANCE)))
             state = states[0];
         else
             state = states[1];
@@ -219,7 +219,7 @@ public class TreeSensor implements BNSensorPlugin{
             formulaCalc = 1d/distance;
             address = "ID="+ID +", code="+code  +", name="+nameLatin +", height="+height+"," +
                     " diameter="+diameter;
-            TreeSensor.this.log.info(this.toString());
+            //TreeSensor.this.log.debug(this.toString());
         }
 
         @Override
