@@ -54,23 +54,4 @@ public class StockFormulaSensor extends StockAbstractSensor {
             throw new Exception("Error getting Stock result " + e.getLocalizedMessage());
         }
     }
-
-    public static void main(String [] args){
-        StockFormulaSensor stockFormulaSensor = new StockFormulaSensor();
-        stockFormulaSensor.setProperty(STOCK, "ALU");
-        stockFormulaSensor.setProperty(THRESHOLD, 0);
-        stockFormulaSensor.setProperty(FORMULA_DEFINITION, "this->price - this->moving_average");
-        TestResult testResult = stockFormulaSensor.execute(null);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-
-
-        stockFormulaSensor.setProperty(STOCK, "GOOG");
-        stockFormulaSensor.setProperty(THRESHOLD, .15);
-        stockFormulaSensor.setProperty(FORMULA_DEFINITION, "(this->price - this->moving_average)/this->moving_average");
-        testResult = stockFormulaSensor.execute(null);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-
-    }
 }
