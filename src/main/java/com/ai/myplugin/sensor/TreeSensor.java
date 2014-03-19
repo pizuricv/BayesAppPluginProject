@@ -23,9 +23,11 @@ public class TreeSensor implements BNSensorPlugin{
     protected static final Log log = LogFactory.getLog(TreeSensor.class);
     static final String DISTANCE = "distance";
     static final String CITY = "city";
+    static final String SHOW_ALL = "showAll";
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
     String pathURL = "http://datatank.gent.be/MilieuEnNatuur/Bomeninventaris.json";
+    boolean showAll = false;
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -34,7 +36,7 @@ public class TreeSensor implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{DISTANCE, CITY};
+        return new String[]{DISTANCE, CITY, SHOW_ALL};
     }
 
     @Override
@@ -70,6 +72,9 @@ public class TreeSensor implements BNSensorPlugin{
             throw new RuntimeException("city not set");
         if(!getProperty(CITY).toString().equalsIgnoreCase("Gent"))
             throw new RuntimeException("only Gent supported for now");
+        if(getProperty(SHOW_ALL) != null){
+            showAll = Boolean.parseBoolean((String) getProperty(SHOW_ALL));
+        }
 
         Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
         Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
@@ -104,14 +109,15 @@ public class TreeSensor implements BNSensorPlugin{
         log.info("Best spot is " + treeDatas.get(0));
         JSONArray jsonArray = new JSONArray();
         for(MyTreeData treeData : treeDatas){
-            jsonArray.add(treeData.getAsJSON());
-
+            if(showAll || treeData.distance < Utils.getDouble(getProperty(DISTANCE)))
+                jsonArray.add(treeData.getAsJSON());
         }
         jsonObject.put("locations", jsonArray);
         jsonObject.put("bestLocation", jsonArray.get(0));
 
 
-        log.info("Added trees=" + treeDatas.size());
+        log.info("total number of trees=" + treeDatas.size());
+        log.info("added trees=" + jsonArray.size());
         //log.debug("raw data is "+jsonObject.toJSONString());
 
 
@@ -169,7 +175,7 @@ public class TreeSensor implements BNSensorPlugin{
 
     public static void main(String []args) throws ParseException {
         TreeSensor locationSensor = new TreeSensor();
-        locationSensor.setProperty(DISTANCE, 10);
+        locationSensor.setProperty(DISTANCE, 3);
         locationSensor.setProperty(CITY, "Gent");
         TestSessionContext testSessionContext = new TestSessionContext(1);
         testSessionContext.setAttribute(RUNTIME_LONGITUDE, 3.68);
