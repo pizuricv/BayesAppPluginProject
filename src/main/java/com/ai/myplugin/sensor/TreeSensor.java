@@ -94,7 +94,9 @@ public class TreeSensor implements BNSensorPlugin{
             for(Object parking : trees){
                 parkingDatas.add(new MyTreeData(parking, runtime_latitude, runtime_longitude));
             }
+            log.info("sorting...");
             Collections.sort(parkingDatas);
+            log.info("sorting done");
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             return new EmptyTestResult();
@@ -110,7 +112,7 @@ public class TreeSensor implements BNSensorPlugin{
 
 
         //log.info("Computed parking: " + Arrays.asList(parkingDatas).toString());
-        log.info("raw data is "+jsonObject.toJSONString());
+        //log.debug("raw data is "+jsonObject.toJSONString());
 
 
         final String state;
@@ -174,7 +176,7 @@ public class TreeSensor implements BNSensorPlugin{
         testSessionContext.setAttribute(RUNTIME_LATITUDE, 50.99);
         TestResult testResult = locationSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+        //System.out.println(testResult.getRawData());
     }
 
     private class MyTreeData implements Comparable{
@@ -189,6 +191,8 @@ public class TreeSensor implements BNSensorPlugin{
         Long year;
         Integer distance;
         Double formulaCalc;
+        String address;
+
         public MyTreeData(Object parking, Double runtime_latitude, Double runtime_longitude) {
             JSONObject obj = (JSONObject) parking;
             name = (String) obj.get("naamnl");
@@ -199,8 +203,11 @@ public class TreeSensor implements BNSensorPlugin{
             longitude = Utils.getDouble(obj.get("long"));
             year = Utils.getDouble(obj.get("plantjaar")).longValue();
             try{
-                height = Utils.getDouble(obj.get("boomhoogte").toString().split("-")[0].trim()).longValue();
                 diameter = Utils.getDouble(obj.get("stamdiamet").toString().split("-")[0].trim()).longValue();
+                if(obj.get("boomhoogte").toString().indexOf("-") > -1)
+                    height = Utils.getDouble(obj.get("boomhoogte").toString().split("-")[0].trim()).longValue();
+                else
+                    height = Utils.getDouble(obj.get("boomhoogte").toString().replace(">","").replace("m","").trim()).longValue();
             } catch (Exception e){
                 log.warn(e.getMessage());
                 e.printStackTrace();
@@ -210,6 +217,8 @@ public class TreeSensor implements BNSensorPlugin{
                     latitude, longitude);
 
             formulaCalc = 1d/distance;
+            address = "ID="+ID +", code="+code  +", name="+nameLatin +", height="+height+"," +
+                    " diameter="+diameter;
             TreeSensor.this.log.info(this.toString());
         }
 
@@ -222,7 +231,8 @@ public class TreeSensor implements BNSensorPlugin{
         @Override
         public String toString() {
             return "MyTreeData{" +
-                    "year=" + year +
+                    "address="+address+  '\'' +
+                    ", year=" + year +  '\'' +
                     ", name='" + name + '\'' +
                     ", nameLatin='" + nameLatin + '\'' +
                     ", code='" + code + '\'' +
@@ -247,6 +257,8 @@ public class TreeSensor implements BNSensorPlugin{
             jsonObject.put("diameter", diameter);
             jsonObject.put("height", height);
             jsonObject.put("icon", "https://maps.gstatic.com/mapfiles/ms2/micons/tree.png");
+
+            jsonObject.put("address", address);
             return jsonObject;
         }
     }
