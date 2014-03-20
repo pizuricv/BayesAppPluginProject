@@ -11,11 +11,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import twitter4j.internal.org.json.JSONArray;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -80,6 +78,7 @@ public class RainfallSensor implements BNSensorPlugin{
         double avg = 0;
         double max = -1;
         double min = 255;
+        final ArrayList<Double> list = new ArrayList<Double>();
         try {
             String stringToParse = Rest.httpGet(pathURL);
             log.info("stringToParse "+stringToParse);
@@ -100,8 +99,12 @@ Dus 77 = 0.1 mm/uur
                 String tempString = stringTokenizer.nextToken();
                 if(tempString.length() == 3)
                     temp  = Utils.getDouble(tempString);
-                if(tempString.length() == 8)
+                else if(tempString.length() == 8)
                     temp  = Utils.getDouble(tempString.substring(5));
+                else
+                continue;
+                log.info(temp);
+                list.add(temp);
 
                 if(min > temp)
                     min = temp;
@@ -145,10 +148,19 @@ Dus 77 = 0.1 mm/uur
             @Override
             public String getRawData() {
                 JSONObject jsonObject = new JSONObject();
+                JSONArray jsonArray = new JSONArray();
+                int time = 0;
+                for(Double d : list){
+                    JSONObject jsonObject1 = new JSONObject();
+                    jsonObject1.put(Integer.toString(time),d);
+                    jsonArray.put(jsonObject1);
+                    time +=5;
+                }
                 jsonObject.put("min", finalMin);
                 jsonObject.put("max", finalMax);
                 jsonObject.put("avg", finalAvg);
                 jsonObject.put("mm_per_hour", computeRainMM(finalAvg));
+                jsonObject.put("forecast_raw", jsonArray);
                 return jsonObject.toJSONString();
             }
         } ;
