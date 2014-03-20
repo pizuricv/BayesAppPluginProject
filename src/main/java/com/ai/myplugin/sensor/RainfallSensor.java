@@ -42,8 +42,12 @@ public class RainfallSensor implements BNSensorPlugin{
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Double latitude, longitude;
-        Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
-        Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
+        Object rt1 = null;
+        Object rt2 = null;
+        if(testSessionContext != null){
+            rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
+            rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
+        }
         if(rt1 == null || rt2 == null){
             log.warn("no runtime longitude or latitude given, it will use configured location instead");
             if(getProperty(LATITUDE) == null || getProperty(LONGITUDE) == null){
