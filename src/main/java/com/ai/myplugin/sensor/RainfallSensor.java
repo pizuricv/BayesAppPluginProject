@@ -107,7 +107,6 @@ Dus 77 = 0.1 mm/uur
                     temp  = Utils.getDouble(tempString.substring(5));
                 else
                 continue;
-                log.info(temp);
                 list.add(temp);
 
                 if(min > temp)
