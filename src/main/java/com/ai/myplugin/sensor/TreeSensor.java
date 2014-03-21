@@ -26,6 +26,9 @@ public class TreeSensor implements BNSensorPlugin{
     static final String SHOW_ALL = "showAll";
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    static final String LOCATION = "location";
+    static final String LATITUDE = "latitude";
+    static final String LONGITUDE = "longitude";
     String pathURL = "http://datatank.gent.be/MilieuEnNatuur/Bomeninventaris.json";
     boolean showAll = false;
 
@@ -36,7 +39,7 @@ public class TreeSensor implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{DISTANCE, CITY, SHOW_ALL};
+        return new String[]{DISTANCE, CITY, SHOW_ALL, LOCATION, LONGITUDE, LATITUDE};
     }
 
     @Override
@@ -76,19 +79,23 @@ public class TreeSensor implements BNSensorPlugin{
             showAll = Boolean.parseBoolean((String) getProperty(SHOW_ALL));
         }
 
-        Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
-        Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
-        if(rt1 == null || rt2 == null){
-            log.warn("no runtime longitude or latitude given");
+        Map<Double, Double> map;
+        try {
+            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+                    getProperty(LONGITUDE), getProperty(LATITUDE));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
             return new EmptyTestResult();
         }
-        Double runtime_latitude = Utils.getDouble(rt1);
-        Double runtime_longitude = Utils.getDouble(rt2);
-        log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
+        Double latitude = (Double) map.keySet().toArray()[0];
+        Double longitude = (Double) map.values().toArray()[0];
+
+        log.info("Current location: "+ latitude + ","+longitude);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
+        jsonObject.put(RUNTIME_LATITUDE, latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, longitude);
 
         ArrayList<MyTreeData> treeDatas = new ArrayList<MyTreeData>();
         try{
@@ -97,7 +104,7 @@ public class TreeSensor implements BNSensorPlugin{
             JSONObject jsonObj = (JSONObject) new JSONParser().parse(stringToParse);
             JSONArray trees = (JSONArray)jsonObj.get("Bomeninventaris");
             for(Object parking : trees){
-                treeDatas.add(new MyTreeData(parking, runtime_latitude, runtime_longitude));
+                treeDatas.add(new MyTreeData(parking, latitude, longitude));
             }
             log.info("sorting...");
             Collections.sort(treeDatas);
