@@ -43,6 +43,9 @@ public class PharmacySensor implements BNSensorPlugin {
     static final String CITY = "city";
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    static final String LOCATION = "location";
+    static final String LATITUDE = "latitude";
+    static final String LONGITUDE = "longitude";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -51,7 +54,7 @@ public class PharmacySensor implements BNSensorPlugin {
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{DISTANCE, CITY};
+        return new String[]{DISTANCE, CITY, LOCATION, LATITUDE, LONGITUDE};
     }
 
     @Override
@@ -87,19 +90,26 @@ public class PharmacySensor implements BNSensorPlugin {
         if(!getProperty(CITY).toString().equalsIgnoreCase("Gent"))
             throw new RuntimeException("only Gent supported for now");
 
-        Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
-        Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
-        if(rt1 == null || rt2 == null){
-            log.warn("no runtime longitude or latitude given");
+        /*if(getProperty(LOCATION) == null)
+            setProperty(LOCATION, getProperty(CITY));   */
+
+        Map<Double, Double> map;
+        try {
+            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+                    getProperty(LONGITUDE), getProperty(LATITUDE));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
             return new EmptyTestResult();
         }
-        Double runtime_latitude = Utils.getDouble(rt1);
-        Double runtime_longitude = Utils.getDouble(rt2);
-        log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
+        Double latitude = (Double) map.keySet().toArray()[0];
+        Double longitude = (Double) map.values().toArray()[0];
+
+        log.info("Current location: "+ latitude + ","+longitude);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
+        jsonObject.put(RUNTIME_LATITUDE, latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, longitude);
 
         String pathURL = "http://datatank.gent.be/Gezondheid/Apotheken.json";
         ArrayList<MyPharmacyData> myPharmacyDatas = new ArrayList<MyPharmacyData>();
@@ -109,7 +119,7 @@ public class PharmacySensor implements BNSensorPlugin {
             JSONObject parkingObj = (JSONObject) new JSONParser().parse(stringToParse);
             JSONArray pharmaArray = (JSONArray)(parkingObj.get("Apotheken"));
             for(Object pharma : pharmaArray){
-                myPharmacyDatas.add(new MyPharmacyData(pharma, runtime_latitude, runtime_longitude));
+                myPharmacyDatas.add(new MyPharmacyData(pharma, latitude, longitude));
             }
             Collections.sort(myPharmacyDatas);
         } catch (Exception e) {

@@ -25,6 +25,9 @@ public class ParkingSensor implements BNSensorPlugin{
     static final String CITY = "city";
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    static final String LOCATION = "location";
+    static final String LATITUDE = "latitude";
+    static final String LONGITUDE = "longitude";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -33,7 +36,7 @@ public class ParkingSensor implements BNSensorPlugin{
 
     @Override
     public String[] getRequiredProperties() {
-        return new String[]{DISTANCE, CITY};
+        return new String[]{DISTANCE, CITY, LOCATION, LATITUDE, LONGITUDE};
     }
 
     @Override
@@ -70,19 +73,24 @@ public class ParkingSensor implements BNSensorPlugin{
         if(!getProperty(CITY).toString().equalsIgnoreCase("Gent"))
             throw new RuntimeException("only Gent supported for now");
 
-        Object rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
-        Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
-        if(rt1 == null || rt2 == null){
-            log.warn("no runtime longitude or latitude given");
+        /*if(getProperty(LOCATION) == null)
+            setProperty(LOCATION, getProperty(CITY));       */
+
+        Map<Double, Double> map;
+        try {
+            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+                    getProperty(LONGITUDE), getProperty(LATITUDE));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
             return new EmptyTestResult();
         }
-        Double runtime_latitude = Utils.getDouble(rt1);
-        Double runtime_longitude = Utils.getDouble(rt2);
-        log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
+        Double latitude = (Double) map.keySet().toArray()[0];
+        Double longitude = (Double) map.values().toArray()[0];
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
+        jsonObject.put(RUNTIME_LATITUDE, latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, longitude);
 
         String pathURL = "http://datatank.gent.be/Mobiliteitsbedrijf/Parkings11.json";
         ArrayList<MyParkingData> parkingDatas = new ArrayList<MyParkingData>();
@@ -92,7 +100,7 @@ public class ParkingSensor implements BNSensorPlugin{
             JSONObject parkingObj = (JSONObject) new JSONParser().parse(stringToParse);
             JSONArray parkings = ((JSONArray)((JSONObject) (parkingObj.get("Parkings11"))).get("parkings"));
             for(Object parking : parkings){
-                parkingDatas.add(new MyParkingData(parking, runtime_latitude, runtime_longitude));
+                parkingDatas.add(new MyParkingData(parking, latitude, longitude));
             }
             Collections.sort(parkingDatas);
         } catch (Exception e) {
@@ -173,6 +181,13 @@ public class ParkingSensor implements BNSensorPlugin{
         testSessionContext.setAttribute(RUNTIME_LONGITUDE, 3.68);
         testSessionContext.setAttribute(RUNTIME_LATITUDE, 50.99);
         TestResult testResult = locationSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+        locationSensor.setProperty(DISTANCE, 10);
+        locationSensor.setProperty(CITY, "Gent");
+        locationSensor.setProperty(LOCATION, "Gent");
+        testResult = locationSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }

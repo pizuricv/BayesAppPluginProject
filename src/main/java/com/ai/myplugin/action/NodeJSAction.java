@@ -31,7 +31,6 @@ public class NodeJSAction implements BNActionPlugin{
     private String workingDir = "/var/tmp";
     private int exitVal = -1;
     private String result = "";
-    private static final String NAME = "NodeJSCommand";
     private AtomicBoolean done = new AtomicBoolean(false);
 
     @Override

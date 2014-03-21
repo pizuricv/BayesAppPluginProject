@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import twitter4j.internal.org.json.JSONArray;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,43 +42,18 @@ public class RainfallSensor implements BNSensorPlugin{
     @Override
     public TestResult execute(TestSessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Double latitude, longitude;
-        Object rt1 = null;
-        Object rt2 = null;
-        if(testSessionContext != null){
-            rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
-            rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
+        Map<Double, Double> map;
+        try {
+            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+                    getProperty(LONGITUDE), getProperty(LATITUDE));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            return new EmptyTestResult();
         }
-        if(rt1 == null || rt2 == null){
-            log.warn("no runtime longitude or latitude given, it will use configured location instead");
-            if(getProperty(LATITUDE) == null || getProperty(LONGITUDE) == null){
-                if(getProperty(LOCATION) != null){
-                    log.info("Location configured as the address: " + getProperty(LOCATION) +  " , try to get coordinates");
-                    JSONObject jsonObject;
-                    try {
-                        jsonObject = LocationRawSensor.getLongitudeLatitudeForAddress(getProperty(LOCATION).toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error("location could not be found "+ e.getMessage());
-                        return new EmptyTestResult();
-                    }
-                    longitude = Utils.getDouble(jsonObject.get("longitude"));
-                    latitude = Utils.getDouble(jsonObject.get("latitude"));
-                    log.info("Use configured location: "+ latitude + ","+longitude);
-                } else {
-                    log.error("longitude or latitude not configured");
-                    return new EmptyTestResult();
-                }
-            } else{
-                latitude = Utils.getDouble(getProperty(LATITUDE));
-                longitude = Utils.getDouble(getProperty(LONGITUDE));
-                log.info("Use configured location: "+ latitude + ","+longitude);
-            }
-        } else {
-            latitude = Utils.getDouble(rt1);
-            longitude = Utils.getDouble(rt2);
-            log.info("Use runtime location: "+ latitude + ","+longitude);
-        }
+        Double latitude = (Double) map.keySet().toArray()[0];
+        Double longitude = (Double) map.values().toArray()[0];
+
         String pathURL =  url + "lat="+latitude + "&lon="+longitude;
         double avg = 0;
         double max = -1;
@@ -169,10 +145,16 @@ Dus 77 = 0.1 mm/uur
         } ;
     }
 
+    /*
+    mm/per uur = 10^((waarde -109)/32)
+    Dus 77 = 0.1 mm/uur
+    10^((77 -109)/32)
+     */
     private double computeRainMM(double finalAvg) {
         log.info("computeRain in mm/hour from "+finalAvg);
-
-        return Math.round(Math.pow(10, ((finalAvg -109)/32)));
+        double calc = Math.pow(10, ((finalAvg -109)/32));
+        DecimalFormat twoDForm = new DecimalFormat("#.00");
+        return Double.valueOf(twoDForm.format(calc));
     }
 
     private String parseData(double min, double max, double avg){
