@@ -8,6 +8,7 @@ package com.ai.myplugin.sensor;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.NodeSessionParams;
 import com.ai.util.resource.TestSessionContext;
@@ -111,7 +112,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         JSONObject jsonObject = (JSONObject) (mapTestResult.get(node));
         if(jsonObject == null)
             return new EmptyTestResult();
-
+        /*
         final Object value;
         try {
             value = ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(rawData);
@@ -120,7 +121,17 @@ public class RawThresholdSensor implements BNSensorPlugin {
             log.error(e.getLocalizedMessage());
             return new EmptyTestResult();
         }
-        final Double dataD = Utils.getDouble(value);
+        final Double dataD = Utils.getDouble(value);   */
+        final Double dataD;
+        try {
+            String parseFormula = FormulaParser.parseFormula("<"+node+".rawData."+rawData+">",
+                    (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+            dataD =  FormulaParser.executeFormula(parseFormula);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getLocalizedMessage());
+            return new EmptyTestResult();
+        }
 
         return new TestResult() {
             @Override
@@ -146,7 +157,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
             @Override
             public String getRawData() {
                 return "{" +
-                        "\"" + rawData + "\" : " + value +
+                        "\"" + rawData + "\" : " + dataD +
                         "}";
             }
 

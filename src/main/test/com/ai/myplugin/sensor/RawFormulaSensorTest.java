@@ -112,6 +112,9 @@ public class RawFormulaSensorTest extends TestCase {
         assertEquals(value1, 0.);
     }
 
+    public void testMultipleStates(){
+
+    }
 
     public void testCountStringFormula() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
@@ -135,6 +138,31 @@ public class RawFormulaSensorTest extends TestCase {
         log.debug("formula = " + formula);
         log.debug("value = " + value);
         assertEquals(value, 2.0);
+    }
+
+    public void testMultipleThresholdsAndStates() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "<node1.rawData.value1> + <node2.rawData.value2>";
+        log.info("formula "+formula);
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "2,5");
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        jsonRaw.put("value1", 1);
+        jsonRaw.put("value2", 3);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node1", jsonObject);
+        mapTestResult.put("node2", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
+        assertEquals("level_1", testResult.getObserverState());
+        assertEquals(3, rawFormulaSensor.getSupportedStates().length);
+
     }
 
     public void testDeltaCalculation() throws ParseException {

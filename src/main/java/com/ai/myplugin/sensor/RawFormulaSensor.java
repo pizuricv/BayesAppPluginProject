@@ -31,6 +31,9 @@ public class RawFormulaSensor implements BNSensorPlugin {
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";
     private Map deltaMap = new ConcurrentHashMap();
+    // if threshold is given as a list, then we will create states as the range
+    private ArrayList<String> configuredStates  = new ArrayList<String>();
+    private ArrayList<Long> thresholds = new ArrayList<Long>();
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -48,7 +51,22 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
     public void setProperty(String string, Object obj) {
         if(Arrays.asList(getRequiredProperties()).contains(string)) {
-            propertiesMap.put(string, obj);
+            if(string.equalsIgnoreCase(THRESHOLD)){
+                String input = obj.toString();
+                input = input.replace("[","").replace("]","");
+                StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
+                if(stringTokenizer.countTokens() > 1){
+                    int i = 0;
+                    configuredStates.add("level_"+ i++);
+                    while(stringTokenizer.hasMoreElements()){
+                        thresholds.add(Long.parseLong(stringTokenizer.nextToken().trim()));
+                        configuredStates.add("level_"+ i++);
+                    }
+                    Collections.reverse(thresholds);
+                } else
+                    propertiesMap.put(string, obj);
+             }else
+                propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -117,12 +135,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
             @Override
             public String getObserverState() {
-                if(finalRes == Utils.getDouble(getProperty(THRESHOLD)))
-                    return "Equal";
-                if(finalRes > Utils.getDouble(getProperty(THRESHOLD)))
-                    return "Above";
-                else
-                    return "Below";
+                return mapResult(finalRes);
             }
 
             @Override
@@ -157,12 +170,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
                 @Override
                 public String getObserverState() {
-                    if(value == Utils.getDouble(getProperty(THRESHOLD)))
-                        return "Equal";
-                    if(value > Utils.getDouble(getProperty(THRESHOLD)))
-                        return "Above";
-                    else
-                        return "Below";
+                    return mapResult(Double.valueOf(value));
                 }
 
                 @Override
@@ -192,7 +200,31 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {"Above", "Equal", "Below",};
+        if(configuredStates.size() == 0)
+            return new String[] {"Above", "Equal", "Below",};
+        else
+            return configuredStates.toArray(new String[configuredStates.size()]);
+
+    }
+
+    private String mapResult(Double value) {
+        if(configuredStates.size() == 0){
+            if(value.equals(Utils.getDouble(getProperty(THRESHOLD))))
+                return "Equal";
+            if(value > Utils.getDouble(getProperty(THRESHOLD)))
+                return "Above";
+            else
+                return "Below";
+        } else {
+            int i = configuredStates.size() - 1;
+            for(Long l : thresholds){
+                if(value  > l){
+                    return configuredStates.get(i);
+                }
+                i --;
+            }
+            return configuredStates.get(0);
+        }
     }
 
 
