@@ -201,7 +201,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
         Long time = System.currentTimeMillis()/1000;
 
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        rawFormulaSensor.setProperty("formula", "node1->value1 + node2->value2");
+        rawFormulaSensor.setProperty("formula", "<node1.rawData.value1> + <node2.rawData.value2>");
 
         rawFormulaSensor.setProperty("threshold", "4");
         TestSessionContext testSessionContext = new TestSessionContext(1);
@@ -237,14 +237,14 @@ public class RawFormulaSensor implements BNSensorPlugin {
         mapTestResult.put("GOOG", obj);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
 
-        rawFormulaSensor.setProperty("formula", "GOOG->price - GOOG->moving_average");
+        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price> - <GOOG.rawData.moving_average>");
         rawFormulaSensor.setProperty("threshold", 100);
         testResult = rawFormulaSensor.execute(testSessionContext);
         log.debug(testResult.getObserverState());
         log.debug(testResult.getRawData());
 
 
-        rawFormulaSensor.setProperty("formula", "GOOG->price");
+        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price>");
         rawFormulaSensor.setProperty("threshold", 100);
         testResult = rawFormulaSensor.execute(testSessionContext);
         log.debug(testResult.getObserverState());

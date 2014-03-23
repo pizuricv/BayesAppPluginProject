@@ -195,9 +195,10 @@ public class RawThresholdSensor implements BNSensorPlugin {
 
     public static void main(String []args){
         WeatherSensor weatherSensor = new WeatherSensor();
-        weatherSensor.setProperty("city", "London");
+        weatherSensor.setProperty("city", "GB, London");
         TestResult testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
         //this is injected by scenario
         RawThresholdSensor rawThresholdSensor = new RawThresholdSensor();
         rawThresholdSensor.setProperty("rawData", "temperature");
@@ -210,17 +211,17 @@ public class RawThresholdSensor implements BNSensorPlugin {
         mapTestResult.put("node1", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
         testResult = rawThresholdSensor.execute(testSessionContext);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
 
 
         rawThresholdSensor = new RawThresholdSensor();
         rawThresholdSensor.setProperty("rawData", "temperature");
         rawThresholdSensor.setProperty("threshold", "5,15,25");
-        rawThresholdSensor.setProperty("states", "[low,medium,high, heat]");
+        rawThresholdSensor.setProperty("states", "[low, medium, high, heat]");
         rawThresholdSensor.setProperty("node", "node1");
         testResult = rawThresholdSensor.execute(testSessionContext);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
+        log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
     }
 }

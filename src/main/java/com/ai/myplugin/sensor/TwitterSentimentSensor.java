@@ -3,7 +3,7 @@ package com.ai.myplugin.sensor;
 import com.ai.bayes.plugins.BNSensorPlugin;
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.SentimentAnalysis;
-import com.ai.myplugin.util.SlidingWindowCounter;
+import com.ai.myplugin.util.SlidingWindowTimeCounter;
 import com.ai.myplugin.util.TwitterConfig;
 import com.ai.myplugin.util.Utils;
 import com.ai.util.resource.TestSessionContext;
@@ -28,9 +28,9 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     private static final String WINDOW = "window";
     private int window = 15;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-    private SlidingWindowCounter counterPositive = new SlidingWindowCounter(15, "positive sentiment");
-    private SlidingWindowCounter counterNegative = new SlidingWindowCounter(15, "negative sentiment");
-    private SlidingWindowCounter mentions = new SlidingWindowCounter(15, "mentions");
+    private SlidingWindowTimeCounter counterPositive = new SlidingWindowTimeCounter(15, "positive sentiment");
+    private SlidingWindowTimeCounter counterNegative = new SlidingWindowTimeCounter(15, "negative sentiment");
+    private SlidingWindowTimeCounter mentions = new SlidingWindowTimeCounter(15, "mentions");
     private boolean running = false;
     TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
 
