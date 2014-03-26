@@ -415,4 +415,48 @@ public class RawFormulaSensorTest extends TestCase {
         log.info("value = " + value);
         assertEquals(4.0 - 2.0 + 10.0 - 4.0 - 3.0, value);
     }
+
+
+    public void testStatsCalculationWithSlidingWindow() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "<avg(3, min, node7.rawData.value1)> - <min(3, min, node7.rawData.value1)> + <max(3, min, node8.rawData.value2)> - " +
+                "<node8.rawData.value2>[-1] - <node8.rawData.value2>[-2]";
+        log.info("formula "+formula);
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "4");
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        jsonRaw.put("value1", 1);
+        jsonRaw.put("value2", 3);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node7", jsonObject);
+        mapTestResult.put("node8", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        rawFormulaSensor.execute(testSessionContext);
+
+        jsonRaw.put("value1", 2);
+        jsonRaw.put("value2", 4);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node7", jsonObject);
+        mapTestResult.put("node8", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+
+
+        jsonRaw.put("value1", 6);
+        jsonRaw.put("value2", 10);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapTestResult.put("node7", jsonObject);
+        mapTestResult.put("node8", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
+        log.info("formula = " + formula);
+        log.info("value = " + value);
+        assertEquals(3.0 - 1.0 + 10.0 - 4.0 - 3.0, value);
+    }
 }

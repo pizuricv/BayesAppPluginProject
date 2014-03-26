@@ -25,8 +25,26 @@ public class SlidingWindowStatsCounter {
         this.slidingWindowMinutes = slidingWindowMinutes;
     }
 
-    public UtilStats incrementAndGetCurrentStats(double sample){
-        log.debug(name + "-incrementCounter()");
+    public UtilStats getCurrentStats() {
+        log.debug(name + "-getCurrentStats()");
+        ConcurrentHashMap<Long, UtilStats> map = advanceAndGetAllStats();
+        UtilStats sumStats = new UtilStats();
+        double count =0, sum = 0;
+        for(UtilStats utilStats : map.values()){
+            if(sumStats.max < utilStats.max)
+                sumStats.max = utilStats.max;
+            if(sumStats.min > utilStats.min)
+                sumStats.min = utilStats.min;
+            count += utilStats.n;
+            sum += utilStats.avg * utilStats.n;
+        }
+        if(count > 0)
+            sumStats.avg = sum/count;
+        return sumStats;
+    }
+
+    public UtilStats incrementAndGetStatsForCurrentMinute(double sample){
+        log.debug(name + "-incrementAndGetCurrentStats()");
         long minute = System.currentTimeMillis() / 1000/60;
         if(map.get(minute) == null) {
             log.debug("first data point in this minute :" + minute);
@@ -65,4 +83,5 @@ public class SlidingWindowStatsCounter {
     public void reset() {
         map.clear();
     }
+
 }

@@ -21,6 +21,7 @@ public class FormulaParser {
     private static final Log log = LogFactory.getLog(FormulaParser.class);
     static Map<String, ArrayList> prevValues = new ConcurrentHashMap();
     static Map<String, UtilStats> statValues = new ConcurrentHashMap();
+    static Map<String, SlidingWindowStatsCounter> statWindowValues = new ConcurrentHashMap();
 
     public static double executeFormula(String formula) throws Exception {
         log.debug("execute formula " + formula);
@@ -38,6 +39,7 @@ public class FormulaParser {
      *  you can also add a stats in format <avg(node1.param1)>,<min(node1.param1)>, <max(node1.param1)>, <std(node1.param1)>
      *  or add a sliding window (by time or the number of samples): <avg(5, samples, node1.param1)>, <avg(5, min, node1.param1)>
      *  it can be only one window size per paramValue. For the time window, it has to be at least 1 min, other option is hour, day
+     *  YOU CANT mix different aggregation types per raw key.
      * @param sessionMap  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
@@ -49,6 +51,7 @@ public class FormulaParser {
         Map<String, Integer> addedToStack = new ConcurrentHashMap<String, Integer>();
         JSONObject jsonObject = new JSONObject(sessionMap);
         Set<String> addedToCalc= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToCalcSlidingCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
         for(String key : RawDataParser.parseKeyArgs(formula)){
@@ -60,59 +63,79 @@ public class FormulaParser {
                 String realKey = key.substring(startIndex, key.indexOf(")")).trim();
                 log.info("stats is on param "+ realKey);
                 UtilStats simpleStats = statValues.get(realKey);
+                SlidingWindowStatsCounter slidingWindowStatsCounter = statWindowValues.get(realKey);
+                boolean slidingWindowCalc = false;
 
                 if(key.indexOf(",") == -1){
-                    if(simpleStats == null)
+                    if(simpleStats == null)   {
                         simpleStats = new UtilStats();
-                    statValues.put(realKey, simpleStats);
+                        statValues.put(realKey, simpleStats);
+                    }
                 } else {
                     String []splits = key.split(",");
                     if(splits.length != 3) {
                         log.warn("length not of the correct size, use default stats");
-                        if(simpleStats == null)
+                        if(simpleStats == null){
                             simpleStats = new UtilStats();
-                        statValues.put(realKey, simpleStats);
+                            statValues.put(realKey, simpleStats);
+                        }
                     }
                     else {
+                        int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
+                        //to be replace in formula template
+                        stringReplacement = key.substring(key.indexOf("(")+1, key.lastIndexOf(",") +1);
                         if("samples".equalsIgnoreCase(splits[1].trim())){
-                            log.info("init stats calculation on the number of samples");
-                            int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
-                            if(simpleStats == null)
+                            log.info("init stats calculation on the number of samples = "+index);
+                            if(simpleStats == null){
                                 simpleStats = new UtilStats(index);
-                            statValues.put(realKey, simpleStats);
-                            stringReplacement = key.substring(key.indexOf("(")+1, key.lastIndexOf(",") +1);
+                                statValues.put(realKey, simpleStats);
+                            }
                         } else {
+                            slidingWindowCalc = true;
                             if("min".equalsIgnoreCase(splits[1].trim()) || "minutes".equalsIgnoreCase(splits[1].trim())){
-                                int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
-                                //here I need windowtimer
+                                //nothing to do
                             } else if("hour".equalsIgnoreCase(splits[1].trim()) || "hour".equalsIgnoreCase(splits[1].trim())){
-                                int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
-                                //here I need windowtimer
+                                index = index* 60;
                             } else if("day".equalsIgnoreCase(splits[1].trim()) || "days".equalsIgnoreCase(splits[1].trim())){
-                                int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
-                                //here I need windowtimer
+                                index = 24*60*index;
                             } else
-                                simpleStats = new UtilStats();
+                                throw new RuntimeException("key is wrong "+key);
+                            log.info("init stats calculation on the time window = "+index);
+                            if(slidingWindowStatsCounter == null) {
+                                slidingWindowStatsCounter = new SlidingWindowStatsCounter(index, realKey);
+                                statWindowValues.put(realKey, slidingWindowStatsCounter);
+                            }
                         }
                     }
                 }
 
                 Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
-
+                UtilStats tempStats = null;
                 if(obj!= null ){
-                    if(!addedToCalc.contains(realKey)){
-                        simpleStats.addSample(Utils.getDouble(obj.toString()));
-                        addedToCalc.add(realKey);
+                    if(!slidingWindowCalc ){
+                        if(!addedToCalc.contains(realKey)) {
+                            simpleStats.addSample(Utils.getDouble(obj.toString()));
+                            addedToCalc.add(realKey);
+                            log.info("added for the line "+ key + ", real key="+realKey);
+                        }
+                        tempStats = simpleStats;
+                    } else if(slidingWindowCalc){
+                        if(!addedToCalcSlidingCounter.contains(realKey)){
+                            slidingWindowStatsCounter.incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
+                            addedToCalcSlidingCounter.add(realKey);
+                            log.info("added for the line "+ key + ", real key="+realKey);
+                        }
+                        tempStats = slidingWindowStatsCounter.getCurrentStats();
                     }
+                    log.info("added for the line "+ key + ", with param "+ realKey + ", stats:"+ tempStats.toString());
+                    //this is regexp need to get rid of ( chars
+                    formula = formula.replaceAll(OPERATOR+"\\(",OPERATOR);
+                    formula = formula.replaceAll("<"+OPERATOR + stringReplacement + realKey + "\\)>" , String.valueOf(tempStats.getValueForOperator(OPERATOR)));
+                    formula = formula.replaceAll("<"+OPERATOR + stringReplacement +" " + realKey + "\\)>" , String.valueOf(tempStats.getValueForOperator(OPERATOR)));
+                    log.info("formula after replacement for the key: "+key + " = "+formula);
                 } else {
                     log.warn("stats for "  + realKey + " not found");
                 }
-
-                log.info("added for the line "+ key + ", with param "+ realKey + ", stats:"+ simpleStats.toString());
-                //this is regexp need to get rid of ( chars
-                formula = formula.replaceAll(OPERATOR+"\\(",OPERATOR);
-                formula = formula.replaceAll("<"+OPERATOR + stringReplacement + realKey + "\\)>" , String.valueOf(simpleStats.getValueForOperator(OPERATOR)));
-                formula = formula.replaceAll("<"+OPERATOR + stringReplacement +" " + realKey + "\\)>" , String.valueOf(simpleStats.getValueForOperator(OPERATOR)));
             }
         }
 
