@@ -270,12 +270,12 @@ public class TreeSensor implements BNSensorPlugin{
             jsonObject.put("diameter", diameter);
             jsonObject.put("height", height);
             //alergies
-            /*
+
             if(name.contains("schietwilg") || name.contains("treurwilg") ||
                     name.contains("artbladige els") || name.contains("rode els") ||
                     name.contains("boomhazelaar"))
                 jsonObject.put("icon", "https://maps.gstatic.com/mapfiles/ms2/micons/yellow-dot.png");
-            else                */
+            else
                 jsonObject.put("icon", "https://maps.gstatic.com/mapfiles/ms2/micons/tree.png");
 
             jsonObject.put("address", address);

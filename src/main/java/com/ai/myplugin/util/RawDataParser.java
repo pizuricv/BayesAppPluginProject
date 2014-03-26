@@ -105,7 +105,7 @@ public class RawDataParser {
                     }
                 }
                 if(obj != null){
-                    log.debug("found object "+obj.toString() + ", for the key " +key);
+                    log.debug("Found for " + nodeKey + "[" +key + "] = "+obj.toString()) ;
                     return obj;
                 }
             }

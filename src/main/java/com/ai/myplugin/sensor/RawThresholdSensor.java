@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 public class RawThresholdSensor implements BNSensorPlugin {
     private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
+    FormulaParser formulaParser = new FormulaParser();
+
     private ArrayList<Long> threshold = new ArrayList<Long>();
     private ArrayList<String> states = new ArrayList<String>();
     //in case that states are defined via property
@@ -124,7 +126,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         final Double dataD = Utils.getDouble(value);   */
         final Double dataD;
         try {
-            String parseFormula = FormulaParser.parseFormula("<"+node+".rawData."+rawData+">",
+            String parseFormula = formulaParser.parseFormula("<"+node+".rawData."+rawData+">",
                     (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
             dataD =  FormulaParser.executeFormula(parseFormula);
         } catch (Exception e) {
@@ -202,6 +204,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        formulaParser.restStats();
     }
 
     public static void main(String []args){

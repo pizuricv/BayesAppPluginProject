@@ -19,9 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FormulaParser {
     private static final Log log = LogFactory.getLog(FormulaParser.class);
-    static Map<String, ArrayList> prevValues = new ConcurrentHashMap();
-    static Map<String, UtilStats> statValues = new ConcurrentHashMap();
-    static Map<String, SlidingWindowStatsCounter> statWindowValues = new ConcurrentHashMap();
+    Map<String, ArrayList> prevValues = new ConcurrentHashMap();
+    Map<String, UtilStats> statValues = new ConcurrentHashMap();
+    Map<String, SlidingWindowStatsCounter> statWindowValues = new ConcurrentHashMap();
+
+    public void restStats(){
+        prevValues.clear();
+        statValues.clear();
+        statWindowValues.clear();
+    }
 
     public static double executeFormula(String formula) throws Exception {
         log.debug("execute formula " + formula);
@@ -44,7 +50,7 @@ public class FormulaParser {
      * @return
      * @throws org.json.simple.parser.ParseException
      */
-    public static String parseFormula(String formula, Map<String, Object>  sessionMap) throws ParseException {
+    public String parseFormula(String formula, Map<String, Object>  sessionMap) throws ParseException {
         log.info("parsing formula " + formula);
         Set<String> set = RawDataParser.parseKeyArgs(formula);
         Map<String, String> map = new ConcurrentHashMap<String, String>();
@@ -317,6 +323,5 @@ public class FormulaParser {
         return round;
 
     }
-
 
 }

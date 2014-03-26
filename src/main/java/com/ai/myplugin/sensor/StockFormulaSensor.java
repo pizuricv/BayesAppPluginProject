@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.util.FormulaParser;
+import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 public class StockFormulaSensor extends StockAbstractSensor {
     private static final Log log = LogFactory.getLog(StockFormulaSensor.class);
+    FormulaParser formulaParser = new FormulaParser();
 
     @Override
     public String[] getRequiredProperties() {
@@ -47,11 +49,19 @@ public class StockFormulaSensor extends StockAbstractSensor {
         Map<String, Object> map = new ConcurrentHashMap<String, Object>();
         map.put("this", object);
         try {
-            return FormulaParser.executeFormula(FormulaParser.parseFormula((String) getProperty(FORMULA_DEFINITION), map));
+            return FormulaParser.executeFormula(formulaParser.parseFormula((String) getProperty(FORMULA_DEFINITION), map));
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
             throw new Exception("Error getting Stock result " + e.getLocalizedMessage());
         }
     }
+
+    @Override
+    public void shutdown(TestSessionContext testSessionContext) {
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        formulaParser.restStats();
+    }
+
+
 }

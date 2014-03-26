@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 public class RawFormulaSensor implements BNSensorPlugin {
     private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
+    FormulaParser formulaParser = new FormulaParser();
 
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";
@@ -111,7 +112,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
         boolean success = false;
         try {
-            parseFormula = FormulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+            parseFormula = formulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
             log.debug("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
             success = true;
@@ -288,5 +289,6 @@ public class RawFormulaSensor implements BNSensorPlugin {
     @Override
     public void shutdown(TestSessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        formulaParser.restStats();
     }
 }
