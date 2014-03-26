@@ -128,7 +128,7 @@ public class RawDataParser {
             String str = tokens.nextToken();
             if(str.indexOf("<") > -1)
                 str = str.substring(str.indexOf("<") + 1);
-            if(str.indexOf(" ") == -1)
+            if(str.indexOf(" ") == -1 || str.indexOf(",") > -1)
                 set.add(str);
         }
         log.debug("found keys "+Arrays.asList(set).toString());

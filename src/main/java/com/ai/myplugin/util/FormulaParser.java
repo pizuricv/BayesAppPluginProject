@@ -10,10 +10,7 @@ import org.json.simple.parser.ParseException;
 import org.stringtemplate.v4.ST;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FormulaParser {
     private static final Log log = LogFactory.getLog(FormulaParser.class);
     static Map<String, ArrayList> prevValues = new ConcurrentHashMap();
-    static Map<String, SimpleStats> statValues = new ConcurrentHashMap();
+    static Map<String, UtilStats> statValues = new ConcurrentHashMap();
 
     public static double executeFormula(String formula) throws Exception {
         log.debug("execute formula " + formula);
@@ -39,6 +36,8 @@ public class FormulaParser {
      *  there is also the option to make a geo distance calculation such as distance(node1,node2)
      *  in which case it will be assumed that the raw data has this information (latitude and longitude)
      *  you can also add a stats in format <avg(node1.param1)>,<min(node1.param1)>, <max(node1.param1)>, <std(node1.param1)>
+     *  or add a sliding window (by time or the number of samples): <avg(5, samples, node1.param1)>, <avg(5, min, node1.param1)>
+     *  it can be only one window size per paramValue. For the time window, it has to be at least 1 min, other option is hour, day
      * @param sessionMap  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
@@ -48,39 +47,72 @@ public class FormulaParser {
         Set<String> set = RawDataParser.parseKeyArgs(formula);
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         Map<String, Integer> addedToStack = new ConcurrentHashMap<String, Integer>();
-        Set<String> addedToCalc= new HashSet<String>();
         JSONObject jsonObject = new JSONObject(sessionMap);
+        Set<String> addedToCalc= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
         for(String key : RawDataParser.parseKeyArgs(formula)){
             if(key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") || key.startsWith("std")){
                 log.info("applying stats calculation on "+key);
-                String realKey = key.substring(key.indexOf("(")+1, key.indexOf(")"));
-                SimpleStats simpleStats = statValues.get(realKey);
-                if(simpleStats == null) {
-                    simpleStats = new SimpleStats();
+                String OPERATOR = key.substring(0, 3);
+                String stringReplacement = "";
+                int startIndex = key.indexOf(",") == -1? key.indexOf("(")+1 : key.lastIndexOf(",")+1;
+                String realKey = key.substring(startIndex, key.indexOf(")")).trim();
+                log.info("stats is on param "+ realKey);
+                UtilStats simpleStats = statValues.get(realKey);
+
+                if(key.indexOf(",") == -1){
+                    if(simpleStats == null)
+                        simpleStats = new UtilStats();
                     statValues.put(realKey, simpleStats);
-                }
-                Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
-                if(!addedToCalc.contains(realKey)){
-                    simpleStats.addSample(Utils.getDouble(obj.toString()));
-                    addedToCalc.add(realKey);
+                } else {
+                    String []splits = key.split(",");
+                    if(splits.length != 3) {
+                        log.warn("length not of the correct size, use default stats");
+                        if(simpleStats == null)
+                            simpleStats = new UtilStats();
+                        statValues.put(realKey, simpleStats);
+                    }
+                    else {
+                        if("samples".equalsIgnoreCase(splits[1].trim())){
+                            log.info("init stats calculation on the number of samples");
+                            int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
+                            if(simpleStats == null)
+                                simpleStats = new UtilStats(index);
+                            statValues.put(realKey, simpleStats);
+                            stringReplacement = key.substring(key.indexOf("(")+1, key.lastIndexOf(",") +1);
+                        } else {
+                            if("min".equalsIgnoreCase(splits[1].trim()) || "minutes".equalsIgnoreCase(splits[1].trim())){
+                                int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
+                                //here I need windowtimer
+                            } else if("hour".equalsIgnoreCase(splits[1].trim()) || "hour".equalsIgnoreCase(splits[1].trim())){
+                                int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
+                                //here I need windowtimer
+                            } else if("day".equalsIgnoreCase(splits[1].trim()) || "days".equalsIgnoreCase(splits[1].trim())){
+                                int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
+                                //here I need windowtimer
+                            } else
+                                simpleStats = new UtilStats();
+                        }
+                    }
                 }
 
-                log.info("added for key "+ key + ", stats "+ simpleStats.toString());
+                Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
+
+                if(obj!= null ){
+                    if(!addedToCalc.contains(realKey)){
+                        simpleStats.addSample(Utils.getDouble(obj.toString()));
+                        addedToCalc.add(realKey);
+                    }
+                } else {
+                    log.warn("stats for "  + realKey + " not found");
+                }
+
+                log.info("added for the line "+ key + ", with param "+ realKey + ", stats:"+ simpleStats.toString());
                 //this is regexp need to get rid of ( chars
-                formula = formula.replaceAll("avg\\(","avg");
-                formula = formula.replaceAll("min\\(","min");
-                formula = formula.replaceAll("max\\(","max");
-                formula = formula.replaceAll("std\\(","std");
-                if(key.startsWith("avg"))
-                    formula = formula.replaceAll("<avg" + realKey + "\\)>" , String.valueOf(simpleStats.avg));
-                if(key.startsWith("min"))
-                    formula = formula.replaceAll("<min" + realKey + "\\)>" , String.valueOf(simpleStats.min));
-                if(key.startsWith("max"))
-                    formula = formula.replaceAll("<max" + realKey + "\\)>" , String.valueOf(simpleStats.max));
-                if(key.startsWith("std"))
-                    formula = formula.replaceAll("<std" + realKey + "\\)>" , String.valueOf(simpleStats.stdev));
+                formula = formula.replaceAll(OPERATOR+"\\(",OPERATOR);
+                formula = formula.replaceAll("<"+OPERATOR + stringReplacement + realKey + "\\)>" , String.valueOf(simpleStats.getValueForOperator(OPERATOR)));
+                formula = formula.replaceAll("<"+OPERATOR + stringReplacement +" " + realKey + "\\)>" , String.valueOf(simpleStats.getValueForOperator(OPERATOR)));
             }
         }
 
@@ -263,34 +295,5 @@ public class FormulaParser {
 
     }
 
-    private static class SimpleStats {
-        public int n = 0;
-        public double min  = Double.MAX_VALUE;
-        public double max  = - Double.MAX_VALUE;
-        public double avg = 0;
-        public double stdev = 0;
 
-        public void addSample(double sample){
-            log.info("add sample "+sample);
-            double prevAvg = n * avg;
-            n +=1;
-            avg = (prevAvg + sample) / n;
-            if(min > sample)
-                min = sample;
-            if(max < sample)
-                max = sample;
-            stdev = Math.sqrt(1.0/n * Math.pow(sample - avg, 2));
-        }
-
-        @Override
-        public String toString() {
-            return "SimpleStats{" +
-                    "n=" + n +
-                    ", min=" + min +
-                    ", max=" + max +
-                    ", avg=" + avg +
-                    ", stdev=" + stdev +
-                    '}';
-        }
-    }
 }

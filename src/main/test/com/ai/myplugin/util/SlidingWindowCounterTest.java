@@ -31,7 +31,18 @@ public class SlidingWindowCounterTest extends TestCase{
         assertTrue("{2=1, 3=1, 4=3}".equals(map1.toString()));
         assertTrue("{2=1, 3=2, 4=4, 5=1}".equals(map2.toString()));
         assertTrue("{2=0, 3=2, 4=2, 5=2}".equals(map3.toString()));
+    }
 
+    public void testIncrementCountText() throws Exception {
+        SlidingWindowCounter<String> slidingWindowCounter = new SlidingWindowCounter<String>(2);
+        slidingWindowCounter.incrementCount("hello");
+        slidingWindowCounter.incrementCount("hello2");
+        slidingWindowCounter.incrementCount("hello");
+        slidingWindowCounter.incrementCount("hello");
+        slidingWindowCounter.incrementCount("hello");
+        Map map1 = slidingWindowCounter.getCountsThenAdvanceWindow();
+
+        assertTrue("{hello=4, hello2=1}".equals(map1.toString()));
 
     }
 
