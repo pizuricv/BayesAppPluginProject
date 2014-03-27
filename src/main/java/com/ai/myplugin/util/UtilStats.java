@@ -86,12 +86,22 @@ public class UtilStats {
     public double getValueForOperator(String operator) {
         if(operator.startsWith("avg"))
             return avg;
-        if(operator.startsWith("min"))
+        else if(operator.startsWith("min"))
             return min;
-        if(operator.startsWith("max"))
+        else if(operator.startsWith("max"))
             return max;
-        if(operator.startsWith("std"))
+        else if(operator.startsWith("std"))
             return stdev;
+        else if(operator.startsWith("count"))  {
+            if(samples == null)
+                return avg * n;
+            else {
+                int count = 0;
+                for(int i = 0; i < samplesLength; i ++)
+                    count += samples[i];
+                return count;
+            }
+        }
         throw new RuntimeException("operator " + operator + " not found");
     }
 }
