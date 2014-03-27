@@ -309,49 +309,6 @@ public class FormulaParser {
         return Integer.parseInt(value.substring(value.indexOf("[-")+2));
     }
 
-    /**
-     *  formula in format node1->param1~Text1 OPER node->param3~Text2.
-     * @param nodeParams  are parameters on which formula will be computed
-     * @return
-     * @throws org.json.simple.parser.ParseException
-     */
-    public static int count(Map<String, Object>  nodeParams, String formula) throws ParseException {
-        String returnString = formula.replaceAll("\\(", " \\( ").replaceAll("\\)", " \\) ").
-                replaceAll("/", " / ");
-        String [] split = returnString.split("\\s+");
-        int count = 0;
-        for(String s1 : split)   {
-            String [] s2 = s1.split("->");
-            if(s2.length == 2)  {
-                try{
-                    String node = s2[0];
-                    String [] split2 = s2[1].split("~");
-                    String value = split2[0];
-                    String findString = split2[1];
-                    JSONObject jsonObject = (JSONObject) (nodeParams.get(node));
-                    Object rawValue =  ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(value);
-                    count += countString(rawValue.toString(), findString);
-                } catch (Exception e){
-                    log.error(e.getLocalizedMessage());
-                }
-            }
-        }
-        return count;
-    }
-
-    private static int countString(String str, String findStr){
-        int lastIndex = 0;
-        int count =0;
-        while(lastIndex != -1){
-            lastIndex = str.indexOf(findStr,lastIndex);
-            if( lastIndex != -1){
-                count ++;
-                lastIndex+=findStr.length();
-            }
-        }
-        return count;
-    }
-
     public final static double AVERAGE_RADIUS_OF_EARTH = 6371;
     public static int calculateDistance(double userLat, double userLng, double venueLat, double venueLng) {
         log.info("calculateDistance("+userLat + ", "+ userLng + ", "+venueLat + ", "+ venueLng +")");

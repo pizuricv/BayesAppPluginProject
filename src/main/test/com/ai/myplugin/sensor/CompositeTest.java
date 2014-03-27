@@ -19,44 +19,6 @@ import java.util.Map;
  */
 public class CompositeTest extends TestCase{
 
-    public void testLocationAndFormula() throws ParseException {
-        LatitudeLongitudeRawSensor locationSensor = new LatitudeLongitudeRawSensor();
-        locationSensor.setProperty("longitude", 19.851858);
-        locationSensor.setProperty("latitude", 45.262231);
-
-        TestSessionContext testSessionContext = new TestSessionContext(1);
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put("rawData", locationSensor.execute(null).getRawData());
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        mapTestResult.put("node1", jsonObject);
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-
-        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "node1->city~Novi Sad";
-        rawFormulaSensor.setProperty("formula", formula);
-        rawFormulaSensor.setProperty("threshold", "1");
-
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
-        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
-        assertEquals("Equal", testResult.getObserverState());
-
-        assertEquals(value, 1.0);
-
-        formula = "node1->country~Serbia";
-        rawFormulaSensor.setProperty("formula", formula);
-        rawFormulaSensor.setProperty("threshold", "0");
-
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        testResult = rawFormulaSensor.execute(testSessionContext);
-        value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
-        assertEquals("Above", testResult.getObserverState());
-
-        assertEquals(value, 1.0);
-    }
-
-
     public void testLocationsAndFormula() throws ParseException {
         LocationRawSensor locationRawSensor1 = new LocationRawSensor();
         locationRawSensor1.setProperty("location", "Gent");
@@ -79,45 +41,13 @@ public class CompositeTest extends TestCase{
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
 
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "node1->city~Ghent";
-        rawFormulaSensor.setProperty("formula", formula);
-        rawFormulaSensor.setProperty("threshold", "1");
-
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
-        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
-        assertEquals("Equal", testResult.getObserverState());
-
-        assertEquals(value, 1.0);
-
-        formula = "node1->country~Belgium";
-        rawFormulaSensor.setProperty("formula", formula);
-        rawFormulaSensor.setProperty("threshold", "0");
-
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        testResult = rawFormulaSensor.execute(testSessionContext);
-        value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
-        assertEquals("Above", testResult.getObserverState());
-
-        assertEquals(value, 1.0);
-
-
-        rawFormulaSensor = new RawFormulaSensor();
-        formula = "<node1.rawData.latitude> - <node2.rawData.latitude>";
+        String formula = "<node1.rawData.latitude> - <node2.rawData.latitude>";
         rawFormulaSensor.setProperty("formula", formula);
         rawFormulaSensor.setProperty("threshold", "5");
 
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        testResult = rawFormulaSensor.execute(testSessionContext);
-        //System.out.println(Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue")));
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
         assertEquals("Above", testResult.getObserverState());
-
-        /*jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
-        jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
-        System.out.println("Distance: "+ FormulaParser.calculateDistance(Utils.getDouble(jsonObject1.get("latitude")),
-                Utils.getDouble(jsonObject1.get("longitude")), Utils.getDouble(jsonObject2.get("latitude")),
-                Utils.getDouble(jsonObject2.get("longitude"))));    */
-
 
         rawFormulaSensor = new RawFormulaSensor();
         formula = "distance(node1, node2) - 500";
