@@ -20,15 +20,26 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FormulaParser {
     private static final Log log = LogFactory.getLog(FormulaParser.class);
     Map<String, ArrayList> prevValues = new ConcurrentHashMap();
-    Map<String, UtilStats> statisticalSampleValues = new ConcurrentHashMap();
-    Map<String, SlidingWindowStatsCounter> statisticalWindowValues = new ConcurrentHashMap();
-    Map<String, UtilStats> counterValues = new ConcurrentHashMap();
+    Map<String, UtilStats> statisticalSampleValues;
+    Map<String, SlidingWindowStatsCounter> statisticalWindowValues;
+    Map<String, UtilStats> counterValues;
+    boolean initMaps = false;
 
-    public void restStats(){
+    public synchronized void restStats(){
+        if(initMaps){
+            statisticalSampleValues = null;
+            statisticalWindowValues = null;
+            counterValues = null;
+            initMaps = false;
+        }
         prevValues.clear();
-        statisticalSampleValues.clear();
-        statisticalWindowValues.clear();
-        counterValues.clear();
+    }
+
+    private synchronized void initStats(){
+        statisticalSampleValues = new ConcurrentHashMap();
+        statisticalWindowValues = new ConcurrentHashMap();
+        counterValues = new ConcurrentHashMap();
+        initMaps = true;
     }
 
     public static double executeFormula(String formula) throws Exception {
@@ -67,131 +78,129 @@ public class FormulaParser {
         Set<String> addedToCalcSlidingCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
-        for(String key : keySet){
-            if(key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") ||
-                    key.startsWith("std") || key.startsWith("count")){
-                log.info("applying stats calculation on "+key);
-
+        for(String key : keySet)
+            if (key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") ||
+                    key.startsWith("std") || key.startsWith("count")) {
+                log.info("applying stats calculation on " + key);
+                if(!initMaps)
+                    initStats();
                 String OPERATOR = key.substring(0, key.indexOf("("));
                 String stringReplacement = "";
-                int startIndex = key.indexOf(",") == -1? key.indexOf("(")+1 : key.lastIndexOf(",")+1;
+                int startIndex = key.indexOf(",") == -1 ? key.indexOf("(") + 1 : key.lastIndexOf(",") + 1;
                 String realKey = key.substring(startIndex, key.indexOf(")")).trim();
-                log.info("stats is on param "+ realKey);
-                UtilStats sampleStats = statisticalSampleValues.get(realKey);
-                UtilStats counterStats = counterValues.get(realKey);
-                SlidingWindowStatsCounter slidingWindowStatsCounter = statisticalWindowValues.get(realKey);
-                StatsType statsType = StatsType.STATS_COUNTER;
+                log.info("stats is on param " + realKey);
+                StatsType statsType = StatsType.STATS_REGULAR;
 
                 //search term in case it is a count operator
-                String searchTerm ="";
+                String searchTerm = "";
 
                 //initialize counters
-                if(key.indexOf(",") == -1){
-                    if(sampleStats == null)   {
-                        sampleStats = new UtilStats();
-                        statisticalSampleValues.put(realKey, sampleStats);
+                if (key.indexOf(",") == -1) {
+                    if (!OPERATOR.equalsIgnoreCase("count")) {
+                        statsType = StatsType.STATS_REGULAR;
+                        if (statisticalSampleValues.get(realKey) == null)
+                            statisticalSampleValues.put(realKey, new UtilStats());
                     }
-                } else {
-                    String []splits = key.split(",");
-
-                    if(splits.length < 3){
-                        log.error("length of the argument: " + key + ", not of the correct size");
-                        throw new RuntimeException("length not of the correct size");
-                    }
+                }
+                else {
                     //to be replace in formula template
-                    stringReplacement = key.substring(key.indexOf("(")+1, key.lastIndexOf(",") +1);
-                    //<count(key, number, samples/time, node.param>
-                    if(OPERATOR.equalsIgnoreCase("count")) {
-                        searchTerm = splits[0].substring(splits[0].indexOf("(")+1).trim();
-                        int index = Utils.getDouble(splits[1].trim()).intValue();
-                        String howToMeasure = splits[2].trim();
-                        if("samples".equalsIgnoreCase(howToMeasure)){
-                            statsType = StatsType.COUNTER_SAMPLE;
-                            if(counterStats == null)   {
-                                counterStats = new UtilStats(index);
-                                counterValues.put(realKey, counterStats);
-                            }
-                        } else{
-                            statsType = StatsType.COUNTER_WINDOW;
+                    stringReplacement = key.substring(key.indexOf("(") + 1, key.lastIndexOf(",") + 1);
+                    String[] splits = key.split(",");
+                    if(OPERATOR.equalsIgnoreCase("count")){
+                        //<count(key,node.param>
+                        if (splits.length == 2) {
+                            searchTerm = splits[0].substring(splits[0].indexOf("(") + 1).trim();
+                            statsType = StatsType.STATS_COUNTER;
+                            if (counterValues.get(realKey) == null)
+                                counterValues.put(realKey, new UtilStats());
                         }
-                    }
-                    else {
-                        int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(")+1).trim()).intValue();
+                        //<count(key, number, samples/time, node.param>
+                        else if (splits.length == 4) {
+                            searchTerm = splits[0].substring(splits[0].indexOf("(") + 1).trim();
+                            int index = Utils.getDouble(splits[1].trim()).intValue();
+                            String howToMeasure = splits[2].trim();
+                            if ("samples".equalsIgnoreCase(howToMeasure)) {
+                                statsType = StatsType.STATS_COUNTER;
+                                if (counterValues.get(realKey) == null)
+                                    counterValues.put(realKey, new UtilStats(index));
+                            } else {
+                                statsType = StatsType.STATS_COUNTER_WINDOW;
+                            }
+                        } else
+                            throw new RuntimeException("formula for operator "+OPERATOR + " not correct");
+                    } else {
+                        int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(") + 1).trim()).intValue();
                         //<avg(5, samples, node1.param1)>, <avg(5, min, node1.param1)>
                         //to be replace in formula template
-                        stringReplacement = key.substring(key.indexOf("(")+1, key.lastIndexOf(",") +1);
-                        if("samples".equalsIgnoreCase(splits[1].trim())){
-                            log.info("init stats calculation on the number of samples = "+index);
-                            statsType = StatsType.STATS_COUNTER;
-                            if(sampleStats == null){
-                                sampleStats = new UtilStats(index);
-                                statisticalSampleValues.put(realKey, sampleStats);
-                            }
+                        stringReplacement = key.substring(key.indexOf("(") + 1, key.lastIndexOf(",") + 1);
+                        if ("samples".equalsIgnoreCase(splits[1].trim())) {
+                            log.info("init stats calculation on the number of samples = " + index);
+                            statsType = StatsType.STATS_REGULAR;
+                            if (statisticalSampleValues.get(realKey) == null)
+                                statisticalSampleValues.put(realKey, new UtilStats(index));
                         } else {
-                            statsType = StatsType.STATS_WINDOW;
-                            if("min".equalsIgnoreCase(splits[1].trim()) || "minutes".equalsIgnoreCase(splits[1].trim())){
+                            statsType = StatsType.STATS_REGULAR_WINDOW;
+                            if ("min".equalsIgnoreCase(splits[1].trim()) || "minutes".equalsIgnoreCase(splits[1].trim())) {
                                 //nothing to do index already of a good size
-                            } else if("hour".equalsIgnoreCase(splits[1].trim()) || "hour".equalsIgnoreCase(splits[1].trim())){
-                                index = index* 60;
-                            } else if("day".equalsIgnoreCase(splits[1].trim()) || "days".equalsIgnoreCase(splits[1].trim())){
-                                index = 24*60*index;
+                            } else if ("hour".equalsIgnoreCase(splits[1].trim()) || "hour".equalsIgnoreCase(splits[1].trim())) {
+                                index = index * 60;
+                            } else if ("day".equalsIgnoreCase(splits[1].trim()) || "days".equalsIgnoreCase(splits[1].trim())) {
+                                index = 24 * 60 * index;
                             } else
-                                throw new RuntimeException("key is wrong "+key);
-                            log.info("init stats calculation on the time window = "+index+ "[minutes]");
-                            if(slidingWindowStatsCounter == null) {
-                                slidingWindowStatsCounter = new SlidingWindowStatsCounter(index, realKey);
-                                statisticalWindowValues.put(realKey, slidingWindowStatsCounter);
-                            }
+                                throw new RuntimeException("key is wrong " + key);
+                            log.info("init stats calculation on the time window = " + index + "[minutes]");
+                            if (statisticalWindowValues.get(realKey) == null)
+                                statisticalWindowValues.put(realKey, new SlidingWindowStatsCounter(index, realKey));
                         }
                     }
                 }
 
                 Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
                 UtilStats tempStats = null;
-                if(obj!= null ){
-                    if(statsType.equals(StatsType.STATS_COUNTER)){
-                        if(!addedToSampleCounter.contains(realKey)) {
-                            sampleStats.addSample(Utils.getDouble(obj.toString()));
+                //you should only add sample once in total, in case you call it several times for the same key and the same OPERATOR
+                if (obj != null) {
+                    if (statsType.equals(StatsType.STATS_REGULAR)) {
+                        if (!addedToSampleCounter.contains(realKey)) {
+                            statisticalSampleValues.get(realKey).addSample(Utils.getDouble(obj.toString()));
                             addedToSampleCounter.add(realKey);
-                            log.info("added for the line "+ key + ", real key="+realKey);
+                            log.info("added for the line " + key + ", real key=" + realKey);
                         }
-                        tempStats = sampleStats;
-                    } else if(statsType.equals(StatsType.STATS_WINDOW)){
-                        if(!addedToCalcSlidingCounter.contains(realKey)){
-                            slidingWindowStatsCounter.incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
+                        tempStats = statisticalSampleValues.get(realKey);
+                    } else if (statsType.equals(StatsType.STATS_REGULAR_WINDOW)) {
+                        if (!addedToCalcSlidingCounter.contains(realKey)) {
+                            statisticalWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
                             addedToCalcSlidingCounter.add(realKey);
-                            log.info("added for the line "+ key + ", real key="+realKey);
+                            log.info("added for the line " + key + ", real key=" + realKey);
                         }
-                        tempStats = slidingWindowStatsCounter.getCurrentStats();
-                    } else if(statsType.equals(StatsType.COUNTER_SAMPLE)){
-                        if(!addedToCounter.contains(realKey)) {
-                            try{
-                                if(Utils.getDouble(obj.toString()).equals(Utils.getDouble(searchTerm)))
-                                    counterStats.addSample(1);
+                        tempStats = statisticalWindowValues.get(realKey).getCurrentStats();
+                    } else if (statsType.equals(StatsType.STATS_COUNTER)) {
+                        if (!addedToCounter.contains(realKey)) {
+                            try {
+                                if (Utils.getDouble(obj.toString()).equals(Utils.getDouble(searchTerm)))
+                                    counterValues.get(realKey).addSample(1);
                                 else
-                                    counterStats.addSample(0);
-                            } catch (Exception e){
-                                if(obj.toString().equals(searchTerm))
-                                    counterStats.addSample(1);
+                                    counterValues.get(realKey).addSample(0);
+                            } catch (Exception e) {
+                                if (obj.toString().equals(searchTerm))
+                                    counterValues.get(realKey).addSample(1);
                                 else
-                                    counterStats.addSample(0);
+                                    counterValues.get(realKey).addSample(0);
                             }
                             addedToSampleCounter.add(realKey);
-                            log.info("added for the line "+ key + ", real key="+realKey);
-                            }
-                        tempStats = counterStats;
+                            log.info("added for the line " + key + ", real key=" + realKey);
+                        }
+                        tempStats = counterValues.get(realKey);
                     }
-                    log.info("added for the line "+ key + ", with param "+ realKey + ", stats:"+ tempStats.toString());
+                    log.info("added for the line " + key + ", with param " + realKey + ", stats:" + tempStats.toString());
                     //this is regexp need to get rid of ( chars
-                    formula = formula.replaceAll(OPERATOR+"\\(",OPERATOR);
-                    formula = formula.replaceAll("<"+OPERATOR + stringReplacement + realKey + "\\)>" , String.valueOf(tempStats.getValueForOperator(OPERATOR)));
-                    formula = formula.replaceAll("<"+OPERATOR + stringReplacement +" " + realKey + "\\)>" , String.valueOf(tempStats.getValueForOperator(OPERATOR)));
-                    log.info("formula after replacement for the key: "+key + " = "+formula);
+                    formula = formula.replaceAll(OPERATOR + "\\(", OPERATOR);
+                    formula = formula.replaceAll("<" + OPERATOR + stringReplacement + realKey + "\\)>", String.valueOf(tempStats.getValueForOperator(OPERATOR)));
+                    formula = formula.replaceAll("<" + OPERATOR + stringReplacement + " " + realKey + "\\)>", String.valueOf(tempStats.getValueForOperator(OPERATOR)));
+                    log.info("formula after replacement for the key: " + key + " = " + formula);
                 } else {
-                    log.warn("stats for "  + realKey + " not found");
+                    log.warn("stats for " + realKey + " not found");
                 }
             }
-        }
 
         for(String key: keySet){
             Object obj = RawDataParser.findObjForKey(key, jsonObject);
@@ -332,7 +341,7 @@ public class FormulaParser {
     }
 
     private enum StatsType {
-        COUNTER_SAMPLE, COUNTER_WINDOW, STATS_COUNTER, STATS_WINDOW
+        STATS_COUNTER, STATS_COUNTER_WINDOW, STATS_REGULAR, STATS_REGULAR_WINDOW
     }
 
 }

@@ -81,7 +81,7 @@ public class CompositeTest extends TestCase{
 
     }
 
-    public void testSensorTemplateAndCount() throws Exception {
+       public void testSensorTemplateAndCount() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
         locationSensor.setProperty(LocationSensor.LATITUDE, 45.262231);
@@ -129,6 +129,54 @@ public class CompositeTest extends TestCase{
         assertEquals("Equal", testResult.getObserverState());
 
     }
+
+
+    public void testSensorTemplateAndCount2() throws Exception {
+        LocationSensor locationSensor = new LocationSensor();
+        locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
+        locationSensor.setProperty(LocationSensor.LATITUDE, 45.262231);
+        locationSensor.setProperty(LocationSensor.DISTANCE, 100);
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        testSessionContext.setAttribute(LocationSensor.RUNTIME_LONGITUDE, 19.851858);
+        testSessionContext.setAttribute(LocationSensor.RUNTIME_LATITUDE, 45.262231);
+
+        JSONObject jsonObject1 = new JSONObject();
+
+        jsonObject1.put("rawData", locationSensor.execute(testSessionContext).getRawData());
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        mapTestResult.put("node2", jsonObject1);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        rawFormulaSensor.setProperty("formula", "<count(Novi Sad, node2.rawData.current_city)>");
+        rawFormulaSensor.setProperty("threshold", 1);
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        assertEquals("Equal", testResult.getObserverState());
+        rawFormulaSensor.execute(testSessionContext);
+        rawFormulaSensor.execute(testSessionContext);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        rawFormulaSensor.setProperty("threshold", 4);
+        System.out.println(testResult.getRawData());
+        assertEquals("Equal", testResult.getObserverState());
+
+
+        mapTestResult.put("node2", jsonObject1);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("current_city", "Gent");
+        jsonObject1.put("rawData", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getRawData());
+        assertEquals("Equal", testResult.getObserverState());
+
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        assertEquals("Equal", testResult.getObserverState());
+
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        assertEquals("Equal", testResult.getObserverState());
+
+    }
+
 
 
 }
