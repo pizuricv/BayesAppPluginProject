@@ -23,6 +23,7 @@ public class FormulaParser {
     Map<String, UtilStats> statisticalSampleValues;
     Map<String, SlidingWindowStatsCounter> statisticalWindowValues;
     Map<String, UtilStats> counterValues;
+    Map<String, SlidingWindowStatsCounter> counterWindowValues;
     boolean initMaps = false;
 
     public synchronized void restStats(){
@@ -30,6 +31,7 @@ public class FormulaParser {
             statisticalSampleValues = null;
             statisticalWindowValues = null;
             counterValues = null;
+            counterWindowValues = null;
             initMaps = false;
         }
         prevValues.clear();
@@ -39,6 +41,7 @@ public class FormulaParser {
         statisticalSampleValues = new ConcurrentHashMap();
         statisticalWindowValues = new ConcurrentHashMap();
         counterValues = new ConcurrentHashMap();
+        counterWindowValues = new ConcurrentHashMap();
         initMaps = true;
     }
 
@@ -61,8 +64,8 @@ public class FormulaParser {
      *  YOU CANT mix different aggregation types per raw key.
      *  Another option is to compare distance between two nodes, in that case it will take the latitude and longitude of these nodes
      *  like distance(node1,node2).
-     *  For the count, you need to specify 4 parameters <count(key, number, samples/time, node.param> , where key can be a number or string
-     *  and time can be expressed in minutes, hours or days
+     *  For the count, you need to specify either 4 parameters <count(key, number, samples/time, node.param> , where key can be a number or string
+     *  and time can be expressed in minutes, hours or days or 2 parameters <count(key, node.param> that will count all events
      * @param sessionMap  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
@@ -75,7 +78,8 @@ public class FormulaParser {
         JSONObject jsonObject = new JSONObject(sessionMap);
         Set<String> addedToSampleCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
         Set<String> addedToCounter = new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
-        Set<String> addedToCalcSlidingCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToSampleWindowCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToCounterWindowCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
         for(String key : keySet)
@@ -125,6 +129,10 @@ public class FormulaParser {
                                     counterValues.put(realKey, new UtilStats(index));
                             } else {
                                 statsType = StatsType.STATS_COUNTER_WINDOW;
+                                index = index * getTimeInMinutesForString(splits[2].trim());
+                                log.info("init stats calculation on the time window = " + index + "[minutes]");
+                                if (counterWindowValues.get(realKey) == null)
+                                    counterWindowValues.put(realKey, new SlidingWindowStatsCounter(index, realKey));
                             }
                         } else
                             throw new RuntimeException("formula for operator "+OPERATOR + " not correct");
@@ -140,14 +148,7 @@ public class FormulaParser {
                                 statisticalSampleValues.put(realKey, new UtilStats(index));
                         } else {
                             statsType = StatsType.STATS_REGULAR_WINDOW;
-                            if ("min".equalsIgnoreCase(splits[1].trim()) || "minutes".equalsIgnoreCase(splits[1].trim())) {
-                                //nothing to do index already of a good size
-                            } else if ("hour".equalsIgnoreCase(splits[1].trim()) || "hour".equalsIgnoreCase(splits[1].trim())) {
-                                index = index * 60;
-                            } else if ("day".equalsIgnoreCase(splits[1].trim()) || "days".equalsIgnoreCase(splits[1].trim())) {
-                                index = 24 * 60 * index;
-                            } else
-                                throw new RuntimeException("key is wrong " + key);
+                            index = index * getTimeInMinutesForString(splits[1].trim());
                             log.info("init stats calculation on the time window = " + index + "[minutes]");
                             if (statisticalWindowValues.get(realKey) == null)
                                 statisticalWindowValues.put(realKey, new SlidingWindowStatsCounter(index, realKey));
@@ -167,29 +168,26 @@ public class FormulaParser {
                         }
                         tempStats = statisticalSampleValues.get(realKey);
                     } else if (statsType.equals(StatsType.STATS_REGULAR_WINDOW)) {
-                        if (!addedToCalcSlidingCounter.contains(realKey)) {
+                        if (!addedToSampleWindowCounter.contains(realKey)) {
                             statisticalWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
-                            addedToCalcSlidingCounter.add(realKey);
+                            addedToSampleWindowCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
                         tempStats = statisticalWindowValues.get(realKey).getCurrentStats();
                     } else if (statsType.equals(StatsType.STATS_COUNTER)) {
                         if (!addedToCounter.contains(realKey)) {
-                            try {
-                                if (Utils.getDouble(obj.toString()).equals(Utils.getDouble(searchTerm)))
-                                    counterValues.get(realKey).addSample(1);
-                                else
-                                    counterValues.get(realKey).addSample(0);
-                            } catch (Exception e) {
-                                if (obj.toString().equals(searchTerm))
-                                    counterValues.get(realKey).addSample(1);
-                                else
-                                    counterValues.get(realKey).addSample(0);
-                            }
+                            counterValues.get(realKey).addSample(computeCounterValue(obj.toString(), searchTerm));
                             addedToSampleCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
                         tempStats = counterValues.get(realKey);
+                    } else if (statsType.equals(StatsType.STATS_COUNTER_WINDOW)) {
+                        if (!addedToCounterWindowCounter.contains(realKey)) {
+                            counterWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(computeCounterValue(obj.toString(), searchTerm));
+                            addedToCounterWindowCounter.add(realKey);
+                            log.info("added for the line " + key + ", real key=" + realKey);
+                        }
+                        tempStats = counterWindowValues.get(realKey).getCurrentStats();
                     }
                     log.info("added for the line " + key + ", with param " + realKey + ", stats:" + tempStats.toString());
                     //this is regexp need to get rid of ( chars
@@ -312,6 +310,34 @@ public class FormulaParser {
         }
         log.info("parsed formula = " + returnString);
         return returnString;
+    }
+
+    private double computeCounterValue(String obj, String searchTerm) {
+        try {
+            if (Utils.getDouble(obj).equals(Utils.getDouble(searchTerm)))
+                return 1;
+            else
+                return 0;
+        } catch (Exception e) {
+            if (obj.equals(searchTerm))
+                return 1;
+            else if(searchTerm.endsWith("%") && obj.startsWith(searchTerm.substring(0, searchTerm.lastIndexOf("%"))))
+                return 1;
+            else
+                return 0;
+        }
+    }
+
+    private int getTimeInMinutesForString(String string) {
+        log.debug("getTimeInMinutesForString " +string);
+        if ("min".equalsIgnoreCase(string) || "minutes".equalsIgnoreCase(string)) {
+            return 1;
+        } else if ("hour".equalsIgnoreCase(string) || "hour".equalsIgnoreCase(string)) {
+            return  60;
+        } else if ("day".equalsIgnoreCase(string) || "days".equalsIgnoreCase(string)) {
+            return  24 * 60 ;
+        } else
+            throw new RuntimeException("index is wrong " + string);
     }
 
     private static int getStackNum(String value) {

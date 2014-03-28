@@ -40,6 +40,7 @@ public class SlidingWindowStatsCounter {
         }
         if(count > 0)
             sumStats.avg = sum/count;
+        sumStats.n = (int)count;
         return sumStats;
     }
 
