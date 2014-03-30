@@ -408,6 +408,7 @@ public class RawFormulaSensorTest extends TestCase {
         jsonRaw.put("value1", 1);
         jsonRaw.put("value2", 3);
         jsonObject.put("rawData", jsonRaw.toJSONString());
+        jsonObject.put("time", System.currentTimeMillis()/1000);
         mapTestResult.put("node7", jsonObject);
         mapTestResult.put("node8", jsonObject);
         testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);

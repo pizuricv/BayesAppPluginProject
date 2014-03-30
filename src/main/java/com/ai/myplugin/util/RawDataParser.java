@@ -84,13 +84,20 @@ public class RawDataParser {
                         }
                         else{
                             String nextT = tokens.nextToken();
-                            if(nextT.equalsIgnoreCase("last"))
+                            if(nextT.equalsIgnoreCase("first"))
+                                jso = (JSONObject) ((JSONArray) obj).get(0);
+                            else if(nextT.equalsIgnoreCase("last"))
                                 jso = (JSONObject) ((JSONArray) obj).get(((JSONArray) obj).size()-1);
+                            else if(nextT.equalsIgnoreCase("all")){
+                                log.debug("Found for " + nodeKey + "[" +key + "] = array: "+obj.toString()) ;
+                                return obj;
+                            }
                             else {
                                 try {
                                     Double num = Utils.getDouble(nextT);
                                     jso = (JSONObject) ((JSONArray) obj).get(num.intValue());
                                 } catch (Exception e){
+                                    log.warn("failed to fetch the next number, returning first object instead");
                                     jso = (JSONObject) ((JSONArray) obj).get(0);
                                 }
                             }
@@ -128,7 +135,7 @@ public class RawDataParser {
             String str = tokens.nextToken();
             if(str.indexOf("<") > -1)
                 str = str.substring(str.indexOf("<") + 1);
-            if(str.indexOf(" ") == -1 || str.indexOf(",") > -1)
+            if(str.length() > 1 && (str.indexOf(" ") == -1 || str.indexOf(",") > -1))
                 set.add(str);
         }
         log.debug("found keys "+Arrays.asList(set).toString());

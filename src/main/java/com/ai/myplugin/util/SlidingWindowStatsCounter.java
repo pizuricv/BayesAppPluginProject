@@ -44,9 +44,8 @@ public class SlidingWindowStatsCounter {
         return sumStats;
     }
 
-    public UtilStats incrementAndGetStatsForCurrentMinute(double sample){
-        log.debug(name + "-incrementAndGetCurrentStats()");
-        long minute = System.currentTimeMillis() / 1000/60;
+    public UtilStats incrementAndGetStatsForMinute(long minute, double sample){
+        log.debug(name + "-incrementAndGetCurrentStats(), minute["+minute+"] "+sample);
         if(map.get(minute) == null) {
             log.debug("first data point in this minute :" + minute);
             UtilStats utilStats = new UtilStats();
@@ -58,6 +57,10 @@ public class SlidingWindowStatsCounter {
             map.get(minute).addSample(sample);
             return map.get(minute);
         }
+    }
+    public UtilStats incrementAndGetStatsForCurrentMinute(double sample){
+        long minute = System.currentTimeMillis() / 1000/60;
+        return incrementAndGetStatsForMinute(minute, sample);
     }
 
     public void resetOldCounters(){

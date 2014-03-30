@@ -157,6 +157,14 @@ public class FormulaParser {
                 }
 
                 Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
+                long time = -1;
+                try{
+                    time = Utils.getDouble(RawDataParser.findObjForKey(realKey.substring(0, realKey.indexOf(".")) + ".time", jsonObject).toString()).longValue();
+                    log.info("Collection time "+time + " , for the key "+realKey);
+                } catch (Exception ex){
+                    log.warn("time information not in the raw data");
+                }
+
                 UtilStats tempStats = null;
                 //you should only add sample once in total, in case you call it several times for the same key and the same OPERATOR
                 if (obj != null) {
@@ -169,7 +177,10 @@ public class FormulaParser {
                         tempStats = statisticalSampleValues.get(realKey);
                     } else if (statsType.equals(StatsType.STATS_REGULAR_WINDOW)) {
                         if (!addedToSampleWindowCounter.contains(realKey)) {
-                            statisticalWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
+                            if(time == -1)
+                                statisticalWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
+                            else
+                                statisticalWindowValues.get(realKey).incrementAndGetStatsForMinute(time/60, Utils.getDouble(obj.toString()));
                             addedToSampleWindowCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
@@ -183,7 +194,10 @@ public class FormulaParser {
                         tempStats = counterValues.get(realKey);
                     } else if (statsType.equals(StatsType.STATS_COUNTER_WINDOW)) {
                         if (!addedToCounterWindowCounter.contains(realKey)) {
-                            counterWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(computeCounterValue(obj.toString(), searchTerm));
+                            if(time == -1)
+                                counterWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(computeCounterValue(obj.toString(), searchTerm));
+                            else
+                                counterWindowValues.get(realKey).incrementAndGetStatsForMinute(time/60, computeCounterValue(obj.toString(), searchTerm));
                             addedToCounterWindowCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
