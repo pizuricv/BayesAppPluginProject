@@ -79,7 +79,6 @@ public class RawDataParser {
                         jso = (JSONObject) obj;
                     else if(obj instanceof JSONArray) {
                         if(!tokens.hasMoreTokens())  {
-                            obj = ((JSONArray) obj).get(0);
                             break;
                         }
                         else{
@@ -88,10 +87,6 @@ public class RawDataParser {
                                 jso = (JSONObject) ((JSONArray) obj).get(0);
                             else if(nextT.equalsIgnoreCase("last"))
                                 jso = (JSONObject) ((JSONArray) obj).get(((JSONArray) obj).size()-1);
-                            else if(nextT.equalsIgnoreCase("all")){
-                                log.debug("Found for " + nodeKey + "[" +key + "] = array: "+obj.toString()) ;
-                                return obj;
-                            }
                             else {
                                 try {
                                     Double num = Utils.getDouble(nextT);

@@ -4,6 +4,7 @@ import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -157,20 +158,24 @@ public class FormulaParser {
                 }
 
                 Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
-                long time = -1;
-                try{
-                    time = Utils.getDouble(RawDataParser.findObjForKey(realKey.substring(0, realKey.indexOf(".")) + ".time", jsonObject).toString()).longValue();
-                    log.info("Collection time "+time + " , for the key "+realKey);
-                } catch (Exception ex){
-                    log.warn("time information not in the raw data");
-                }
+                long time = getTimeForKey(realKey, jsonObject);
 
                 UtilStats tempStats = null;
                 //you should only add sample once in total, in case you call it several times for the same key and the same OPERATOR
                 if (obj != null) {
                     if (statsType.equals(StatsType.STATS_REGULAR)) {
                         if (!addedToSampleCounter.contains(realKey)) {
-                            statisticalSampleValues.get(realKey).addSample(Utils.getDouble(obj.toString()));
+                            if(obj instanceof JSONArray){
+                                log.info("parse json array for the key "+realKey);
+                                try{
+                                    for(Object o :(JSONArray)obj)
+                                        statisticalSampleValues.get(realKey).addSample(Utils.getDouble(o.toString()));
+                                } catch (Exception e){
+                                    log.error("couldn't parse the array for the key"+realKey);
+                                }
+                            }
+                            else
+                                statisticalSampleValues.get(realKey).addSample(Utils.getDouble(obj.toString()));
                             addedToSampleCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
@@ -187,7 +192,17 @@ public class FormulaParser {
                         tempStats = statisticalWindowValues.get(realKey).getCurrentStats();
                     } else if (statsType.equals(StatsType.STATS_COUNTER)) {
                         if (!addedToCounter.contains(realKey)) {
-                            counterValues.get(realKey).addSample(computeCounterValue(obj.toString(), searchTerm));
+                            if(obj instanceof JSONArray){
+                                log.info("parse json array for the key "+realKey);
+                                try{
+                                    for(Object o :(JSONArray)obj)
+                                        counterValues.get(realKey).addSample(Utils.getDouble(o.toString()));
+                                } catch (Exception e){
+                                    log.error("couldn't parse the array for the key"+realKey);
+                                }
+                            }
+                            else
+                                counterValues.get(realKey).addSample(computeCounterValue(obj.toString(), searchTerm));
                             addedToSampleCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
@@ -326,6 +341,17 @@ public class FormulaParser {
         return returnString;
     }
 
+    private long getTimeForKey(String realKey, JSONObject jsonObject) {
+        try{
+            long time  = Utils.getDouble(RawDataParser.findObjForKey(realKey.substring(0, realKey.indexOf(".")) + ".time", jsonObject).toString()).longValue();
+            log.info("Collection time "+time + " , for the key "+realKey);
+            return time;
+        } catch (Exception ex){
+            log.warn("Collection time not in the raw data for the key "+realKey);
+        }
+        return -1;
+    }
+
     private double computeCounterValue(String obj, String searchTerm) {
         try {
             if (Utils.getDouble(obj).equals(Utils.getDouble(searchTerm)))
@@ -344,7 +370,7 @@ public class FormulaParser {
 
     private int getTimeInMinutesForString(String string) {
         log.debug("getTimeInMinutesForString " +string);
-        if ("min".equalsIgnoreCase(string) || "minutes".equalsIgnoreCase(string)) {
+        if ("min".equalsIgnoreCase(string) || "minute".equalsIgnoreCase(string) || "minutes".equalsIgnoreCase(string)) {
             return 1;
         } else if ("hour".equalsIgnoreCase(string) || "hour".equalsIgnoreCase(string)) {
             return  60;

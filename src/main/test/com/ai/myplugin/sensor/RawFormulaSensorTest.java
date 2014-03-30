@@ -7,6 +7,7 @@ import com.ai.util.resource.TestSessionContext;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -435,5 +436,39 @@ public class RawFormulaSensorTest extends TestCase {
         log.info("formula = " + formula);
         log.info("value = " + value);
         assertEquals(3.0 - 1.0 + 10.0 - 4.0 - 3.0, value);
+    }
+
+
+    public void testStatsCalculationWithJSONArray() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "<avg(node9.rawData.value1)> - <min(node10.rawData.value1)> + <max(node9.rawData.value2)>";
+        log.info("formula "+formula);
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "4");
+        TestSessionContext testSessionContext = new TestSessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        JSONArray jsonArray1 = new JSONArray();
+        for(int i = 0; i<3 ; i++){
+            jsonArray1.add(new Long(i));
+        }
+
+        jsonRaw.put("value1", jsonArray1);
+        jsonRaw.put("value2", jsonArray1);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        jsonObject.put("time", System.currentTimeMillis()/1000);
+        mapTestResult.put("node9", jsonObject);
+        mapTestResult.put("node10", jsonObject);
+        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue"));
+        log.info("formula = " + formula);
+        log.info("value = " + value);
+        assertEquals(1. - 0 + 2, value);
+
+
+
     }
 }
