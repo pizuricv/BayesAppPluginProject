@@ -162,8 +162,8 @@ public class NodeJSCommand implements BNSensorPlugin{
                     while(!done.get() && waitForResult > 0)
                         try {
                             Thread.sleep(1000);
-                            System.out.print(".");
-                            System.out.print(result);
+                            log.debug(".");
+                            log.info(result);
                             waitForResult --;
                         } catch (InterruptedException e) {
                             e.printStackTrace();
