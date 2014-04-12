@@ -98,7 +98,13 @@ public class BestBuySensor implements BNSensorPlugin {
                         String total = tds.get(4).text().substring(0, tds.get(4).text().indexOf(",")).replace(".","");
                         double p = Utils.getDouble(price.replace("€", "").replace("-", "").trim());
                         double t = Utils.getDouble(total.replace("€","").replace("-", "").trim());
-                        double s = Utils.getDouble(score.replace("Score:", "").trim());
+                        double s = 0;
+
+                        try{
+                            s = Utils.getDouble(score.replace("Score:", "").trim());
+                        } catch (Exception e){
+                            log.warn(e.getMessage());
+                        }
                         //TODO check what's wrong with url
                         MyProduct myProduct = new MyProduct(shop, getProperty(PRODUCT).toString(), p, t, s, pathURL);
                         products.add(myProduct);
