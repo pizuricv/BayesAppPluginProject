@@ -1,10 +1,15 @@
+/**
+ * Created by User: veselin
+ * On Date: 24/12/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.Rest;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,13 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 24/12/13
- */
-
 @PluginImplementation
-public class LocationRawSensor implements BNSensorPlugin{
+public class LocationRawSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
 
 
@@ -60,12 +60,12 @@ public class LocationRawSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         try {
             final JSONObject jsonObject = getLongitudeLatitudeForAddress(location);
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true;
@@ -94,7 +94,7 @@ public class LocationRawSensor implements BNSensorPlugin{
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true; //TODO need better way to provide BN with RAW SENSORS!!
@@ -124,7 +124,7 @@ public class LocationRawSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 

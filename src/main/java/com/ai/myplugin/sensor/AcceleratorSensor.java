@@ -1,14 +1,14 @@
-package com.ai.myplugin.sensor;
-
 /**
  * Created by User: veselin
  * On Date: 12/01/14
  */
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+package com.ai.myplugin.sensor;
+
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.*;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 26/12/13
  */
 @PluginImplementation
-public class AcceleratorSensor implements BNSensorPlugin {
+public class AcceleratorSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(AcceleratorSensor.class);
     static final String ACCELERATOR_THRESHOLD = "accelerator_threshold";
     static final String RUNTIME_ACCELERATOR = "runtime_accelerator";
@@ -65,7 +65,7 @@ public class AcceleratorSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(getProperty(ACCELERATOR_THRESHOLD) == null)
             throw new RuntimeException("distance not set");
@@ -93,7 +93,7 @@ public class AcceleratorSensor implements BNSensorPlugin {
             state = states[1];
 
         final JSONObject finalJsonObject = jsonObject;
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -123,7 +123,7 @@ public class AcceleratorSensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 
@@ -140,9 +140,9 @@ public class AcceleratorSensor implements BNSensorPlugin {
     public static void main(String []args) throws ParseException {
         AcceleratorSensor acceleratorSensor = new AcceleratorSensor();
         acceleratorSensor.setProperty(ACCELERATOR_THRESHOLD, 5);
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         testSessionContext.setAttribute(RUNTIME_ACCELERATOR, 19.851858);
-        TestResult testResult = acceleratorSensor.execute(testSessionContext);
+        SensorResult testResult = acceleratorSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
         testSessionContext.setAttribute(RUNTIME_ACCELERATOR, 1);

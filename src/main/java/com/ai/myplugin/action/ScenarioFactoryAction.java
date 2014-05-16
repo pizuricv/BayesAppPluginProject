@@ -5,10 +5,10 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,12 +20,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-public class ScenarioFactoryAction implements BNActionPlugin{
+public class ScenarioFactoryAction implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(ScenarioFactoryAction.class);
     private static final String SERVER_ADDRESS = "server address";
     private static final String USER_NAME = "username";
@@ -73,7 +72,7 @@ public class ScenarioFactoryAction implements BNActionPlugin{
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         boolean testSuccess = true;
@@ -188,7 +187,7 @@ public class ScenarioFactoryAction implements BNActionPlugin{
         }
 
         final boolean finalTestSuccess = testSuccess;
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return finalTestSuccess;

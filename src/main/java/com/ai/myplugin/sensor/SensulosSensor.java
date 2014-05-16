@@ -1,28 +1,27 @@
+/**
+ * Created by User: veselin
+ * On Date: 21/03/14
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by User: veselin
- * On Date: 21/03/14
- */
+
 @PluginImplementation
-public class SensulosSensor implements BNSensorPlugin{
+public class SensulosSensor implements SensorPlugin {
 
     private static final Log log = LogFactory.getLog(SensulosSensor.class);
     String baseUrl = "http://in.sensolus.com:8080";
@@ -34,14 +33,14 @@ public class SensulosSensor implements BNSensorPlugin{
 
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         //String url = baseUrl + "/server/rest/connectednodes?owner_id=" + user + "&token=" + APIKeys.getSensulosKey();
         String url = baseUrl + "/server/rest/connectednodes/" + id + "/data/lastvalues?token=" + APIKeys.getSensulosKey();
         try {
             String stringToParse = Rest.httpGet(url);
             log.info(stringToParse);
             final JSONObject jsonObject = (JSONObject) new JSONParser().parse(stringToParse);
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true;
@@ -144,7 +143,7 @@ public class SensulosSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 
@@ -192,9 +191,9 @@ public class SensulosSensor implements BNSensorPlugin{
     public static void main(String []args) {
         SensulosSensor sensulosSensor = new SensulosSensor();
         sensulosSensor.setProperty(ID, "1071364b-83c4-4491-aad1-f35faaba1e63");
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
 
-        TestResult testResult = sensulosSensor.execute(testSessionContext);
+        SensorResult testResult = sensulosSensor.execute(testSessionContext);
         log.info(testResult.getRawData());
         log.info(testResult.getObserverState());
 

@@ -2,15 +2,16 @@
  * Created by User: veselin
  * On Date: 29/01/14
  */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,8 +22,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +36,7 @@ http://datatank.gent.be/Gezondheid/Apotheken.json
 </tr>
  */
 @PluginImplementation
-public class PharmacySensor implements BNSensorPlugin {
+public class PharmacySensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(PharmacySensor.class);
     static final String DISTANCE = "distance";
     static final String CITY = "city";
@@ -81,7 +80,7 @@ public class PharmacySensor implements BNSensorPlugin {
         return "Check for pharmacies that are open during night";
     }
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(getProperty(DISTANCE) == null)
             throw new RuntimeException("distance not set");
@@ -194,7 +193,7 @@ public class PharmacySensor implements BNSensorPlugin {
 
 
         final JSONObject finalJsonObject = jsonObject;
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -224,7 +223,7 @@ public class PharmacySensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 
@@ -390,10 +389,10 @@ public class PharmacySensor implements BNSensorPlugin {
         PharmacySensor pharmacySensor = new PharmacySensor();
         pharmacySensor.setProperty(CITY, "Gent");
         pharmacySensor.setProperty(DISTANCE, 10);
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         testSessionContext.setAttribute(RUNTIME_LONGITUDE, 3.68);
         testSessionContext.setAttribute(RUNTIME_LATITUDE, 50.99);
-        TestResult testResult = pharmacySensor.execute(testSessionContext);
+        SensorResult testResult = pharmacySensor.execute(testSessionContext);
         System.out.println(testResult.getRawData());
     }
 

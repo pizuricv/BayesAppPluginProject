@@ -4,13 +4,13 @@
  */
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 @PluginImplementation
-public class BeepAction implements BNActionPlugin{
+public class BeepAction implements ActuatorPlugin{
     private static final String NAME = "Beep";
     @Override
     public String[] getRequiredProperties() {
@@ -32,9 +32,9 @@ public class BeepAction implements BNActionPlugin{
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         java.awt.Toolkit.getDefaultToolkit().beep();
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return true;

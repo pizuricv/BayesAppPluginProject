@@ -1,11 +1,16 @@
+/**
+ * Created by User: veselin
+ * On Date: 20/03/14
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,12 +22,9 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 20/03/14
- */
+
 @PluginImplementation
-public class RainfallSensor implements BNSensorPlugin{
+public class RainfallSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(RainfallSensor.class);
     static final String LOCATION = "location";
     static final String LATITUDE = "latitude";
@@ -40,7 +42,7 @@ public class RainfallSensor implements BNSensorPlugin{
 
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Map<Double, Double> map;
         try {
@@ -103,7 +105,7 @@ Dus 77 = 0.1 mm/uur
         final double finalMin = min;
         final double finalMax = max;
         final double finalAvg = avg;
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -170,7 +172,7 @@ Dus 77 = 0.1 mm/uur
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         
     }
 
@@ -216,7 +218,7 @@ Dus 77 = 0.1 mm/uur
     public static void main(String []args) throws ParseException {
         RainfallSensor rainfallSensor = new RainfallSensor();
         rainfallSensor.setProperty(LOCATION, "Gent");
-        TestResult testResult = rainfallSensor.execute(new TestSessionContext(1));
+        SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }

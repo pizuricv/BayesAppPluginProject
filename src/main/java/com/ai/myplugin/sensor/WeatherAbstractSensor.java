@@ -1,13 +1,13 @@
-
 /**
  * User: pizuricv
  */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.OpenWeatherParser;
-import com.ai.util.resource.TestSessionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class WeatherAbstractSensor implements BNSensorPlugin {
+public abstract class WeatherAbstractSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(WeatherAbstractSensor.class);
     String city;
     public static final String TEMP = "temperature";
@@ -77,7 +77,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.debug("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(city == null){
             throw new RuntimeException("City not defined");
@@ -93,7 +93,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             final int finalPressure = map.get(PRESSURE).intValue();
             final double finalWindSpeed = map.get(WIND_SPEED).doubleValue();
             final int finalCloudCoverage = map.get(CLOUD_COVERAGE).intValue();
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true;
@@ -148,7 +148,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             final Boolean exactDay = (Boolean) getProperty(WeatherWeekForecastSensor.EXACT_DAY);
             final Integer days = (Integer) getProperty(WeatherWeekForecastSensor.DAYS);
 
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true;
@@ -369,7 +369,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
@@ -386,7 +386,7 @@ public abstract class WeatherAbstractSensor implements BNSensorPlugin {
             }
         };
         weatherSensor.setProperty("city", "Gent");
-        TestResult testResult = weatherSensor.execute(null);
+        SensorResult testResult = weatherSensor.execute(null);
         log.debug(testResult.getObserverState());
 
 

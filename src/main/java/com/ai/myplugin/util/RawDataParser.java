@@ -1,27 +1,28 @@
+/**
+ * Created by User: veselin
+ * On Date: 04/11/13
+ */
+
 package com.ai.myplugin.util;
 
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.stringtemplate.v4.ST;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 04/11/13
- */
+
 public class RawDataParser {
     private static final Log log = LogFactory.getLog(RawDataParser.class);
 
-    public static String parseTemplateFromContext(String template, TestSessionContext testSessionContext){
-        return parseTemplateFromRawMap(template, (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA));
+    public static String parseTemplateFromContext(String template, SessionContext testSessionContext){
+        return parseTemplateFromRawMap(template, (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA));
     };
 
     public static String parseTemplateFromRawMap(String template, Map sessionMap){
@@ -148,11 +149,11 @@ public class RawDataParser {
     };
 
 
-    public static String giveTargetNodeStateAsString(TestSessionContext testSessionContext) {
-        String target = (String) testSessionContext.getAttribute(NodeSessionParams.TARGET_NODE);
-        String targetState = (String) testSessionContext.getAttribute(NodeSessionParams.TARGET_STATE);
-        String node = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
-        String nodeState = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_TRIGGERED_STATE);
+    public static String giveTargetNodeStateAsString(SessionContext testSessionContext) {
+        String target = (String) testSessionContext.getAttribute(SessionParams.TARGET_NODE);
+        String targetState = (String) testSessionContext.getAttribute(SessionParams.TARGET_STATE);
+        String node = (String) testSessionContext.getAttribute(SessionParams.NODE_NAME);
+        String nodeState = (String) testSessionContext.getAttribute(SessionParams.NODE_TRIGGERED_STATE);
         return "\n\nTarget "+target + " in the state: " + targetState + "\n" +
                 "Node "+ node + " in the state: " + nodeState;
     }

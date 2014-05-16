@@ -1,15 +1,19 @@
+/**
+ * Created by User: veselin
+ * On Date: 24/12/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -17,15 +21,10 @@ import org.json.simple.parser.ParseException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 24/12/13
- */
 @PluginImplementation
-public class LatitudeLongitudeRawSensor implements BNSensorPlugin {
+public class LatitudeLongitudeRawSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
 
     static final String LATITUDE = "latitude";
@@ -70,13 +69,13 @@ public class LatitudeLongitudeRawSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         try {
             final JSONObject locationObject = reverseLookupAddress(longitudeCoordinate, latitudeCoordinate);
             log.info(locationObject.toJSONString());
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true;
@@ -105,7 +104,7 @@ public class LatitudeLongitudeRawSensor implements BNSensorPlugin {
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return true; //TODO need better way to provide BN with RAW SENSORS!!
@@ -135,7 +134,7 @@ public class LatitudeLongitudeRawSensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 

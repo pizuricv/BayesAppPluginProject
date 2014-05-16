@@ -5,10 +5,10 @@
  */
 
 package com.ai.myplugin.sensor;
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.Rest;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +23,7 @@ import java.util.*;
 
 @PluginImplementation
 
-public class UVSensor implements BNSensorPlugin {
+public class UVSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(UVSensor.class);
     private static String ZIPCODE = "zipcode";
     private static String zipCode = null;
@@ -61,7 +61,7 @@ public class UVSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.debug("execute " + getName() + ", sensor type:" + this.getClass().getName());
 
         if(zipCode == null){
@@ -97,7 +97,7 @@ public class UVSensor implements BNSensorPlugin {
                             (Long) o.get("UV_VALUE")));
                 } catch (java.text.ParseException e) {
                     e.printStackTrace();
-                    return new TestResult() {
+                    return new SensorResult() {
                         @Override
                         public boolean isSuccess() {
                             return false;  //To change body of implemented methods use File | Settings | File Templates.
@@ -150,8 +150,8 @@ public class UVSensor implements BNSensorPlugin {
 
     //http://en.wikipedia.org/wiki/Ultraviolet_index
 
-    private TestResult mapToState(final Long max) {
-        return new TestResult() {
+    private SensorResult mapToState(final Long max) {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -228,7 +228,7 @@ public class UVSensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : " + this.getClass().getName());
     }
 

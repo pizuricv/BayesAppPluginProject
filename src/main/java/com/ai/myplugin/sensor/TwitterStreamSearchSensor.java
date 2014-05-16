@@ -1,10 +1,15 @@
+/**
+ * Created by User: veselin
+ * On Date: 25/10/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.SentimentAnalysis;
 import com.ai.myplugin.util.TwitterConfig;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,12 +23,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Created by User: veselin
- * On Date: 25/10/13
- */
+
 @PluginImplementation
-public class TwitterStreamSearchSensor implements BNSensorPlugin{
+public class TwitterStreamSearchSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(TwitterStreamSearchSensor.class);
     private static final String SEARCH_TERMS = "search_terms";
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
@@ -61,14 +63,14 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
         atomicBoolean.set(true);
         if(!running){
             runSentiment((String) getProperty(SEARCH_TERMS));
             startCleanUpThread();
         }
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -187,7 +189,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
         running = false;
         twitterStream.shutdown();
@@ -204,7 +206,7 @@ public class TwitterStreamSearchSensor implements BNSensorPlugin{
                     try {
                         Thread.sleep(10000);
                         log.info("execute...");
-                        TestResult testResult = twitterSentimentSensor.execute(null);
+                        SensorResult testResult = twitterSentimentSensor.execute(null);
                         log.info("RAW data: " + testResult.getRawData());
                         log.info("Observed state: " + testResult.getObserverState());
                     } catch (InterruptedException e) {

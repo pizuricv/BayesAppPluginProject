@@ -3,9 +3,10 @@
  * Date: 12/20/12
  */
 package com.ai.myplugin.sensor;
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
-import com.ai.util.resource.TestSessionContext;
+
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginImplementation
-public class ShellCmdSensor implements BNSensorPlugin{
+public class ShellCmdSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(ShellCmdSensor.class);
     private String command;
     private ArrayList<Long> threshold = new ArrayList<Long>();
@@ -86,7 +87,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         try {
 
@@ -103,7 +104,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
 
             log.debug(getName() + " ExitValue: " + exitVal);
 
-            return new TestResult() {
+            return new SensorResult() {
                 {
                     (new Runnable() {
                         //waitForResult is not a timeout for the command itself, but how long you wait before the stream of
@@ -222,7 +223,7 @@ public class ShellCmdSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 }

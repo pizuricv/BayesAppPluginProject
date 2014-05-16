@@ -1,28 +1,27 @@
+/**
+ * Created by User: veselin
+ * On Date: 26/12/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.*;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 26/12/13
- */
+
 @PluginImplementation
-public class LocationSensor implements BNSensorPlugin{
+public class LocationSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(LocationSensor.class);
     static final String LOCATION = "location";
     static final String LATITUDE = "latitude";
@@ -66,7 +65,7 @@ public class LocationSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(getProperty(DISTANCE) == null)
             throw new RuntimeException("distance not set");
@@ -155,7 +154,7 @@ public class LocationSensor implements BNSensorPlugin{
             state = states[1];
 
         final JSONObject finalJsonObject = jsonObject;
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -185,7 +184,7 @@ public class LocationSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 
@@ -204,10 +203,10 @@ public class LocationSensor implements BNSensorPlugin{
         locationSensor.setProperty(LONGITUDE, 19.851858);
         locationSensor.setProperty(LATITUDE, 45.262231);
         locationSensor.setProperty(DISTANCE, 100);
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         testSessionContext.setAttribute(RUNTIME_LONGITUDE, 19.851858);
         testSessionContext.setAttribute(RUNTIME_LATITUDE, 45.262231);
-        TestResult testResult = locationSensor.execute(testSessionContext);
+        SensorResult testResult = locationSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }

@@ -5,22 +5,21 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.bayes.scenario.ActionResult;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import com.ai.bayes.plugins.BNActionPlugin;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.net.*;
 import java.util.Map;
-import java.lang.System;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-public class NetworkWire implements BNActionPlugin{
+public class NetworkWire implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(NetworkWire.class);
 
     private static final String SERVER_ADDRESS = "server address";
@@ -58,7 +57,7 @@ public class NetworkWire implements BNActionPlugin{
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         boolean testSuccess = true;
@@ -85,8 +84,8 @@ public class NetworkWire implements BNActionPlugin{
         }
 
         ///scenarios/{scenario}/{node}
-        String node = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
-        String state = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_TRIGGERED_STATE);
+        String node = (String) testSessionContext.getAttribute(SessionParams.NODE_NAME);
+        String state = (String) testSessionContext.getAttribute(SessionParams.NODE_TRIGGERED_STATE);
 
         try {
             url = new URL(server+ "/scenarios/" + scenarioID + "/"+ node);
@@ -159,7 +158,7 @@ public class NetworkWire implements BNActionPlugin{
         }
 
         final boolean finalTestSuccess = testSuccess;
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return finalTestSuccess;
@@ -181,9 +180,9 @@ public class NetworkWire implements BNActionPlugin{
         NetworkWire networkWire = new NetworkWire();
         networkWire.setProperty(SERVER_ADDRESS, "http://85.255.197.153/api");
         networkWire.setProperty(SCENARIO_ID, "1");
-        TestSessionContext testSessionContext =  new TestSessionContext(1);
-        testSessionContext.setAttribute(NodeSessionParams.NODE_NAME, "CONNECTION");
-        testSessionContext.setAttribute(NodeSessionParams.NODE_TRIGGERED_STATE, "NOK");
+        SessionContext testSessionContext =  new SessionContext(1);
+        testSessionContext.setAttribute(SessionParams.NODE_NAME, "CONNECTION");
+        testSessionContext.setAttribute(SessionParams.NODE_TRIGGERED_STATE, "NOK");
         networkWire.action(testSessionContext);
     }
 

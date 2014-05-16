@@ -1,7 +1,7 @@
 package com.ai.myplugin.util;
 
+import com.ai.api.SessionContext;
 import com.ai.myplugin.sensor.LocationRawSensor;
-import com.ai.util.resource.TestSessionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
@@ -47,7 +47,7 @@ public class Utils {
         log.debug(Utils.getDouble(23));
     }
 
-    public static Map<Double, Double> getLocation(TestSessionContext testSessionContext, Object location,
+    public static Map<Double, Double> getLocation(SessionContext testSessionContext, Object location,
                                                   Object longitude, Object latitude) throws Exception {
 
         Map<Double, Double> mapLocation = new HashMap<Double, Double>();

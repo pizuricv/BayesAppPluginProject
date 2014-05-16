@@ -5,27 +5,24 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
-public class RawFormulaSensor implements BNSensorPlugin {
+public class RawFormulaSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
     FormulaParser formulaParser = new FormulaParser();
 
@@ -89,7 +86,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         String parseFormula = (String) getProperty(FORMULA);
         log.debug("Formula to parse: "+parseFormula);
@@ -108,7 +105,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
 
         boolean success = false;
         try {
-            parseFormula = formulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+            parseFormula = formulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)) ;
             log.info("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
             success = true;
@@ -119,7 +116,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
         if(!success)
             return new EmptyTestResult();
         else
-            return new TestResult() {
+            return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -185,6 +182,13 @@ public class RawFormulaSensor implements BNSensorPlugin {
     }
 
 
+    @Override
+    public void shutdown(SessionContext testSessionContext) {
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+        formulaParser.restStats();
+    }
+
+
     public static void main(String []args){
 
         Long time = System.currentTimeMillis()/1000;
@@ -193,7 +197,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
         rawFormulaSensor.setProperty("formula", "<node1.rawData.value1> + <node2.rawData.value2>");
 
         rawFormulaSensor.setProperty("threshold", "4");
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         JSONObject objRaw = new JSONObject();
         objRaw.put("value1", 1);
@@ -207,8 +211,8 @@ public class RawFormulaSensor implements BNSensorPlugin {
         objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node2", objRaw);
 
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        TestResult testResult = rawFormulaSensor.execute(testSessionContext);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+        SensorResult testResult = rawFormulaSensor.execute(testSessionContext);
         log.debug(testResult.getObserverState());
         log.debug(testResult.getRawData());
 
@@ -224,7 +228,7 @@ public class RawFormulaSensor implements BNSensorPlugin {
         obj.put("rawData", testResult.getRawData());
         mapTestResult = new ConcurrentHashMap<String, Object>();
         mapTestResult.put("GOOG", obj);
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
         rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price> - <GOOG.rawData.moving_average>");
         rawFormulaSensor.setProperty("threshold", 100);
@@ -240,11 +244,5 @@ public class RawFormulaSensor implements BNSensorPlugin {
         log.debug(testResult.getRawData());
 
 
-    }
-
-    @Override
-    public void shutdown(TestSessionContext testSessionContext) {
-        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
-        formulaParser.restStats();
     }
 }

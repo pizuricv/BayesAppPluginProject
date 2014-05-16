@@ -5,12 +5,12 @@
 
 package com.ai.myplugin.util;
 
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorResult;
 
 import java.util.List;
 import java.util.Map;
 
-public class EmptyTestResult implements TestResult{
+public class EmptyTestResult implements SensorResult {
     @Override
     public boolean isSuccess() {
         return false;

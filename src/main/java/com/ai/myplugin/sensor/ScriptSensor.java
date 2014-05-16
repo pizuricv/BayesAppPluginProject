@@ -1,12 +1,13 @@
-package com.ai.myplugin.sensor; /**
+/**
  * Created with IntelliJ IDEA.
  * User: veselin
  * Date: 07/09/13
  */
+package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
 
 @PluginImplementation
 
-public class ScriptSensor implements BNSensorPlugin {
+public class ScriptSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(ScriptSensor.class);
     private String scriptBody;
 
@@ -46,7 +47,7 @@ public class ScriptSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.debug("execute " + getName() + ", sensor type:" + this.getClass().getName());
         return null;
     }
@@ -62,7 +63,7 @@ public class ScriptSensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : " + this.getClass().getName());
     }
 }

@@ -1,10 +1,15 @@
+/**
+ * Created by User: veselin
+ * On Date: 21/10/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,14 +22,9 @@ import org.jsoup.select.Elements;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by User: veselin
- * On Date: 21/10/13
- */
-
 
 @PluginImplementation
-public class AirQualitySensor implements BNSensorPlugin{
+public class AirQualitySensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(AirQualitySensor.class);
     public static final String LOCATION = "location";
     String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
@@ -63,7 +63,7 @@ public class AirQualitySensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         for(String property : getRequiredProperties()){
             if(getProperty(property) == null)
@@ -146,7 +146,7 @@ public class AirQualitySensor implements BNSensorPlugin{
         final double finalSO = SO2;
         final double finalPM2 = PM25;
         final double finalC6H = C6H6;
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -200,7 +200,7 @@ public class AirQualitySensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
@@ -229,7 +229,7 @@ public class AirQualitySensor implements BNSensorPlugin{
     public static void main(String []args){
         AirQualitySensor airQualitySensor = new AirQualitySensor();
         airQualitySensor.setProperty(LOCATION, "Gent");
-        TestResult testResult = airQualitySensor.execute(null);
+        SensorResult testResult = airQualitySensor.execute(null);
         log.info(testResult.getObserverState());
         log.info(testResult.getRawData());
 

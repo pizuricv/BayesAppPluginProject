@@ -5,21 +5,20 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class StockAbstractSensor implements BNSensorPlugin{
+public abstract class StockAbstractSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(StockAbstractSensor.class);
 
     public static final String STOCK = "stock";
@@ -74,7 +73,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         boolean testSuccess = true;
         final Double threshold = Utils.getDouble(getProperty(THRESHOLD));
@@ -116,7 +115,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
         }
 
         final boolean finalTestSuccess = testSuccess;
-        return new TestResult() {
+        return new SensorResult(){
             @Override
             public boolean isSuccess() {
                 return finalTestSuccess;
@@ -216,7 +215,7 @@ public abstract class StockAbstractSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 

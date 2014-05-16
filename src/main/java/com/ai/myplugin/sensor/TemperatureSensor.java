@@ -1,10 +1,10 @@
-
 /**
  * User: pizuricv
  */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 
@@ -25,7 +25,7 @@ public class TemperatureSensor extends WeatherAbstractSensor{
     public static void main(String[] args){
         TemperatureSensor weatherSensor = new TemperatureSensor();
         weatherSensor.setProperty("city", "London");
-        TestResult testResult = weatherSensor.execute(null);
+        SensorResult testResult = weatherSensor.execute(null);
         log.info(testResult.getObserverState());
 
         weatherSensor.setProperty("city", "Bangalore");

@@ -1,11 +1,16 @@
+/**
+ * Created by User: veselin
+ * On Date: 18/03/14
+ */
+
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,12 +22,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Created by User: veselin
- * On Date: 18/03/14
- */
 @PluginImplementation
-public class NodeJSAction implements BNActionPlugin{
+public class NodeJSAction implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(NodeJSAction.class);
     private static final int WAIT_FOR_RESULT = 5;
     private static String CONFIG_FILE = "bn.properties";
@@ -34,7 +35,7 @@ public class NodeJSAction implements BNActionPlugin{
     private AtomicBoolean done = new AtomicBoolean(false);
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
         Properties properties = new Properties();
         try {
@@ -47,8 +48,8 @@ public class NodeJSAction implements BNActionPlugin{
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
         }
-        if(testSessionContext != null && testSessionContext.getAttribute(NodeSessionParams.RAW_DATA) != null){
-            Map sessionMap = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+        if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
+            Map sessionMap = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
             JSONObject jsonObject = new JSONObject(sessionMap);
             javaScriptCommand = "RAW_STRING = '"+jsonObject.toString() + "';\n" + javaScriptCommand;
         }
@@ -67,7 +68,7 @@ public class NodeJSAction implements BNActionPlugin{
             } catch ( IOException e ) {
                 e.printStackTrace();
                 log.error(e.getMessage());
-                return new ActionResult() {
+                return new ActuatorResult() {
                     @Override
                     public boolean isSuccess() {
                         return false;
@@ -113,7 +114,7 @@ public class NodeJSAction implements BNActionPlugin{
                         }
                 }
             } ).run();
-            return new ActionResult() {
+            return new ActuatorResult() {
                 @Override
                 public boolean isSuccess() {
                     return  exitVal == 0 ;
@@ -135,7 +136,7 @@ public class NodeJSAction implements BNActionPlugin{
         } catch (Throwable t) {
             log.error(t.getLocalizedMessage());
             t.printStackTrace();
-            return new ActionResult() {
+            return new ActuatorResult() {
                 @Override
                 public boolean isSuccess() {
                     return false;
@@ -247,7 +248,7 @@ public class NodeJSAction implements BNActionPlugin{
         String javaScript =  "a = { observedState:\"world\"};\n" +
                 "console.log(a)" ;
         nodeJSAction.setProperty("javaScript", javaScript);
-        ActionResult result1 = nodeJSAction.action(null);
+        ActuatorResult result1 = nodeJSAction.action(null);
         log.info("success = "+ result1.isSuccess());
         log.info("state = " + result1.getObserverState());
         //log.info("states " + testResult.getObserverStates());

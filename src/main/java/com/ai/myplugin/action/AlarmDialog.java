@@ -4,16 +4,15 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import javax.swing.*;
 
 @PluginImplementation
-public class AlarmDialog implements BNActionPlugin {
+public class AlarmDialog implements ActuatorPlugin {
 
     private static final String NAME = "AlarmDialog";
 
@@ -41,9 +40,9 @@ public class AlarmDialog implements BNActionPlugin {
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         JOptionPane.showMessageDialog(null, getAlarmMessage(), "Action dialog", JOptionPane.ERROR_MESSAGE);
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return true;

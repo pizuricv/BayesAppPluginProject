@@ -4,11 +4,11 @@
  */
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.util.RawDataParser;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,7 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-public class TwitterDMAction implements BNActionPlugin {
+public class TwitterDMAction implements ActuatorPlugin {
     private static final Log log = LogFactory.getLog(TwitterDMAction.class);
 
     private final String CONSUMER_KEY = "OAuthConsumerKey";
@@ -82,7 +82,7 @@ public class TwitterDMAction implements BNActionPlugin {
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         Configuration configuration;
         boolean success = true;
@@ -99,7 +99,7 @@ public class TwitterDMAction implements BNActionPlugin {
         TwitterFactory tf = new TwitterFactory(cb.build());
         Twitter twitter = tf.getInstance();
         String twitterMessage = getProperty(TWITTER_MESSAGE) + " , on " + (new Date()).toString();
-        Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+        Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
         try {
             twitterMessage = RawDataParser.parseTemplateFromRawMap(twitterMessage, map);
         }catch (Exception e){
@@ -116,7 +116,7 @@ public class TwitterDMAction implements BNActionPlugin {
             success = false;
         }
         final boolean finalSuccess = success;
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return finalSuccess;
@@ -157,7 +157,7 @@ public class TwitterDMAction implements BNActionPlugin {
         twitterDMAction.setProperty("twitter account", "pizuricv");
         twitterDMAction.setProperty("twitter message", "hello test node1->value1 ahh");
 
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         JSONObject objRaw = new JSONObject();
         objRaw.put("value1", 1);
@@ -171,7 +171,7 @@ public class TwitterDMAction implements BNActionPlugin {
         objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node2", objRaw);
 
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
         twitterDMAction.action(testSessionContext);
     }
 }

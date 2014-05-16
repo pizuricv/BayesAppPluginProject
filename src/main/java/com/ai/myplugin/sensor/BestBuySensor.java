@@ -1,11 +1,15 @@
+/**
+ * Created by User: veselin
+ * On Date: 26/12/13
+ */
+
 package com.ai.myplugin.sensor;
 
-
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.json.simple.JSONArray;
@@ -21,12 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.apache.commons.logging.LogFactory.*;
 
-/**
- * Created by User: veselin
- * On Date: 26/12/13
- */
 @PluginImplementation
-public class BestBuySensor implements BNSensorPlugin {
+public class BestBuySensor implements SensorPlugin {
     protected static final Log log = getLog(BestBuySensor.class);
     static final String PRODUCT = "product";
     static final String PRICE = "price";
@@ -68,7 +68,7 @@ public class BestBuySensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(getProperty(PRICE) == null)
             throw new RuntimeException("price not set");
@@ -133,7 +133,7 @@ public class BestBuySensor implements BNSensorPlugin {
 
         final JSONObject finalJsonObject = jsonObject;
         final String finalState = state;
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -163,7 +163,7 @@ public class BestBuySensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
 
     }
 
@@ -181,9 +181,9 @@ public class BestBuySensor implements BNSensorPlugin {
         BestBuySensor bestBuySensor = new BestBuySensor();
         bestBuySensor.setProperty(PRICE, 1000);
         bestBuySensor.setProperty(PRODUCT, "ue46f7000");
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
 
-        TestResult testResult = bestBuySensor.execute(testSessionContext);
+        SensorResult testResult = bestBuySensor.execute(testSessionContext);
         System.out.println(testResult.getRawData());
         System.out.println(testResult.getObserverState());
     }

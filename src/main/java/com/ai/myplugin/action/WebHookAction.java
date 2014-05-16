@@ -4,10 +4,10 @@
  */
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,7 +21,7 @@ import java.net.URL;
 import java.util.Map;
 
 @PluginImplementation
-public class WebHookAction implements BNActionPlugin{
+public class WebHookAction implements ActuatorPlugin{
     private static String HOOK_URL = "callback_URL";
     private static final Log log = LogFactory.getLog(WebHookAction.class);
     private URL hook;
@@ -57,19 +57,19 @@ public class WebHookAction implements BNActionPlugin{
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         boolean testResult = false;
         if(hook == null){
             throw new RuntimeException("URL post hook not defined");
         }
-        Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+        Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
         Long id = testSessionContext.getId();
-        String actionNode = (String) testSessionContext.getAttribute(NodeSessionParams.ACTION_NODE);
-        String targetState = (String) testSessionContext.getAttribute(NodeSessionParams.TARGET_STATE);
-        String target = (String) testSessionContext.getAttribute(NodeSessionParams.TARGET_NODE);
-        String node = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_NAME);
-        String nodeState = (String) testSessionContext.getAttribute(NodeSessionParams.NODE_TRIGGERED_STATE);
-        String resource = (String) testSessionContext.getAttribute(NodeSessionParams.RESOURCE);
+        String actionNode = (String) testSessionContext.getAttribute(SessionParams.ACTION_NODE);
+        String targetState = (String) testSessionContext.getAttribute(SessionParams.TARGET_STATE);
+        String target = (String) testSessionContext.getAttribute(SessionParams.TARGET_NODE);
+        String node = (String) testSessionContext.getAttribute(SessionParams.NODE_NAME);
+        String nodeState = (String) testSessionContext.getAttribute(SessionParams.NODE_TRIGGERED_STATE);
+        String resource = (String) testSessionContext.getAttribute(SessionParams.RESOURCE);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("rawData", map);
         jsonObject.put("actionNode", actionNode);
@@ -114,7 +114,7 @@ public class WebHookAction implements BNActionPlugin{
         }
         testResult = true;
         final boolean finalTestResult = testResult;
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return finalTestResult;

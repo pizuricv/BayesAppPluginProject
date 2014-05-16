@@ -5,7 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.util.*;
@@ -33,7 +33,7 @@ public class StockPriceSensor extends StockAbstractSensor {
 
         stockSensor.setProperty(STOCK, "GOOG");
         stockSensor.setProperty(THRESHOLD, "800.0");
-        TestResult testResult = stockSensor.execute(null);
+        SensorResult testResult = stockSensor.execute(null);
         log.debug(testResult.getObserverState());
         log.debug(testResult.getRawData());
     }

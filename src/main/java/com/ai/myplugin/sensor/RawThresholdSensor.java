@@ -5,25 +5,20 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.FormulaParser;
-import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-public class RawThresholdSensor implements BNSensorPlugin {
+public class RawThresholdSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
     FormulaParser formulaParser = new FormulaParser();
 
@@ -103,9 +98,9 @@ public class RawThresholdSensor implements BNSensorPlugin {
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+        Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA);
         if(mapTestResult == null){
             log.debug("no map found");
             return new EmptyTestResult();
@@ -127,7 +122,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
         final Double dataD;
         try {
             String parseFormula = formulaParser.parseFormula("<"+node+".rawData."+rawData+">",
-                    (Map<String, Object>) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA)) ;
+                    (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)) ;
             dataD =  FormulaParser.executeFormula(parseFormula);
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,7 +130,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
             return new EmptyTestResult();
         }
 
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -202,7 +197,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
         formulaParser.restStats();
     }
@@ -210,7 +205,7 @@ public class RawThresholdSensor implements BNSensorPlugin {
     public static void main(String []args){
         WeatherSensor weatherSensor = new WeatherSensor();
         weatherSensor.setProperty("city", "GB, London");
-        TestResult testResult = weatherSensor.execute(null);
+        SensorResult testResult = weatherSensor.execute(null);
         log.info(testResult.getObserverState());
         log.info(testResult.getRawData());
         //this is injected by scenario
@@ -218,12 +213,12 @@ public class RawThresholdSensor implements BNSensorPlugin {
         rawThresholdSensor.setProperty("rawData", "temperature");
         rawThresholdSensor.setProperty("threshold", "5,10,15,25,35");
         rawThresholdSensor.setProperty("node", "node1");
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("rawData", testResult.getRawData());
         mapTestResult.put("node1", jsonObject);
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
         testResult = rawThresholdSensor.execute(testSessionContext);
         log.info(testResult.getObserverState());
         log.info(testResult.getRawData());

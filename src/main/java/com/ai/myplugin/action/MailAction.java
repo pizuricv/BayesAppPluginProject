@@ -1,10 +1,11 @@
 package com.ai.myplugin.action;
 
-import com.ai.bayes.plugins.BNActionPlugin;
-import com.ai.bayes.scenario.ActionResult;
+
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.util.RawDataParser;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +27,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 @PluginImplementation
-public class MailAction implements BNActionPlugin {
+public class MailAction implements ActuatorPlugin {
     private static final Log log = LogFactory.getLog(MailAction.class);
     private static String CONFIG_FILE = "bn.properties";
 
@@ -96,7 +97,7 @@ public class MailAction implements BNActionPlugin {
      @param testSessionContext context for the action
      */
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
         boolean success = true;
         try {
@@ -129,7 +130,7 @@ public class MailAction implements BNActionPlugin {
                 message.setSubject((String) getProperty(SUBJECT));
 
 
-                Map map = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+                Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
                 String messageString = (String) getProperty(MESSAGE);
                 messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
 
@@ -146,7 +147,7 @@ public class MailAction implements BNActionPlugin {
         }
 
         final boolean finalSuccess = success;
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return finalSuccess;
@@ -170,7 +171,7 @@ public class MailAction implements BNActionPlugin {
         mail.setProperty(SUBJECT, "test the action");
         mail.setProperty(MESSAGE, "hello vele node1->value1");
 
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         JSONObject objRaw = new JSONObject();
         objRaw.put("value1", 1);
@@ -184,7 +185,7 @@ public class MailAction implements BNActionPlugin {
         objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node2", objRaw);
 
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
         mail.action(testSessionContext);
 

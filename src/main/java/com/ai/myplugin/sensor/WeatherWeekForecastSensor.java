@@ -1,8 +1,8 @@
 package com.ai.myplugin.sensor;
 
 
+import com.ai.api.SensorResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import com.ai.bayes.scenario.TestResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -65,7 +65,7 @@ public class WeatherWeekForecastSensor extends WeatherAbstractSensor{
     public static void main(String[] args){
         WeatherWeekForecastSensor weatherSensor = new WeatherWeekForecastSensor();
         weatherSensor.setProperty("city", "Gent");
-        TestResult testResult = weatherSensor.execute(null);
+        SensorResult testResult = weatherSensor.execute(null);
         log.debug(testResult.getObserverStates());
 
         weatherSensor.setProperty("city", "London");

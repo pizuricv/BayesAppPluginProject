@@ -1,12 +1,17 @@
+/**
+ * Created by User: veselin
+ * On Date: 25/10/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.SentimentAnalysis;
 import com.ai.myplugin.util.SlidingWindowTimeCounter;
 import com.ai.myplugin.util.TwitterConfig;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,12 +22,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 25/10/13
- */
+
 @PluginImplementation
-public class TwitterSentimentSensor implements BNSensorPlugin{
+public class TwitterSentimentSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(TwitterSentimentSensor.class);
     private static final String SEARCH_TERMS = "search_terms";
     private static final String WINDOW = "window";
@@ -64,7 +66,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
 
         if(!running){
@@ -74,7 +76,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
             mentions.setSlidingWindowMinutes(w);
             runSentiment((String) getProperty(SEARCH_TERMS));
         }
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -174,7 +176,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
         running = false;
         counterNegative.reset();
@@ -194,7 +196,7 @@ public class TwitterSentimentSensor implements BNSensorPlugin{
                     try {
                         Thread.sleep(10000);
                         log.info("execute...");
-                        TestResult testResult = twitterSentimentSensor.execute(null);
+                        SensorResult testResult = twitterSentimentSensor.execute(null);
                         log.info("RAW data: " +testResult.getRawData());
                         log.info("Observed state: " + testResult.getObserverState());
                     } catch (InterruptedException e) {

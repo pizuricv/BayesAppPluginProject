@@ -5,23 +5,22 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.bayes.scenario.ActionResult;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.ActuatorPlugin;
+import com.ai.api.ActuatorResult;
+import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import com.ai.bayes.plugins.BNActionPlugin;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.System;
+
 
 @PluginImplementation
-public class ActionPrintScreen implements BNActionPlugin{
+public class ActionPrintScreen implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(ActionPrintScreen.class);
 
     private static final String DUMMY_PROPERTY = "dummy property that will be print out";
-    private static final String NAME = "PrintOnStdout";
+    private static final String NAME = "PrintOnStdoutXX";
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
 
     @Override
@@ -47,14 +46,14 @@ public class ActionPrintScreen implements BNActionPlugin{
     }
 
     @Override
-    public ActionResult action(TestSessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         if(propertiesMap.containsKey(DUMMY_PROPERTY)){
             log.debug("###########DUMMY ACTION#######" + propertiesMap.get(DUMMY_PROPERTY));
         }  else{
             log.debug("###########DUMMY ACTION#######");
         }
 
-        return new ActionResult() {
+        return new ActuatorResult() {
             @Override
             public boolean isSuccess() {
                 return true;

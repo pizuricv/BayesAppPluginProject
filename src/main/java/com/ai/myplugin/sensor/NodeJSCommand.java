@@ -3,14 +3,14 @@
  * Date: 12/20/12
  */
 package com.ai.myplugin.sensor;
-import com.ai.bayes.parser.JSONBNParser;
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginImplementation
-public class NodeJSCommand implements BNSensorPlugin{
+public class NodeJSCommand implements SensorPlugin {
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
     private static final int WAIT_FOR_RESULT = 5;
     private static String CONFIG_FILE = "bn.properties";
@@ -98,7 +98,7 @@ public class NodeJSCommand implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Properties properties = new Properties();
         try {
@@ -115,8 +115,8 @@ public class NodeJSCommand implements BNSensorPlugin{
             log.info("set property "+ runtimeProperty + ", for sensor " + getName());
             setProperty(runtimeProperty, testSessionContext.getAttribute(runtimeProperty));
         }
-        if(testSessionContext != null && testSessionContext.getAttribute(NodeSessionParams.RAW_DATA) != null){
-            Map sessionMap = (Map) testSessionContext.getAttribute(NodeSessionParams.RAW_DATA);
+        if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
+            Map sessionMap = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
             JSONObject jsonObject = new JSONObject(sessionMap);
             javaScriptCommand = "RAW_STRING = '"+jsonObject.toString() + "';\n" + javaScriptCommand;
         }
@@ -171,7 +171,7 @@ public class NodeJSCommand implements BNSensorPlugin{
                         }
                 }
             } ).run();
-            return new TestResult() {
+            return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
                     return  exitVal == 0 ;
@@ -285,7 +285,7 @@ public class NodeJSCommand implements BNSensorPlugin{
 
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
@@ -336,7 +336,7 @@ public class NodeJSCommand implements BNSensorPlugin{
                 "});";
         nodeJSCommand.setProperty("javaScript", javaScript);
 
-        TestResult testResult = nodeJSCommand.execute(null);
+        SensorResult testResult = nodeJSCommand.execute(null);
         log.info(testResult.toString());
         log.info("state " + testResult.getObserverState());
         log.info("rawData " + testResult.getRawData());

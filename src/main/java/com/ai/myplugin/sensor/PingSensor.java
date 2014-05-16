@@ -5,29 +5,25 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.Rest;
-import com.ai.myplugin.util.Utils;
-import com.ai.util.resource.TestSessionContext;
-import com.ai.bayes.plugins.BNSensorPlugin;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import java.net.InetAddress;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
-public class PingSensor implements BNSensorPlugin{
+public class PingSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(PingSensor.class);
 
     private static final String ADDRESS = "address";
@@ -61,7 +57,7 @@ public class PingSensor implements BNSensorPlugin{
         return "Ping test to check IP connectivity";
     }
 
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         /*boolean reachable = false;
         boolean testSuccess = true;
@@ -84,7 +80,7 @@ public class PingSensor implements BNSensorPlugin{
         }
         final JSONObject finalPingObj = pingObj;
         final Boolean isReachable = ((String) finalPingObj.get("result")).equalsIgnoreCase("true");
-        TestResult result = new TestResult() {
+        SensorResult result = new SensorResult() {
             public boolean isSuccess() {
                 if(finalPingObj == null)
                     return false;
@@ -148,14 +144,14 @@ public class PingSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     public static void main(String [] args){
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty(ADDRESS, "www.waylay.io");
-        TestResult testResult = pingSensor.execute(null);
+        SensorResult testResult = pingSensor.execute(null);
         System.out.println(testResult.getRawData());
         System.out.println(testResult.getObserverState());
 

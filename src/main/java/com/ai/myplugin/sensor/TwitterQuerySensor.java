@@ -1,12 +1,18 @@
+/**
+ * Created by User: veselin
+ * On Date: 25/10/13
+ */
+
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
+
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
 import com.ai.myplugin.action.MailAction;
 import com.ai.myplugin.util.EmptyTestResult;
 import com.ai.myplugin.util.TwitterConfig;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,12 +24,9 @@ import java.util.*;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by User: veselin
- * On Date: 25/10/13
- */
+
 @PluginImplementation
-public class TwitterQuerySensor implements BNSensorPlugin{
+public class TwitterQuerySensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(TwitterQuerySensor.class);
     private static final String SEARCH_TERMS = "search_terms";
     private static final String TIME_ZONE = "time_zone";
@@ -60,7 +63,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
         if(getProperty(SEARCH_TERMS) == null && getProperty(FROM) == null){
             return new EmptyTestResult();
@@ -95,7 +98,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
             listTweets.add(status.getText());
         }
 
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -138,7 +141,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
 
     }
@@ -147,8 +150,8 @@ public class TwitterQuerySensor implements BNSensorPlugin{
         TwitterQuerySensor twitterQuerySensor = new TwitterQuerySensor();
         twitterQuerySensor.setProperty(FROM, "nmbs");
         twitterQuerySensor.setProperty(DATE, "2013-10-12");
-        TestSessionContext testSessionContext = new TestSessionContext(1);
-        TestResult result = twitterQuerySensor.execute(testSessionContext);
+        SessionContext testSessionContext = new SessionContext(1);
+        SensorResult result = twitterQuerySensor.execute(testSessionContext);
         log.info(result.getObserverState());
         log.info(result.getRawData());
 
@@ -162,7 +165,7 @@ public class TwitterQuerySensor implements BNSensorPlugin{
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("rawData", result.getRawData());
         mapTestResult.put("node1", jsonObject);
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
         mail.action(testSessionContext);
     }
 

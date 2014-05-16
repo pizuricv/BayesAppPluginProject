@@ -5,10 +5,9 @@
 
 package com.ai.myplugin.sensor;
 
-
-import com.ai.bayes.plugins.BNSensorPlugin;
-import com.ai.bayes.scenario.TestResult;
-import com.ai.util.resource.TestSessionContext;
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,7 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public abstract class TimeAbstractSensor implements BNSensorPlugin{
+public abstract class TimeAbstractSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(TimeAbstractSensor.class);
     String timeZone;
     private String dateString;
@@ -74,9 +73,9 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
     }
 
     @Override
-    public TestResult execute(TestSessionContext testSessionContext) {
+    public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        return new TestResult() {
+        return new SensorResult() {
             @Override
             public boolean isSuccess() {
                 return true;
@@ -163,7 +162,7 @@ public abstract class TimeAbstractSensor implements BNSensorPlugin{
     }
 
     @Override
-    public void shutdown(TestSessionContext testSessionContext) {
+    public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
