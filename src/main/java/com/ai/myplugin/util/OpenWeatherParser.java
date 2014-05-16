@@ -3,8 +3,6 @@
  */
 package com.ai.myplugin.util;
 
-
-import com.ai.bayes.scenario.TestResult;
 import com.ai.myplugin.sensor.WeatherAbstractSensor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
