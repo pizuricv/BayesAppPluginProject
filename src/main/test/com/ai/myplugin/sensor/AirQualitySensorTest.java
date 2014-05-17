@@ -1,6 +1,6 @@
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.scenario.TestResult;
+import com.ai.api.SensorResult;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +17,7 @@ public class AirQualitySensorTest extends TestCase{
     public void testAirQualitySensor() throws ParseException {
         AirQualitySensor airQualitySensor = new AirQualitySensor();
         airQualitySensor.setProperty(AirQualitySensor.LOCATION, "Gent");
-        TestResult testResult = airQualitySensor.execute(null);
+        SensorResult testResult = airQualitySensor.execute(null);
         log.debug(testResult.getObserverState());
         log.debug(testResult.getRawData());
         JSONParser parser = new JSONParser();

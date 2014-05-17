@@ -1,21 +1,20 @@
-package com.ai.myplugin.sensor;
-
-import com.ai.bayes.scenario.TestResult;
-import com.ai.util.resource.NodeSessionParams;
-import com.ai.util.resource.TestSessionContext;
-import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONObject;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by User: veselin
  * On Date: 22/02/14
  */
+
+package com.ai.myplugin.sensor;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
+import com.ai.api.SessionParams;
+import junit.framework.TestCase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONObject;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 public class NodeJSCommandTest extends TestCase{
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
 
@@ -64,7 +63,7 @@ public class NodeJSCommandTest extends TestCase{
                 "});";
         nodeJSCommand.setProperty("javaScript", javaScript);
 
-        TestResult testResult = nodeJSCommand.execute(null);
+        SensorResult testResult = nodeJSCommand.execute(null);
         log.info(testResult.toString());
         log.info("state " + testResult.getObserverState());
         log.info("rawData " + testResult.getRawData());
@@ -88,10 +87,10 @@ public class NodeJSCommandTest extends TestCase{
         nodeJSCommand.setProperty("javaScript", javaScript);
         assertTrue(Arrays.asList(nodeJSCommand.getRuntimeProperties()).contains("runtime_hello"));
         assertEquals(1, nodeJSCommand.getRequiredProperties().length);
-        TestSessionContext testSessionContext = new TestSessionContext(1);
+        SessionContext testSessionContext = new SessionContext(1);
         testSessionContext.setAttribute("runtime_hello", "5");
 
-        TestResult testResult = nodeJSCommand.execute(testSessionContext);
+        SensorResult testResult = nodeJSCommand.execute(testSessionContext);
         assertTrue(testResult.getRawData().contains("5"));
 
 
@@ -141,10 +140,10 @@ public class NodeJSCommandTest extends TestCase{
         Map<String, Object> mapTestResult = new HashMap<String, Object>();
         mapTestResult.put("node1", jsonObject);
 
-        TestSessionContext testSessionContext = new TestSessionContext(2);
+        SessionContext testSessionContext = new SessionContext(2);
 
-        testSessionContext.setAttribute(NodeSessionParams.RAW_DATA, mapTestResult);
-        TestResult testResult = nodeJSCommand.execute(testSessionContext);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+        SensorResult testResult = nodeJSCommand.execute(testSessionContext);
         assertTrue(nodeJSCommand.getProperty("javaScript").toString().contains("RAW_STRING"));
         assertEquals(raw.toJSONString(), testResult.getRawData());
 

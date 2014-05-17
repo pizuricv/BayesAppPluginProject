@@ -1,16 +1,16 @@
+/**
+ * Created by User: veselin
+ * On Date: 04/11/13
+ */
+
 package com.ai.myplugin.util;
 
 import junit.framework.TestCase;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
 import java.util.*;
 
-/**
- * Created by User: veselin
- * On Date: 04/11/13
- */
 public class RawDataParserTest extends TestCase {
 
     public void testParser() throws ParseException {

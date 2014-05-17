@@ -1,26 +1,26 @@
-package com.ai.myplugin.sensor;
-
-import com.ai.bayes.scenario.TestResult;
-import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Created by User: veselin
  * On Date: 23/10/13
  */
+
+package com.ai.myplugin.sensor;
+
+import com.ai.api.SensorResult;
+import junit.framework.TestCase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import java.util.List;
+import java.util.Map;
+
+
 public class WeatherWeekForecastSensorTest extends TestCase{
     private static final Log log = LogFactory.getLog(WeatherWeekForecastSensorTest.class);
 
     public void testWeatherSensorCumulativeValue(){
         WeatherWeekForecastSensor weatherSensor = new WeatherWeekForecastSensor();
         weatherSensor.setProperty("city", "Gent");
-        TestResult testResult = weatherSensor.execute(null);
-        List<Map<String, Number>> list = testResult.getObserverStates();
+        SensorResult SensorResult = weatherSensor.execute(null);
+        List<Map<String, Number>> list = SensorResult.getObserverStates();
         double value = 0;
         for(String key: list.get(0).keySet())  {
             value += list.get(0).get(key).doubleValue();
@@ -34,8 +34,8 @@ public class WeatherWeekForecastSensorTest extends TestCase{
         weatherSensor.setProperty("city", "Gent");
         weatherSensor.setProperty(WeatherWeekForecastSensor.DAYS, 5);
         weatherSensor.setProperty(WeatherWeekForecastSensor.EXACT_DAY, false);
-        TestResult testResult = weatherSensor.execute(null);
-        List<Map<String, Number>> list = testResult.getObserverStates();
+        SensorResult SensorResult = weatherSensor.execute(null);
+        List<Map<String, Number>> list = SensorResult.getObserverStates();
         double value = 0;
         for(String key: list.get(0).keySet())  {
             value += list.get(0).get(key).doubleValue();
@@ -47,8 +47,8 @@ public class WeatherWeekForecastSensorTest extends TestCase{
         weatherSensor.setProperty("city", "Gent");
         weatherSensor.setProperty(WeatherWeekForecastSensor.DAYS, 5);
         weatherSensor.setProperty(WeatherWeekForecastSensor.EXACT_DAY, true);
-        testResult = weatherSensor.execute(null);
-        list = testResult.getObserverStates();
+        SensorResult = weatherSensor.execute(null);
+        list = SensorResult.getObserverStates();
         value = 0;
         for(String key: list.get(0).keySet())  {
             value += list.get(0).get(key).doubleValue();

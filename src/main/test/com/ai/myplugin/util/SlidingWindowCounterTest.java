@@ -1,13 +1,13 @@
-package com.ai.myplugin.util;
-
-import junit.framework.TestCase;
-
-import java.util.Map;
-
 /**
  * Created by User: veselin
  * On Date: 24/03/14
  */
+
+package com.ai.myplugin.util;
+
+import junit.framework.TestCase;
+import java.util.Map;
+
 public class SlidingWindowCounterTest extends TestCase{
 
     public void testIncrementCount() throws Exception {

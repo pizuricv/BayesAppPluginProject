@@ -1,6 +1,5 @@
 package com.ai.myplugin.sensor;
 
-import com.ai.bayes.scenario.TestResult;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

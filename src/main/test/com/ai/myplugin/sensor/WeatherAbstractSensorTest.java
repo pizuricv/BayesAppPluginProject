@@ -1,16 +1,16 @@
-package com.ai.myplugin.sensor;
-
-import junit.framework.TestCase;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.util.Map;
-
 /**
  * Created by User: veselin
  * On Date: 29/09/13
  */
+
+package com.ai.myplugin.sensor;
+
+import junit.framework.TestCase;
+import org.json.simple.parser.ParseException;
+
+import java.util.Map;
+
+
 public class WeatherAbstractSensorTest extends TestCase{
     WeatherAbstractSensor weatherAbstractSensor;
 

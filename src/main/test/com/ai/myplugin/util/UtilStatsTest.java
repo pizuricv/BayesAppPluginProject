@@ -1,11 +1,12 @@
-package com.ai.myplugin.util;
-
-import junit.framework.TestCase;
-
 /**
  * Created by User: veselin
  * On Date: 26/03/14
  */
+
+package com.ai.myplugin.util;
+
+import junit.framework.TestCase;
+
 public class UtilStatsTest extends TestCase{
 
     public void testAddSample() throws Exception {
