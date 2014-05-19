@@ -68,7 +68,7 @@ public class AcceleratorSensor implements SensorPlugin {
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         if(getProperty(ACCELERATOR_THRESHOLD) == null)
-            throw new RuntimeException("distance not set");
+            throw new RuntimeException("acceleration threshold not set");
 
         Object rt1 = testSessionContext.getAttribute(RUNTIME_ACCELERATOR);
         if(rt1 == null){
@@ -123,8 +123,13 @@ public class AcceleratorSensor implements SensorPlugin {
     }
 
     @Override
-    public void shutdown(SessionContext testSessionContext) {
+    public void setup(SessionContext testSessionContext) {
+        log.debug("Setup : " + getName() + ", sensor : "+this.getClass().getName());
+    }
 
+    @Override
+    public void shutdown(SessionContext testSessionContext) {
+        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     @Override

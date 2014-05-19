@@ -162,6 +162,11 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
     }
 
     @Override
+    public void setup(SessionContext testSessionContext) {
+        log.debug("Setup : " + getName() + ", sensor : "+this.getClass().getName());
+    }
+
+    @Override
     public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }

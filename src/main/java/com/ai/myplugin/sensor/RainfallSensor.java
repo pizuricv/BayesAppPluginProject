@@ -38,8 +38,6 @@ public class RainfallSensor implements SensorPlugin {
     //http://gps.buienradar.nl/getrr.php?lat=52&lon=4
     String url = "http://gps.buienradar.nl/getrr.php?";
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-    
-
 
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
@@ -169,6 +167,11 @@ Dus 77 = 0.1 mm/uur
             return HEAVY_RAIN;
         }
         return STORM;
+    }
+
+    @Override
+    public void setup(SessionContext testSessionContext) {
+        log.debug("Setup : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
     @Override
