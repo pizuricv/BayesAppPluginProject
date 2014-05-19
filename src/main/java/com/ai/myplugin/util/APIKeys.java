@@ -13,14 +13,14 @@ public final class APIKeys {
     private static final Configuration config = Config.load();
 
     public static String getMashapeKey(){
-        return config.getString("mashapeKey");
+        return config.getNonEmptyString("mashapeKey");
     }
 
     public static String getGoogleKey(){
-        return config.getString("googleKey");
+        return config.getNonEmptyString("googleKey");
     }
 
     public static String getSensulosKey() {
-        return config.getString("sensulosKey");
+        return config.getNonEmptyString("sensulosKey");
     }
 }

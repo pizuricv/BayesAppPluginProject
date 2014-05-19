@@ -12,15 +12,21 @@ public class PropertiesConfiguration implements Configuration {
 
     @Override
     public String getString(String key) {
-        String value = properties.getProperty(key);
-        if(value == null){
-            throw new RuntimeException("Configuration missing: " + key);
-        }
-        return value;
+        return getStringOpt(key).orElseThrow(() -> new RuntimeException("Configuration missing: " + key));
+    }
+
+    @Override
+    public String getNonEmptyString(String key) {
+        return getNonEmptyStringOpt(key).orElseThrow(() -> new RuntimeException("Configuration missing: " + key));
     }
 
     @Override
     public Optional<String> getStringOpt(String key) {
         return Optional.ofNullable(properties.getProperty(key));
+    }
+
+    @Override
+    public Optional<String> getNonEmptyStringOpt(String key) {
+        return getStringOpt(key).filter(val -> !val.trim().isEmpty());
     }
 }

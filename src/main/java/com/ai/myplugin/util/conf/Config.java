@@ -18,7 +18,9 @@ public final class Config {
 
     public static Configuration load(){
         Properties properties = new Properties();
-        try(InputStream is = new FileInputStream(findConfigFile())) {
+        File configFile = findConfigFile();
+        log.info("Loading config from " + configFile);
+        try(InputStream is = new FileInputStream(configFile)) {
             properties.load(is);
         } catch (IOException e) {
             log.error(e.getLocalizedMessage(), e);
