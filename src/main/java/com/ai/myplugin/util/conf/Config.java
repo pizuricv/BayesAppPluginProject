@@ -1,4 +1,4 @@
-package com.ai.myplugin.util;
+package com.ai.myplugin.util.conf;
 
 
 import org.apache.commons.logging.Log;
@@ -15,7 +15,7 @@ public final class Config {
 
     private static final String CONFIG_FILE = "bn.properties";
 
-    public static Properties load(){
+    public static Configuration load(){
         Properties properties = new Properties();
         try(InputStream is = new FileInputStream(CONFIG_FILE)) {
             properties.load(is);
@@ -23,6 +23,6 @@ public final class Config {
             log.error(e.getLocalizedMessage(), e);
         }
         // TODO we might want to cache this and return a defensive copy?
-        return properties;
+        return new PropertiesConfiguration(properties);
     }
 }

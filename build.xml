@@ -44,13 +44,13 @@
 
 
   <target name="compile" depends="init" >
-    <javac destdir="${classes}" debug="true" srcdir="${src}">
+    <javac destdir="${classes}" debug="true" srcdir="${src}" source="1.8" target="1.8">
      <classpath refid="classpath" />
    </javac>
  </target>
 
  <target name="compile_test" depends="dist" >
-  <javac destdir="${classes_test}" debug="true" srcdir="${src_test}">
+  <javac destdir="${classes_test}" debug="true" srcdir="${src_test}" source="1.8" target="1.8">
     <classpath refid="classpath_test" />
   </javac>
 </target>

@@ -5,29 +5,22 @@
 
 package com.ai.myplugin.util;
 
-import java.util.Properties;
+import com.ai.myplugin.util.conf.Config;
+import com.ai.myplugin.util.conf.Configuration;
 
 public final class APIKeys {
-    static String mashapeKey;
-    static String googleKey;
-    static String sensulosKey;
 
-    static {
-       Properties properties = Config.load();
-       mashapeKey = (String) properties.get("mashapeKey");
-       googleKey = (String) properties.get("googleKey");
-       sensulosKey = (String) properties.get("sensulosKey");
-    }
+    private static final Configuration config = Config.load();
 
     public static String getMashapeKey(){
-        return mashapeKey;
+        return config.getString("mashapeKey");
     }
 
     public static String getGoogleKey(){
-        return googleKey;
+        return config.getString("googleKey");
     }
 
     public static String getSensulosKey() {
-        return sensulosKey;
+        return config.getString("sensulosKey");
     }
 }

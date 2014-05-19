@@ -5,14 +5,14 @@ import com.ai.api.ActuatorPlugin;
 import com.ai.api.ActuatorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
-import com.ai.myplugin.util.Config;
+import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.RawDataParser;
+import com.ai.myplugin.util.conf.Configuration;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -42,16 +42,6 @@ public class MailAction implements ActuatorPlugin {
     private String eMailAddress = "" ;
     private String message = "" ;
     private String subject = "" ;
-
-    //in case that the file exist, use these properties
-    public void fetchMailPropertiesFromFile() throws IOException {
-        Properties properties = Config.load();
-        propertiesMap.put(MAIL_USER, properties.get(MAIL_USER));
-        propertiesMap.put(MAIL_PASSWORD, properties.get(MAIL_PASSWORD));
-        propertiesMap.put(MAIL_FROM, properties.get(MAIL_FROM));
-    }
-
-
 
     @Override
     public String[] getRequiredProperties() {
@@ -88,11 +78,12 @@ public class MailAction implements ActuatorPlugin {
     }
 
     /**
-    message context can be provided the testSessionContext, in the format "messageTemplate"
-    format "Hello world <{name:nodename, property:propertyname}>"
-    Example "Weather in Gent today is {node:Gent, property: wheather}"
-    will be formated as "weather in Gent today is Rain, if the value of the property is Rain
-     @param testSessionContext context for the action
+     * message context can be provided the testSessionContext, in the format "messageTemplate"
+     * format "Hello world <{name:nodename, property:propertyname}>"
+     * Example "Weather in Gent today is {node:Gent, property: wheather}"
+     * will be formated as "weather in Gent today is Rain, if the value of the property is Rain
+     *
+     * @param testSessionContext context for the action
      */
     @Override
     public ActuatorResult action(SessionContext testSessionContext) {
@@ -100,7 +91,7 @@ public class MailAction implements ActuatorPlugin {
         boolean success = true;
         try {
             fetchMailPropertiesFromFile();
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
             success = false;
@@ -163,6 +154,16 @@ public class MailAction implements ActuatorPlugin {
         return NAME;
     }
 
+
+    //in case that the file exist, use these properties
+    private void fetchMailPropertiesFromFile(){
+        Configuration config = Config.load();
+        propertiesMap.put(MAIL_USER, config.getString(MAIL_USER));
+        propertiesMap.put(MAIL_PASSWORD, config.getString(MAIL_PASSWORD));
+        propertiesMap.put(MAIL_FROM, config.getString(MAIL_FROM));
+    }
+
+
     public static void main(String[] args) {
         MailAction mail = new MailAction();
         mail.setProperty(MAIL_TO, "veselin.pizurica@gmail.com");
@@ -186,6 +187,5 @@ public class MailAction implements ActuatorPlugin {
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
         mail.action(testSessionContext);
-
     }
 }

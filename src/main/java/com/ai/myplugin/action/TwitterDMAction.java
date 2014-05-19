@@ -8,7 +8,7 @@ import com.ai.api.ActuatorPlugin;
 import com.ai.api.ActuatorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
-import com.ai.myplugin.util.Config;
+import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.RawDataParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -21,11 +21,9 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
@@ -47,15 +45,6 @@ public class TwitterDMAction implements ActuatorPlugin {
     public String[] getRequiredProperties() {
         return new String[] {CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET,
                 TWITTER_ACCOUNT, TWITTER_MESSAGE};
-    }
-
-    //in case that the file exist, use these properties
-    public void fetchTwitterPropertiesFromFile() throws IOException {
-        Properties properties = Config.load();
-        propertiesMap.put(CONSUMER_KEY, properties.get(CONSUMER_KEY));
-        propertiesMap.put(CONSUMER_SECRET, properties.get(CONSUMER_SECRET));
-        propertiesMap.put(ACCESS_TOKEN, properties.get(ACCESS_TOKEN));
-        propertiesMap.put(ACCESS_TOKEN_SECRET, properties.get(ACCESS_TOKEN_SECRET));
     }
 
     @Override
@@ -84,11 +73,9 @@ public class TwitterDMAction implements ActuatorPlugin {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         Configuration configuration;
         boolean success = true;
-        try {
-            fetchTwitterPropertiesFromFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        fetchTwitterPropertiesFromFile();
+
         cb.setDebugEnabled(true)
                 .setOAuthConsumerKey((String) getProperty(CONSUMER_KEY))
                 .setOAuthConsumerSecret((String) getProperty(CONSUMER_SECRET))
@@ -130,6 +117,16 @@ public class TwitterDMAction implements ActuatorPlugin {
     @Override
     public String getName() {
         return NAME;
+    }
+
+
+    //in case that the file exist, use these properties
+    private void fetchTwitterPropertiesFromFile(){
+        com.ai.myplugin.util.conf.Configuration config = Config.load();
+        config.getStringOpt(CONSUMER_KEY).ifPresent(value -> propertiesMap.put(CONSUMER_KEY, value));
+        config.getStringOpt(CONSUMER_SECRET).ifPresent(value -> propertiesMap.put(CONSUMER_SECRET, value));
+        config.getStringOpt(ACCESS_TOKEN).ifPresent(value -> propertiesMap.put(ACCESS_TOKEN, value));
+        config.getStringOpt(ACCESS_TOKEN_SECRET).ifPresent(value -> propertiesMap.put(ACCESS_TOKEN_SECRET, value));
     }
 
     public static void main(String[] args) {

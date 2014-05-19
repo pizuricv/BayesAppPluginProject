@@ -1,25 +1,22 @@
 package com.ai.myplugin.util;
 
+import com.ai.myplugin.util.conf.Config;
+import com.ai.myplugin.util.conf.Configuration;
+
 import java.io.File;
-import java.util.Properties;
 
 public final class NodeConfig {
 
-    private static String nodePath;
-    private static String nodeDir;
+    private static final Configuration config = Config.load();
 
-    static {
-        Properties properties = Config.load();
-        nodePath = properties.getProperty("nodePath", defaultNodePath());
-        nodeDir = properties.getProperty("nodeDir", "/var/tmp");
-    }
+    private static String defaultNodePath = defaultNodePath();
 
     public static String getNodePath(){
-        return nodePath;
+        return config.getStringOpt("nodePath").orElse(defaultNodePath);
     }
 
     public static String getNodeDir(){
-        return nodeDir;
+        return config.getStringOpt("nodeDir").orElse("/var/tmp");
     }
 
     private static String defaultNodePath() {
