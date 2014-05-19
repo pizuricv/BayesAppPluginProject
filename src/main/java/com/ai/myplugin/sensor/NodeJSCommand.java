@@ -8,9 +8,7 @@ import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
-import com.ai.myplugin.util.EmptyTestResult;
-import com.ai.myplugin.util.RawDataParser;
-import com.ai.myplugin.util.Utils;
+import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,14 +20,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// FIXME why does this depend on twitter4j internals?
 @PluginImplementation
 public class NodeJSCommand implements SensorPlugin {
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
     private static final int WAIT_FOR_RESULT = 5;
-    private static String CONFIG_FILE = "bn.properties";
     private String javaScriptCommand;
-    private String nodePath = "/usr/local/bin/node";
-    private String workingDir = "/var/tmp";
+    private String nodePath = NodeConfig.getNodePath();
+    private String workingDir = NodeConfig.getNodeDir();
     private int exitVal = -1;
     private String result = "";
     private static final String NAME = "NodeJSCommand";
@@ -100,17 +98,7 @@ public class NodeJSCommand implements SensorPlugin {
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(CONFIG_FILE));
-             if(properties.getProperty("nodePath") != null)
-                 nodePath = properties.getProperty("nodePath");
-            if(properties.getProperty("nodeDir") != null)
-                workingDir = properties.getProperty("nodeDir");
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-        }
+
         for(String runtimeProperty : getRuntimeProperties()){
             log.info("set property "+ runtimeProperty + ", for sensor " + getName());
             setProperty(runtimeProperty, testSessionContext.getAttribute(runtimeProperty));

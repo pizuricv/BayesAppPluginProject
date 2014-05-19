@@ -8,6 +8,7 @@ import com.ai.api.ActuatorPlugin;
 import com.ai.api.ActuatorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
+import com.ai.myplugin.util.Config;
 import com.ai.myplugin.util.RawDataParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -20,7 +21,6 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +42,6 @@ public class TwitterDMAction implements ActuatorPlugin {
     private static final String NAME = "Twitter";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-    private static String CONFIG_FILE = "bn.properties";
 
     @Override
     public String[] getRequiredProperties() {
@@ -52,8 +51,7 @@ public class TwitterDMAction implements ActuatorPlugin {
 
     //in case that the file exist, use these properties
     public void fetchTwitterPropertiesFromFile() throws IOException {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(CONFIG_FILE));
+        Properties properties = Config.load();
         propertiesMap.put(CONSUMER_KEY, properties.get(CONSUMER_KEY));
         propertiesMap.put(CONSUMER_SECRET, properties.get(CONSUMER_SECRET));
         propertiesMap.put(ACCESS_TOKEN, properties.get(ACCESS_TOKEN));

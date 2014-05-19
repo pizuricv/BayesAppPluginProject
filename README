@@ -1,2 +1,5 @@
 #Create your own minimal plug for BayesProject
-Check build.xml file (in case you use ant)
+
+Check build.xml file in case you use ant
+
+Check build.sbt file in case you use sbt

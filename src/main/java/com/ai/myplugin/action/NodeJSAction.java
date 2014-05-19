@@ -9,6 +9,7 @@ import com.ai.api.ActuatorPlugin;
 import com.ai.api.ActuatorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
+import com.ai.myplugin.util.NodeConfig;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -18,7 +19,6 @@ import twitter4j.internal.org.json.JSONObject;
 import org.stringtemplate.v4.ST;
 import java.io.*;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,10 +26,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NodeJSAction implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(NodeJSAction.class);
     private static final int WAIT_FOR_RESULT = 5;
-    private static String CONFIG_FILE = "bn.properties";
     private String javaScriptCommand;
-    private String nodePath = "/usr/local/bin/node";
-    private String workingDir = "/var/tmp";
+    private String nodePath = NodeConfig.getNodePath();
+    private String workingDir = NodeConfig.getNodeDir();
     private int exitVal = -1;
     private String result = "";
     private AtomicBoolean done = new AtomicBoolean(false);
@@ -37,17 +36,7 @@ public class NodeJSAction implements ActuatorPlugin{
     @Override
     public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(CONFIG_FILE));
-            if(properties.getProperty("nodePath") != null)
-                nodePath = properties.getProperty("nodePath");
-            if(properties.getProperty("nodeDir") != null)
-                workingDir = properties.getProperty("nodeDir");
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-        }
+
         if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
             Map sessionMap = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
             JSONObject jsonObject = new JSONObject(sessionMap);

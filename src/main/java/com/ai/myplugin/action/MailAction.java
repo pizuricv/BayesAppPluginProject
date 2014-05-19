@@ -5,13 +5,13 @@ import com.ai.api.ActuatorPlugin;
 import com.ai.api.ActuatorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
+import com.ai.myplugin.util.Config;
 import com.ai.myplugin.util.RawDataParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,6 @@ import javax.mail.internet.MimeMessage;
 @PluginImplementation
 public class MailAction implements ActuatorPlugin {
     private static final Log log = LogFactory.getLog(MailAction.class);
-    private static String CONFIG_FILE = "bn.properties";
 
     private static final String NAME = "Mail";
 
@@ -46,8 +45,7 @@ public class MailAction implements ActuatorPlugin {
 
     //in case that the file exist, use these properties
     public void fetchMailPropertiesFromFile() throws IOException {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(CONFIG_FILE));
+        Properties properties = Config.load();
         propertiesMap.put(MAIL_USER, properties.get(MAIL_USER));
         propertiesMap.put(MAIL_PASSWORD, properties.get(MAIL_PASSWORD));
         propertiesMap.put(MAIL_FROM, properties.get(MAIL_FROM));

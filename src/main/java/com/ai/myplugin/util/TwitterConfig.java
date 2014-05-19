@@ -24,18 +24,11 @@ public class TwitterConfig {
     private static final String CONSUMER_SECRET = "OAuthConsumerSecret";
     private static final String ACCESS_TOKEN = "OAuthAccessToken";
     private static final String ACCESS_TOKEN_SECRET = "OAuthAccessTokenSecret";
-    private static String CONFIG_FILE = "bn.properties";
     private static Configuration configuration = null;
 
     static {
         ConfigurationBuilder cb = new ConfigurationBuilder();
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(CONFIG_FILE));
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-        }
+        Properties properties = Config.load();
         cb.setDebugEnabled(true)
                 .setOAuthConsumerKey((String) properties.get(CONSUMER_KEY))
                 .setOAuthConsumerSecret((String) properties.get(CONSUMER_SECRET))

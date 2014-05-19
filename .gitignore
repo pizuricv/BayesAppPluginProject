@@ -4,3 +4,8 @@
 
 #Log files
 *.log
+
+target
+.idea
+
+bn.properties

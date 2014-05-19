@@ -61,23 +61,22 @@ public class RawDataParserTest extends TestCase {
 
 
         test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array.2.value3>", mapTestResult);
-        assertTrue("Hello World 3".equals(test));
+        assertEquals("Hello World 3", test);
 
         test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array.first.value3>", mapTestResult);
-        assertTrue("Hello World 1".equals(test));
+        assertEquals("Hello World 1", test);
 
         test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array.last.x>", mapTestResult);
-        assertTrue("Hello World hello".equals(test));
+        assertEquals("Hello World hello", test);
 
         test = RawDataParser.parseTemplateFromRawMap("Hello World <node3.array>", mapTestResult);
-        assertTrue("Hello World {\"time\":1234,\"value3\":1}".equals(test));
+        assertEquals("Hello World [{\"value3\":1,\"time\":1234},{\"value3\":2,\"time\":1234},{\"value3\":3,\"time\":1234},{\"x\":\"hello\"}]", test);
     }
 
     public void testTemplate() {
         Set set = RawDataParser.parseKeyArgs("Hello World <node2> dsfsdf <value2> if x <3  then  hello");
         assertEquals(2, set.size());
         assertEquals("[[node2, value2]]", Arrays.asList(set).toString());
-
     }
 
     public void testTemplate2() {
