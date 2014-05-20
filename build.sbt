@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
 //  "org.specs2" %% "specs2" % "2.3.12" % "test",
 //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
 //  "org.scalatest" %% "scalatest" % "2.1.5" % "test",
-  "com.novocode" % "junit-interface" % "0.9" % "test"
+  "com.novocode" % "junit-interface" % "0.11-RC1" % "test"
 )
 
 unmanagedBase := baseDirectory.value / "donotuse"
