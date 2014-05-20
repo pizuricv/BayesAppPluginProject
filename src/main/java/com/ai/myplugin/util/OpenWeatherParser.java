@@ -11,45 +11,38 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OpenWeatherParser {
+
     private static final Log log = LogFactory.getLog(OpenWeatherParser.class);
+
     private static final String server = "http://api.openweathermap.org/data/2.5/";
 
     private static String getServerDailyAddress(String city){
         return server + "weather?q=" + city + "&mode=json&units=metric";
-    };
+    }
 
     private static String getServerForecastAddress(String city){
         return server + "forecast/daily?q=" + city + "&mode=json&units=metric&cnt=7";
-    };
+    }
 
     private static JSONObject getWeatherResult(String city, String pathURL) {
         log.debug("getWeatherResult("+city +","+ pathURL+")");
-        String stringToParse;
+        JSONObject obj;
         try{
-            stringToParse = Rest.httpGet(pathURL);
-            log.debug(stringToParse);
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
+            obj = Rest.httpGet(pathURL).json();
+        } catch (ParseException|IOException e) {
             throw new RuntimeException(e);
         }
 
-        JSONParser parser=new JSONParser();
-        JSONObject obj  = null;
-        try {
-            obj = (JSONObject) parser.parse(stringToParse);
-        } catch (ParseException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+        if(obj.get("message")!=null && obj.get("message").toString().toLowerCase().contains("error")) {
+            throw new RuntimeException("ERROR getting weather info for: " + city + ", error:  " + obj.get("message").toString());
         }
-
-        if(obj.get("message")!=null && obj.get("message").toString().toLowerCase().contains("error"))
-            throw new RuntimeException("ERROR getting weather info for: " + city + ", error:  "+obj.get("message").toString());
         return obj;
     }
 

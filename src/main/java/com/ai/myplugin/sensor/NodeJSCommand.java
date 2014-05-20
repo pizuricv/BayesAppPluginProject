@@ -123,7 +123,7 @@ public class NodeJSCommand implements SensorPlugin {
             } catch ( IOException e ) {
                 e.printStackTrace();
                 log.error(e.getMessage());
-                return new EmptyTestResult();
+                return new EmptySensorResult();
             }
 
             ProcessBuilder pb = new ProcessBuilder(nodePath, javascriptFile);
@@ -220,7 +220,7 @@ public class NodeJSCommand implements SensorPlugin {
         } catch (Throwable t) {
             log.error(t.getLocalizedMessage());
             t.printStackTrace();
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
     }
 

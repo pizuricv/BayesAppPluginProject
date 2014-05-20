@@ -8,16 +8,16 @@ package com.ai.myplugin.sensor;
 import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 import twitter4j.internal.org.json.JSONArray;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,18 +25,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class RainfallSensor implements SensorPlugin {
+
     protected static final Log log = LogFactory.getLog(RainfallSensor.class);
-    static final String LOCATION = "location";
-    static final String LATITUDE = "latitude";
-    static final String LONGITUDE = "longitude";
-    static final String RUNTIME_LATITUDE = "runtime_latitude";
-    static final String RUNTIME_LONGITUDE = "runtime_longitude";
-    private static final String CLEAR = "Clear";
-    private static final String RAIN = "Rain";
-    private static final String HEAVY_RAIN = "Heavy Rain";
-    private static final String STORM = "Storm";
+
+    private static final String LOCATION = "location";
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String RUNTIME_LATITUDE = "runtime_latitude";
+    private static final String RUNTIME_LONGITUDE = "runtime_longitude";
+
+    static final String STATE_CLEAR = "Clear";
+    static final String STATE_RAIN = "Rain";
+    static final String STATE_HEAVY_RAIN = "Heavy Rain";
+    static final String STATE_STORM = "Storm";
+
     //http://gps.buienradar.nl/getrr.php?lat=52&lon=4
-    String url = "http://gps.buienradar.nl/getrr.php?";
+    private static final String BASE_URL = "http://gps.buienradar.nl/getrr.php?";
+
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     @Override
@@ -49,60 +54,24 @@ public class RainfallSensor implements SensorPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         Double latitude = (Double) map.keySet().toArray()[0];
         Double longitude = (Double) map.values().toArray()[0];
 
-        String pathURL =  url + "lat="+latitude + "&lon="+longitude;
-        double avg = 0;
-        double max = -1;
-        double min = 255;
-        final ArrayList<Double> list = new ArrayList<Double>();
+        String pathURL =  BASE_URL + "lat="+latitude + "&lon="+longitude;
+
+        String stringToParse;
         try {
-            String stringToParse = Rest.httpGet(pathURL);
-            log.info("stringToParse "+stringToParse);
-            //000|10:20 000|10:25 000|10:30 000|10:35 000|10:40 000|10:45 000|10:50 000|10:55 000|11:00 000|11:05 000|11:10 000|11:15 000|11:20 000|11:25 000|11:30 000|11:35 000|11:40 000|11:45 000|11:50 000|11:55 000|12:00 000|12:05 000|12:10 000|12:15 000|12:20
-            /*
-            Op basis van lat lon coördinaten kunt u de neerslag twee uur vooruit ophalen in tekst vorm. 0 is droog, 255 is zware regen.
-mm/per uur = 10^((waarde -109)/32)
-Dus 77 = 0.1 mm/uur
-             */
-            StringTokenizer stringTokenizer = new StringTokenizer(stringToParse, "|");
-            if(stringTokenizer.countTokens() < 2)
-                throw new Exception("there is nothing to parse "+stringToParse);
-            //TODO check how to do it better, now only the aggregate for the next hour
-            double temp = -1;
-            int count = 0;
-            while(stringTokenizer.hasMoreTokens()){
-                //double temp = Utils.getDouble(stringTokenizer.nextToken().split("|")[0]);
-                String tempString = stringTokenizer.nextToken();
-                if(tempString.length() == 3)
-                    temp  = Utils.getDouble(tempString);
-                else if(tempString.length() == 8)
-                    temp  = Utils.getDouble(tempString.substring(5));
-                else
-                continue;
-                list.add(temp);
-
-                if(min > temp)
-                    min = temp;
-                if(max < temp)
-                    max = temp;
-                avg += temp;
-                count ++;
-            }
-            avg = avg/count;
-
-        } catch (Exception e) {
+            stringToParse = Rest.httpGet(pathURL).body();
+        } catch (IOException e) {
             e.printStackTrace();
             log.error("error in getting the data from " + pathURL + ", "+e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
 
-        final double finalMin = min;
-        final double finalMax = max;
-        final double finalAvg = avg;
+        Optional<RainResult> parsed = parseResponse(stringToParse);
+
         return new SensorResult() {
             @Override
             public boolean isSuccess() {
@@ -116,57 +85,19 @@ Dus 77 = 0.1 mm/uur
 
             @Override
             public String getObserverState() {
-                return parseData(finalMin, finalMax, finalAvg);
+                return parsed.map(RainResult::evaluate).orElse(null);
             }
 
             @Override
             public List<Map<String, Number>> getObserverStates() {
-                return null;
+                return Collections.emptyList();
             }
 
             @Override
             public String getRawData() {
-                JSONObject jsonObject = new JSONObject();
-                JSONArray jsonArray = new JSONArray();
-                int time = 0;
-                for(Double d : list){
-                    JSONObject jsonObject1 = new JSONObject();
-                    jsonObject1.put(Integer.toString(time),d);
-                    jsonArray.put(jsonObject1);
-                    time +=5;
-                }
-                jsonObject.put("min", finalMin);
-                jsonObject.put("max", finalMax);
-                jsonObject.put("avg", finalAvg);
-                jsonObject.put("mm_per_hour", computeRainMM(finalAvg));
-                jsonObject.put("forecast_raw", jsonArray);
-                return jsonObject.toJSONString();
+                return parsed.map(r -> resultToJson(r).toString()).orElse(null);
             }
-        } ;
-    }
-
-    /*
-    mm/per uur = 10^((waarde -109)/32)
-    Dus 77 = 0.1 mm/uur
-    10^((77 -109)/32)
-     */
-    private double computeRainMM(double finalAvg) {
-        log.info("computeRain in mm/hour from "+finalAvg);
-        double calc = Math.pow(10, ((finalAvg -109)/32));
-        DecimalFormat twoDForm = new DecimalFormat("#.00");
-        return Double.valueOf(twoDForm.format(calc));
-    }
-
-    private String parseData(double min, double max, double avg){
-        log.debug("parseData avg="+avg+ ", min="+min + ", max="+max);
-        if(avg == 0) {
-            return CLEAR;
-        } else if(avg < 50) {
-            return RAIN;
-        }  else if(avg < 100) {
-            return HEAVY_RAIN;
-        }
-        return STORM;
+        };
     }
 
     @Override
@@ -186,7 +117,7 @@ Dus 77 = 0.1 mm/uur
 
     @Override
     public String[] getSupportedStates() {
-        return new String[] {CLEAR, RAIN, HEAVY_RAIN, STORM};
+        return new String[] {STATE_CLEAR, STATE_RAIN, STATE_HEAVY_RAIN, STATE_STORM};
     }
 
     @Override
@@ -218,11 +149,115 @@ Dus 77 = 0.1 mm/uur
         return "Short weather forecast based on radar forecast";
     }
 
-    public static void main(String []args) throws ParseException {
-        RainfallSensor rainfallSensor = new RainfallSensor();
-        rainfallSensor.setProperty(LOCATION, "Gent");
-        SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
+
+    Optional<RainResult> parseResponse(String stringToParse){
+        double avg = 0;
+        double max = -1;
+        double min = 255;
+        log.debug("stringToParse " + stringToParse);
+        //000|10:20 000|10:25 000|10:30 000|10:35 000|10:40 000|10:45 000|10:50 000|10:55 000|11:00 000|11:05 000|11:10 000|11:15 000|11:20 000|11:25 000|11:30 000|11:35 000|11:40 000|11:45 000|11:50 000|11:55 000|12:00 000|12:05 000|12:10 000|12:15 000|12:20
+            /*
+            Op basis van lat lon coördinaten kunt u de neerslag twee uur vooruit ophalen in tekst vorm. 0 is droog, 255 is zware regen.
+            mm/per uur = 10^((waarde -109)/32)
+            Dus 77 = 0.1 mm/uur
+             */
+        StringTokenizer stringTokenizer = new StringTokenizer(stringToParse, "|");
+        if(stringTokenizer.countTokens() < 2)
+            throw new RuntimeException("there is nothing to parse " + stringToParse);
+        //TODO check how to do it better, now only the aggregate for the next hour
+        double temp = -1;
+        int count = 0;
+        final List<Double> list = new ArrayList<>();
+        while(stringTokenizer.hasMoreTokens()){
+            //double temp = Utils.getDouble(stringTokenizer.nextToken().split("|")[0]);
+            String tempString = stringTokenizer.nextToken();
+            if(tempString.length() == 3) {
+                temp = Utils.getDouble(tempString);
+            } else if(tempString.length() == 8) {
+                temp = Utils.getDouble(tempString.substring(5));
+            } else {
+                // when we get a time without result
+                continue;
+            }
+            list.add(temp);
+
+            if(min > temp)
+                min = temp;
+            if(max < temp)
+                max = temp;
+            avg += temp;
+        }
+        if(list.size() == 0){
+            return Optional.empty();
+        }else {
+            avg = avg / list.size();
+            return Optional.of(new RainResult(min, max, avg, list));
+        }
+    }
+
+    private JSONObject resultToJson(RainResult result){
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        int time = 0;
+        for(Double d : result.results){
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put(Integer.toString(time),d);
+            jsonArray.put(jsonObject1);
+            time +=5;
+        }
+        jsonObject.put("min", result.min);
+        jsonObject.put("max", result.max);
+        jsonObject.put("avg", result.avg);
+        jsonObject.put("mm_per_hour", computeRainMM(result.avg));
+        jsonObject.put("forecast_raw", jsonArray);
+        return jsonObject;
+    }
+
+    static class RainResult{
+        final double min;
+        final double max;
+        final double avg;
+        final List<Double> results;
+
+        RainResult(final double min, final double max, final double avg, final List<Double> results) {
+            this.min = min;
+            this.max = max;
+            this.avg = avg;
+            this.results = results;
+        }
+
+        String evaluate(){
+            log.debug("evaluate " + this);
+            if(avg == 0) {
+                return STATE_CLEAR;
+            } else if(avg < 50) {
+                return STATE_RAIN;
+            } else if(avg < 100) {
+                return STATE_HEAVY_RAIN;
+            } else {
+                return STATE_STORM;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "RainResult{" +
+                    "min=" + min +
+                    ", max=" + max +
+                    ", avg=" + avg +
+                    ", results=" + results +
+                    '}';
+        }
+    }
+    /*
+        mm/per uur = 10^((waarde -109)/32)
+        Dus 77 = 0.1 mm/uur
+        10^((77 -109)/32)
+    */
+    private double computeRainMM(double finalAvg) {
+        log.info("computeRain in mm/hour from " + finalAvg);
+        double calc = Math.pow(10, ((finalAvg -109)/32));
+        DecimalFormat twoDForm = new DecimalFormat("#.00");
+        return Double.valueOf(twoDForm.format(calc));
     }
 }

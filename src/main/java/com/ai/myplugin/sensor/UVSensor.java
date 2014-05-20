@@ -14,9 +14,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -68,22 +68,14 @@ public class UVSensor implements SensorPlugin {
             throw new RuntimeException("Zip code not defined");
         }
 
+        String pathURL = server + zipCode + "/JSON";
+
         boolean testSuccess = true;
-        String stringToParse = "";
+        JSONArray array = new JSONArray();
 
-        String pathURL = server+ zipCode + "/JSON";
         try{
-            stringToParse = Rest.httpGet(pathURL);
-            log.debug(stringToParse);
-        } catch (Exception e) {
-            testSuccess = false;
-        }
-
-        JSONParser parser=new JSONParser();
-        JSONArray array  = null;
-        try {
-            array = (JSONArray) parser.parse(stringToParse);
-        } catch (ParseException e) {
+            array = Rest.httpGet(pathURL).jsonArray();
+        } catch (ParseException|IOException e) {
             testSuccess = false;
         }
 

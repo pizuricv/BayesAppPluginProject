@@ -9,7 +9,7 @@ import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -96,7 +96,7 @@ public class RawFormulaSensor implements SensorPlugin {
             Long prev = (Long) deltaMap.get("prevTime");
             if(prev == null)   {
                 deltaMap.put("prevTime", System.currentTimeMillis()/1000);
-                return new EmptyTestResult();
+                return new EmptySensorResult();
             }
             Long currentTime = System.currentTimeMillis()/1000;
             deltaMap.put("prevTime", currentTime);
@@ -114,7 +114,7 @@ public class RawFormulaSensor implements SensorPlugin {
         }
         final double finalRes = res;
         if(!success)
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         else
             return new SensorResult() {
             @Override

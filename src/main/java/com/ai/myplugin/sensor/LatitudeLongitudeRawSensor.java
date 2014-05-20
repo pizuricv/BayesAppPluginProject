@@ -159,8 +159,7 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
         String latitudeCoordinateStr = LATITUDE + "="+ URLEncoder.encode(Double.toString(latitude));
         String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(Double.toString(longitude));
         String url = "https://montanaflynn-geocode-location-information.p.mashape.com/reverse?" + longitudeCoordinateStr + "&"+ latitudeCoordinateStr;
-        String ret = Rest.httpsGet(url, map);
-        return (JSONObject) new JSONParser().parse(ret);
+        return Rest.httpGet(url, map).json();
 
        /* Google
        String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+ latitude +","+longitude+

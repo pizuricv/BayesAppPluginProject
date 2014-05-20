@@ -8,7 +8,7 @@ package com.ai.myplugin.sensor;
 import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -81,7 +81,7 @@ public class AirQualitySensor implements SensorPlugin {
         double C6H6 = -1;
 
         try{
-            stringToParse = Rest.httpGet(pathURL);
+            stringToParse = Rest.httpGet(pathURL).body();
             Document doc = Jsoup.parse(stringToParse);
             for (Element table : doc.select("#stations")) {
                 for (Element row : table.select("tr")) {
@@ -100,15 +100,15 @@ public class AirQualitySensor implements SensorPlugin {
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         if(value == -1){
             log.error("location not found");
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         //try to get more detail informatoin, don't fail if there is nothing
         try{
-            stringToParse = Rest.httpGet(detailInfoIRCURL);
+            stringToParse = Rest.httpGet(detailInfoIRCURL).body();
             Document doc = Jsoup.parse(stringToParse);
             for (Element table : doc.select("table")) {
                 for (Element row : table.select("tr")) {

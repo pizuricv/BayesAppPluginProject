@@ -10,7 +10,7 @@ import com.ai.api.SensorResult;
 import java.util.List;
 import java.util.Map;
 
-public class EmptyTestResult implements SensorResult {
+public class EmptySensorResult implements SensorResult {
     @Override
     public boolean isSuccess() {
         return false;

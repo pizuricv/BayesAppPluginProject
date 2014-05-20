@@ -15,7 +15,7 @@ public class Utils {
     private static final String RUNTIME_LONGITUDE = "runtime_longitude";
 
     public static Double getDouble(Object obj){
-        Number number = null;
+        Number number;
         if(obj instanceof String){
             try {
                 number = Double.parseDouble((String) obj);
@@ -40,12 +40,7 @@ public class Utils {
         return number.doubleValue();
     }
 
-    public static void main(String []args) {
-        log.debug(Utils.getDouble(new Integer(23)));
-        log.debug(Utils.getDouble(new Double(23)));
-        log.debug(Utils.getDouble("23"));
-        log.debug(Utils.getDouble(23));
-    }
+
 
     public static Map<Double, Double> getLocation(SessionContext testSessionContext, Object location,
                                                   Object longitude, Object latitude) throws Exception {

@@ -84,7 +84,7 @@ public class ParkingSensor implements SensorPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         Double latitude = (Double) map.keySet().toArray()[0];
         Double longitude = (Double) map.values().toArray()[0];
@@ -96,9 +96,7 @@ public class ParkingSensor implements SensorPlugin {
         String pathURL = "http://datatank.gent.be/Mobiliteitsbedrijf/Parkings11.json";
         ArrayList<MyParkingData> parkingDatas = new ArrayList<MyParkingData>();
         try{
-            String stringToParse = Rest.httpGet(pathURL);
-            log.debug(stringToParse);
-            JSONObject parkingObj = (JSONObject) new JSONParser().parse(stringToParse);
+            JSONObject parkingObj = Rest.httpGet(pathURL).json();
             JSONArray parkings = ((JSONArray)((JSONObject) (parkingObj.get("Parkings11"))).get("parkings"));
             for(Object parking : parkings){
                 parkingDatas.add(new MyParkingData(parking, latitude, longitude));
@@ -106,7 +104,7 @@ public class ParkingSensor implements SensorPlugin {
             Collections.sort(parkingDatas);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         log.info("Best spot is "+parkingDatas.get(0));
         JSONArray jsonArray = new JSONArray();

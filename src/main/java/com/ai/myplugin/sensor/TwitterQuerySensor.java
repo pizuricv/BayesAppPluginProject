@@ -11,7 +11,7 @@ import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
 import com.ai.myplugin.action.MailAction;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.TwitterConfig;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -66,7 +66,7 @@ public class TwitterQuerySensor implements SensorPlugin {
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
         if(getProperty(SEARCH_TERMS) == null && getProperty(FROM) == null){
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         String from = getProperty(FROM) == null? "" : "from:"+getProperty(FROM);
         String searchTerm = getProperty(SEARCH_TERMS) == null? "" : " "+ getProperty(SEARCH_TERMS);
@@ -91,7 +91,7 @@ public class TwitterQuerySensor implements SensorPlugin {
         } catch (TwitterException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         for (Status status : result.getTweets()) {
             log.debug("@" + status.getUser().getScreenName() + ":" + status.getText());

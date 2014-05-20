@@ -8,150 +8,103 @@ package com.ai.myplugin.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Rest {
     private static final Log log = LogFactory.getLog(Rest.class);
 
-    public static String httpGet(String urlPath, Map<String, String> httpSettings) throws Exception {
-        log.info("httpGet "+urlPath);
-        URL url;
+    private static final int TIMEOUT_MILLIS = (int)TimeUnit.SECONDS.toMillis(30);
 
+    public static RestReponse httpGet(String urlPath, Map<String, String> httpSettings) throws IOException {
+        log.info("GET " + urlPath);
+
+        URL url;
         try {
             url = new URL(urlPath);
         } catch (MalformedURLException e) {
-            log.error(e.getLocalizedMessage());
-            throw new Exception(e);
+            throw new IOException(e);
         }
-        HttpURLConnection conn;
+
+        long start = System.currentTimeMillis();
+        HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) url.openConnection();
-            if(httpSettings != null){
-                for(Map.Entry<String, String> entry : httpSettings.entrySet()){
-                    conn.addRequestProperty(entry.getKey(), entry.getValue());
-                }
+            for(Map.Entry<String, String> entry : httpSettings.entrySet()){
+                conn.addRequestProperty(entry.getKey(), entry.getValue());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-            throw new Exception(e);
-        }
-        assert conn != null;
-        try {
+            conn.setConnectTimeout(TIMEOUT_MILLIS);
+            conn.setReadTimeout(TIMEOUT_MILLIS);
             conn.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            log.error(e.getLocalizedMessage());
-            throw new Exception(e);
-        }
 
-        BufferedReader rd = null;
-        try {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-            throw new Exception(e);
+            String body = executeAndReturnBodyAsString(conn);
+            long elapsed = System.currentTimeMillis() - start;
+            log.info("GET " + urlPath + " in " + elapsed + " ms");
+            return new RestReponse(body);
+        } finally {
+            if(conn != null) {
+                conn.disconnect();
+            }
         }
+    }
+
+    public static RestReponse httpGet(String urlPath) throws IOException {
+        return httpGet(urlPath, Collections.emptyMap());
+    }
+
+
+    private static String executeAndReturnBodyAsString(HttpURLConnection conn) throws IOException {
+        try(
+                InputStream is = conn.getInputStream();
+                InputStreamReader reader = new InputStreamReader(is);
+                BufferedReader rd = new BufferedReader(reader)
+        ){
+            return readToString(rd);
+        }
+    }
+
+    private static String readToString(BufferedReader rd) throws IOException {
+        String body;
         String inputLine;
-        StringBuffer stringBuffer = new StringBuffer();
-
-        assert rd != null;
-        try {
-            while ((inputLine = rd.readLine()) != null){
-                stringBuffer.append(inputLine);
-            }
-        } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-            throw new Exception(e);
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((inputLine = rd.readLine()) != null){
+            stringBuilder.append(inputLine);
         }
-        conn.disconnect();
-        try {
-            rd.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-        }
-        return stringBuffer.toString();
+        body = stringBuilder.toString();
+        return body;
     }
 
-    public static String httpsGet(String urlPath) throws Exception {
-        return httpGet(urlPath, null);
+    public static class RestReponse{
+        // TODO we could also collect the failures in this class
+        private final String body;
+
+        private RestReponse(String body) {
+            this.body = body;
+        }
+
+        public String body(){
+            return body;
+        }
+
+        public JSONObject json() throws ParseException {
+            return (JSONObject) new JSONParser().parse(body);
+        }
+
+        public JSONArray jsonArray() throws ParseException {
+            return (JSONArray) new JSONParser().parse(body);
+        }
     }
 
-    public static String httpsGet(String urlPath, Map<String, String> httpSettings) throws Exception {
-        log.info("httpGets "+urlPath);
-        URL url;
 
-        try {
-            url = new URL(urlPath);
-        } catch (MalformedURLException e) {
-            log.error(e.getLocalizedMessage());
-            throw new Exception(e);
-        }
-        HttpsURLConnection conn;
-        try {
-            conn = (HttpsURLConnection) url.openConnection();
-            if(httpSettings != null){
-                for(Map.Entry<String, String> entry : httpSettings.entrySet()){
-                    conn.addRequestProperty(entry.getKey(), entry.getValue());
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new Exception(e);
-        }
-        assert conn != null;
-        try {
-            conn.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new Exception(e);
-        }
-
-        BufferedReader rd = null;
-        try {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new Exception(e);
-        }
-        String inputLine;
-        StringBuffer stringBuffer = new StringBuffer();
-
-        assert rd != null;
-        try {
-            while ((inputLine = rd.readLine()) != null){
-                stringBuffer.append(inputLine);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new Exception(e);
-        }
-        conn.disconnect();
-        try {
-            rd.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            log.error(e.getLocalizedMessage());
-        }
-        return stringBuffer.toString();
-    }
-
-    public static String httpGet(String urlPath) throws Exception {
-        return httpGet(urlPath, null);
-    }
 
 }

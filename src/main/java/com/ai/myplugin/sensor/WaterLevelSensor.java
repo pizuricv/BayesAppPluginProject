@@ -8,7 +8,7 @@ package com.ai.myplugin.sensor;
 import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -30,12 +30,16 @@ http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Pluviog
       <td style="border: 1px solid #dddddd">19:45 21/10/2013</td>
     </tr>
 
+
+    TODO clean up this mess!
+
 */
 
 @PluginImplementation
 public class WaterLevelSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(WaterLevelSensor.class);
     public static final String LOCATION = "location";
+    public static final String SERVICE_URL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Neerslagtabellen&XSLTArg_TableID=benedenschelde&XSLTArg_ShowAll=1";
     private String location = null;
     public static final String DAILY_THRESHOLD = "daily_threshold";
     private Integer dailyThreshold = null;
@@ -99,9 +103,9 @@ public class WaterLevelSensor implements SensorPlugin {
         double totalForecast = Double.MAX_VALUE;
         double dailyForecast = Double.MAX_VALUE;
 
-        String pathURL = "http://www.overstromingsvoorspeller.be/default.aspx?path=NL/Actuele_Info/Neerslagtabellen&XSLTArg_TableID=benedenschelde&XSLTArg_ShowAll=1";
+        String pathURL = SERVICE_URL;
         try{
-            stringToParse = Rest.httpGet(pathURL);
+            stringToParse = Rest.httpGet(pathURL).body();
             log.debug(stringToParse);
         } catch (Exception e) {
             testSuccess = false;
@@ -174,7 +178,7 @@ public class WaterLevelSensor implements SensorPlugin {
 
 
         }
-        else return new EmptyTestResult();
+        else return new EmptySensorResult();
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -37,9 +37,7 @@ public class SensulosSensor implements SensorPlugin {
         //String url = baseUrl + "/server/rest/connectednodes?owner_id=" + user + "&token=" + APIKeys.getSensulosKey();
         String url = baseUrl + "/server/rest/connectednodes/" + id + "/data/lastvalues?token=" + APIKeys.getSensulosKey();
         try {
-            String stringToParse = Rest.httpGet(url);
-            log.info(stringToParse);
-            final JSONObject jsonObject = (JSONObject) new JSONParser().parse(stringToParse);
+            JSONObject jsonObject = Rest.httpGet(url).json();
             return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
@@ -138,7 +136,7 @@ public class SensulosSensor implements SensorPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
     }
 

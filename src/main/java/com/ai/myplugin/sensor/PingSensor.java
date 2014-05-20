@@ -9,16 +9,23 @@ import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -58,61 +65,40 @@ public class PingSensor implements SensorPlugin {
     }
 
     public SensorResult execute(SessionContext testSessionContext) {
-        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        /*boolean reachable = false;
-        boolean testSuccess = true;
+        log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
 
-        try {
-            reachable = getAddress().isReachable(getTimeOut());
-        } catch (Exception e) {
-            testSuccess = false;
-            log.error(e.getLocalizedMessage());
-        }
-        final boolean finalTestFailed = testSuccess;
-        final boolean finalReachable = reachable;  */
-        JSONObject pingObj = null;
-        try {
-            pingObj = pingAddress((String) getProperty(ADDRESS));
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            return new EmptyTestResult();
-        }
-        final JSONObject finalPingObj = pingObj;
-        final Boolean isReachable = ((String) finalPingObj.get("result")).equalsIgnoreCase("true");
-        SensorResult result = new SensorResult() {
-            public boolean isSuccess() {
-                if(finalPingObj == null)
-                    return false;
-                else{
-                    return isReachable;
+        Optional<PingResult> resultOpt = pingWithMashape((String) getProperty(ADDRESS));
+        return resultOpt.map( pingResult ->
+            // TODO why do we need this cast?
+                (SensorResult)new SensorResult() {
+                public boolean isSuccess() {
+                    return pingResult.reachable;
+                }
+                /*
+                you need to return the node name, since the diagnosis result for the node is linked to the node name of the test result
+                */
+                public String getName() {
+                    return "Ping Test Result";
+                }
+
+                public String getObserverState() {
+                    if(pingResult.reachable){
+                        return ALIVE;
+                    } else {
+                        return NOT_ALIVE;
+                    }
+                }
+
+                @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    return null;
+                }
+
+                public String getRawData(){
+                    return toJson(pingResult).toJSONString();
                 }
             }
-            /*
-            you need to return the node name, since the diagnosis result for the node is linked to the node name of the test result 
-            */
-            public String getName() {
-                return "Ping Test Result";
-            }
-
-            public String getObserverState() {
-                if(isReachable){
-                    return ALIVE;
-                } else {
-                    return NOT_ALIVE;
-                }
-            }
-
-            @Override
-            public List<Map<String, Number>> getObserverStates() {
-                return null;
-            }
-
-            public String getRawData(){
-                return finalPingObj.toJSONString();
-            }
-        };
-        return result;
+        ).orElse(new EmptySensorResult());
     }
 
     /*
@@ -126,43 +112,101 @@ public class PingSensor implements SensorPlugin {
         return new String[] {ALIVE, NOT_ALIVE} ;
     }
 
+
+    @Override
+    public void setup(SessionContext testSessionContext) {
+        log.debug("Setup : " + getName() + ", sensor : " + this.getClass().getName());
+    }
+
+    @Override
+    public void shutdown(SessionContext testSessionContext) {
+        log.debug("Shutdown : " + getName() + ", sensor : " + this.getClass().getName());
+    }
+
+    private JSONObject toJson(PingResult result){
+        // TODO we probably want a properly typed json object, not all strings
+        JSONObject root = new JSONObject();
+        root.put("result", String.valueOf(result.reachable));
+        result.time.ifPresent(time -> root.put("time", String.valueOf(time)));
+        return root;
+    }
+
     /*
-    RESPONSE
+        RESPONSE
         {
           "result": "true",
           "time": "71.511"
         }
      */
-    public static JSONObject pingAddress(String address) throws Exception {
+    Optional<PingResult> pingWithMashape(final String address) {
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
 
         String url = "https://igor-zachetly-ping-uin.p.mashape.com/pinguin.php?address=" + URLEncoder.encode(address);
-        String ret = Rest.httpGet(url, map);
 
-        return (JSONObject) new JSONParser().parse(ret);
+        try {
+            JSONObject json = Rest.httpGet(url, map).json();
+            final boolean isReachable = ((String) json.get("result")).equalsIgnoreCase("true");
+            final Optional<Double> time = Optional.ofNullable(json.get("time"))
+                    .map(String::valueOf)
+                    .filter(t -> !t.isEmpty())
+                    .map(Double::parseDouble);
+            return Optional.of(new PingResult(isReachable, time));
+        }catch(ParseException|IOException ex){
+            log.error(ex.getMessage(), ex);
+            return Optional.empty();
+        }
     }
 
-    @Override
-    public void setup(SessionContext testSessionContext) {
-        log.debug("Setup : " + getName() + ", sensor : "+this.getClass().getName());
+    /**
+     * http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
+     *
+     * @param address
+     * @return
+     * @throws IOException
+     */
+    Optional<PingResult> pingJava(final String address){
+        try {
+            boolean reachable = Arrays.asList(InetAddress.getAllByName(address)).stream().anyMatch(addr -> {
+                try {
+                    return addr.isReachable(10000);
+                } catch (IOException ex) {
+                    return false;
+                }
+            });
+            return Optional.of(new PingResult(reachable));
+        } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
+            return Optional.empty();
+        }
     }
 
-    @Override
-    public void shutdown(SessionContext testSessionContext) {
-        log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
+    Optional<PingResult> pingShell(String address) {
+        // TODO this is a potential security issue as a user might execute any command on the shell!!!
+        Process p1 = null;
+        try {
+            p1 = Runtime.getRuntime().exec("ping -c 1 " + address);
+            int returnVal = p1.waitFor();
+            boolean reachable = (returnVal==0);
+            return Optional.of(new PingResult(reachable));
+        } catch (IOException|InterruptedException ex) {
+            // TODO we should probably handle the InterruptedException in a cleaner way
+            log.error(ex.getMessage(), ex);
+            return Optional.empty();
+        }
     }
 
-    public static void main(String [] args){
-        PingSensor pingSensor = new PingSensor();
-        pingSensor.setProperty(ADDRESS, "www.waylay.io");
-        SensorResult testResult = pingSensor.execute(null);
-        System.out.println(testResult.getRawData());
-        System.out.println(testResult.getObserverState());
+    static class PingResult{
+        final boolean reachable;
+        final Optional<Double> time;
 
-        pingSensor.setProperty(ADDRESS, "www.waylaay.io");
-        testResult = pingSensor.execute(null);
-        System.out.println(testResult.getRawData());
-        System.out.println(testResult.getObserverState());
+        PingResult(final boolean reachable, final Optional<Double> time) {
+            this.reachable = reachable;
+            this.time = time;
+        }
+
+        PingResult(final boolean reachable) {
+            this(reachable, Optional.empty());
+        }
     }
 }

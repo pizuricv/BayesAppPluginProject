@@ -8,7 +8,7 @@ package com.ai.myplugin.sensor;
 import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
@@ -99,7 +99,7 @@ public class PharmacySensor implements SensorPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         Double latitude = (Double) map.keySet().toArray()[0];
         Double longitude = (Double) map.values().toArray()[0];
@@ -113,24 +113,22 @@ public class PharmacySensor implements SensorPlugin {
         String pathURL = "http://datatank.gent.be/Gezondheid/Apotheken.json";
         ArrayList<MyPharmacyData> myPharmacyDatas = new ArrayList<MyPharmacyData>();
         try{
-            String stringToParse = Rest.httpGet(pathURL);
-            log.debug(stringToParse);
-            JSONObject parkingObj = (JSONObject) new JSONParser().parse(stringToParse);
-            JSONArray pharmaArray = (JSONArray)(parkingObj.get("Apotheken"));
+            JSONObject apothekenObject = Rest.httpGet(pathURL).json();
+            JSONArray pharmaArray = (JSONArray)(apothekenObject.get("Apotheken"));
             for(Object pharma : pharmaArray){
                 myPharmacyDatas.add(new MyPharmacyData(pharma, latitude, longitude));
             }
             Collections.sort(myPharmacyDatas);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
 
         pathURL = "http://www.coopapotheken.be/wachtdienst_regio.php?regio="+getProperty(CITY);
         String stringToParse;
         ArrayList<MyNightPharmacyData> myNightPharmacyDatas = new ArrayList<MyNightPharmacyData>();
         try{
-            stringToParse = Rest.httpGet(pathURL);
+            stringToParse = Rest.httpGet(pathURL).body();
             log.info(stringToParse);
 
             Document doc = Jsoup.parse(stringToParse);
@@ -163,7 +161,7 @@ public class PharmacySensor implements SensorPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         log.info("Best spot is "+myPharmacyDatas.get(0));
         JSONArray jsonArray = new JSONArray();

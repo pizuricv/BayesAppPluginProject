@@ -149,14 +149,13 @@ public class LocationRawSensor implements SensorPlugin {
 
         String url = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=" + URLEncoder.encode(address);
         //String url = "https://metropolis-api-geocode.p.mashape.com/solve?address=" + URLEncoder.encode(address);
-        String ret = Rest.httpGet(url, map);
+       return Rest.httpGet(url, map).json();
 
         //curl "https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false&key=AIzaSyAB4NA8aZi1wXgKRbMN8Z5BdNm7NkI9nb0"
 
         /*String url =  "https://maps.googleapis.com/maps/api/geocode/json?address="  + URLEncoder.encode(address) +
                 "&sensor=false&key="+APIKeys.getGoogleKey(); */
         //String ret = Rest.httpGet(url);
-        return (JSONObject) new JSONParser().parse(ret);
     }
 
     public static void main(String []args){

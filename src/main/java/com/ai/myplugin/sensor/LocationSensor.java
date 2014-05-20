@@ -74,7 +74,7 @@ public class LocationSensor implements SensorPlugin {
         Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
         if(rt1 == null || rt2 == null){
             log.warn("no runtime longitude or latitude given");
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         Double runtime_latitude = Utils.getDouble(rt1);
         Double runtime_longitude = Utils.getDouble(rt2);
@@ -131,7 +131,7 @@ public class LocationSensor implements SensorPlugin {
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
-                return new EmptyTestResult();
+                return new EmptySensorResult();
             }
         }
         if(currentData.size() > 0){

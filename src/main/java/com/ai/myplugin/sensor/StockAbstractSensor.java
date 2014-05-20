@@ -83,7 +83,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
 
         String stringToParse = null;
         try {
-            stringToParse = Rest.httpGet(urlPath);
+            stringToParse = Rest.httpGet(urlPath).body();
             log.debug("Response for " + getProperty(STOCK) + " >>" + stringToParse);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());

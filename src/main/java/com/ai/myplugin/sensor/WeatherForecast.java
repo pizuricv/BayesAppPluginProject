@@ -9,7 +9,7 @@ import com.ai.api.SensorPlugin;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.APIKeys;
-import com.ai.myplugin.util.EmptyTestResult;
+import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,13 +65,13 @@ public class WeatherForecast implements SensorPlugin {
         Map<String, String> map = new ConcurrentHashMap<String, String>();
         map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
         try {
-            String str = Rest.httpGet(server + city, map);
+            String str = Rest.httpGet(server + city, map).body();
             log.debug(str);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
         }
-        return new EmptyTestResult();
+        return new EmptySensorResult();
     }
 
     @Override

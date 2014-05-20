@@ -29,7 +29,9 @@ public class TreeSensor implements SensorPlugin {
     static final String LOCATION = "location";
     static final String LATITUDE = "latitude";
     static final String LONGITUDE = "longitude";
-    String pathURL = "http://datatank.gent.be/MilieuEnNatuur/Bomeninventaris.json";
+
+    private static final String pathURL = "http://datatank.gent.be/MilieuEnNatuur/Bomeninventaris.json";
+
     boolean showAll = false;
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
@@ -86,7 +88,7 @@ public class TreeSensor implements SensorPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         Double latitude = (Double) map.keySet().toArray()[0];
         Double longitude = (Double) map.values().toArray()[0];
@@ -99,9 +101,7 @@ public class TreeSensor implements SensorPlugin {
 
         ArrayList<MyTreeData> treeDatas = new ArrayList<MyTreeData>();
         try{
-            String stringToParse = Rest.httpGet(pathURL);
-            log.debug(stringToParse);
-            JSONObject jsonObj = (JSONObject) new JSONParser().parse(stringToParse);
+            JSONObject jsonObj = Rest.httpGet(pathURL).json();
             JSONArray trees = (JSONArray)jsonObj.get("Bomeninventaris");
             for(Object parking : trees){
                 treeDatas.add(new MyTreeData(parking, latitude, longitude));
@@ -111,7 +111,7 @@ public class TreeSensor implements SensorPlugin {
             log.info("sorting done");
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
-            return new EmptyTestResult();
+            return new EmptySensorResult();
         }
         log.info("Best spot is " + treeDatas.get(0));
         JSONArray jsonArray = new JSONArray();
