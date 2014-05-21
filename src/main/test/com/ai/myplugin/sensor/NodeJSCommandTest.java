@@ -71,7 +71,7 @@ public class NodeJSCommandTest extends TestCase{
 
     public void testRuntimeTemplate(){
         NodeJSCommand nodeJSCommand = new NodeJSCommand();
-        assertEquals("javaScript", nodeJSCommand.getRequiredProperties()[0]);
+        assertNotNull(nodeJSCommand.getRequiredProperties().get("javaScript"));
         String javaScript =  "a = { observedState:\"world\",\n" +
                 "      observedStates: {\n" +
                 "        state1 : 0.5,\n" +
@@ -85,8 +85,8 @@ public class NodeJSCommandTest extends TestCase{
                 "\n" +
                 "console.log(a);" ;
         nodeJSCommand.setProperty("javaScript", javaScript);
-        assertTrue(Arrays.asList(nodeJSCommand.getRuntimeProperties()).contains("runtime_hello"));
-        assertEquals(1, nodeJSCommand.getRequiredProperties().length);
+        assertTrue(nodeJSCommand.getRuntimeProperties().keySet().contains("runtime_hello"));
+        assertEquals(1, nodeJSCommand.getRequiredProperties().size());
         SessionContext testSessionContext = new SessionContext(1);
         testSessionContext.setAttribute("runtime_hello", "5");
 

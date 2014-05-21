@@ -5,12 +5,13 @@
  */
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 @PluginImplementation
@@ -19,14 +20,17 @@ public class ScriptSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(ScriptSensor.class);
     private String scriptBody;
 
+
     @Override
-    public String[] getRequiredProperties() {
-        return new String []{"script"};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put("script", new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override

@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -39,18 +37,22 @@ public class BestBuySensor implements SensorPlugin {
     private static final String NAME = "BestBuySensor";
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{PRODUCT, PRICE, URL};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(PRODUCT, new PropertyType(DataType.STRING, true, false));
+        map.put(PRICE, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(URL, new PropertyType(DataType.URL, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(Arrays.asList(getRequiredProperties()).contains(string)) {
+        if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");

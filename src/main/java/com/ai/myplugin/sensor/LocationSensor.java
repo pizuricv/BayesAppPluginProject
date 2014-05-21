@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -15,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,18 +35,26 @@ public class LocationSensor implements SensorPlugin {
     private static final String NAME = "LocationSensor";
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{LOCATION, LATITUDE, LONGITUDE, DISTANCE};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(LOCATION, new PropertyType(DataType.STRING, true, false));
+        map.put(LATITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(LONGITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(DISTANCE, new PropertyType(DataType.DOUBLE, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{RUNTIME_LATITUDE, RUNTIME_LONGITUDE};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(RUNTIME_LATITUDE, new PropertyType(DataType.STRING, true, false));
+        map.put(RUNTIME_LONGITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        return map;
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        if(Arrays.asList(getRequiredProperties()).contains(string)) {
+        if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");

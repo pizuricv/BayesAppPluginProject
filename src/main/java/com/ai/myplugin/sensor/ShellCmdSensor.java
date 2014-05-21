@@ -4,9 +4,7 @@
  */
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,15 +30,17 @@ public class ShellCmdSensor implements SensorPlugin {
     private AtomicBoolean done = new AtomicBoolean(false);
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String [] {"threshold", "command"} ;
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put("threshold", new PropertyType(DataType.DOUBLE, true, false));
+        map.put("command", new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
-
 
     //comma separated list of thresholds
     @Override

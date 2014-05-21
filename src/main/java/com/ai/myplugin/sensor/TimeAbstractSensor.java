@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,13 +34,16 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
 
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {TIME_ZONE};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(TIME_ZONE, new PropertyType(DataType.STRING, true, false));
+        map.put(DATE_FORMAT, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     //@TODO implement the time zone
@@ -121,8 +122,6 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
             public List<Map<String, Number>> getObserverStates() {
                 return null;
             }
-
-            ;
 
             @Override
             public String getRawData(){

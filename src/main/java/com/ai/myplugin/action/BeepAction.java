@@ -6,15 +6,19 @@ package com.ai.myplugin.action;
 
 import com.ai.api.ActuatorPlugin;
 import com.ai.api.ActuatorResult;
+import com.ai.api.PropertyType;
 import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @PluginImplementation
 public class BeepAction implements ActuatorPlugin{
     private static final String NAME = "Beep";
     @Override
-    public String[] getRequiredProperties() {
-        return new String[0];
+    public Map<String, PropertyType> getRequiredProperties() {
+        return new HashMap<>();
     }
 
     @Override

@@ -5,10 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
@@ -38,17 +35,20 @@ public class RawFormulaSensor implements SensorPlugin {
     private static final String NAME = "RawFormulaSensor";
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String [] {THRESHOLD, FORMULA} ;
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(THRESHOLD, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(FORMULA, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     public void setProperty(String string, Object obj) {
-        if(Arrays.asList(getRequiredProperties()).contains(string)) {
+        if(getRequiredProperties().keySet().contains(string)) {
             if(string.equalsIgnoreCase(THRESHOLD)){
                 String input = obj.toString();
                 input = input.replace("[","").replace("]","");

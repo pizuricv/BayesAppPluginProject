@@ -4,12 +4,12 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @PluginImplementation
 public class AlarmDialog implements ActuatorPlugin {
@@ -18,8 +18,11 @@ public class AlarmDialog implements ActuatorPlugin {
 
     private String alarmMessage = null;
 
-    public String[] getRequiredProperties() {
-        return new String[] {"Message to show"};
+    @Override
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put("Message", new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     public void setProperty(String string, Object obj) {

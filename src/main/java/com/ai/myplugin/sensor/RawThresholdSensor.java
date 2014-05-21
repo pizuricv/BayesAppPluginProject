@@ -5,10 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -31,13 +28,18 @@ public class RawThresholdSensor implements SensorPlugin {
     private String node;
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String [] {"threshold", "rawData", "node", "states"} ;
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put("threshold", new PropertyType(DataType.DOUBLE, true, false));
+        map.put("states", new PropertyType(DataType.STRING, true, false));
+        map.put("rawData", new PropertyType(DataType.STRING, true, false));
+        map.put("node", new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
 

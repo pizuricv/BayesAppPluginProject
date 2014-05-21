@@ -5,10 +5,7 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import com.ai.myplugin.util.NodeConfig;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
@@ -18,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import twitter4j.internal.org.json.JSONObject;
 import org.stringtemplate.v4.ST;
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NodeJSAction implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(NodeJSAction.class);
     private static final int WAIT_FOR_RESULT = 5;
+    private static final String JAVA_SCRIPT = "javaScript";
     private String javaScriptCommand;
     private String nodePath = NodeConfig.getNodePath();
     private String workingDir = NodeConfig.getNodeDir();
@@ -145,17 +144,19 @@ public class NodeJSAction implements ActuatorPlugin{
     }
 
     @Override
-    public String[] getRequiredProperties() {
-        if(getProperty("javaScript") == null)
-            return new String[] {"javaScript"};
-        Set<String> set = RawDataParser.parseKeyArgs((String) getProperty("javaScript"));
-        Set<String> set2 = RawDataParser.getRuntimePropertiesFromTemplate((String) getProperty("javaScript"), "runtime_");
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        if(getProperty(JAVA_SCRIPT) == null) {
+            map.put(JAVA_SCRIPT, new PropertyType(DataType.STRING, true, true));
+            return map;
+        }
+        Set<String> set = RawDataParser.parseKeyArgs((String) getProperty(JAVA_SCRIPT));
+        Set<String> set2 = RawDataParser.getRuntimePropertiesFromTemplate((String) getProperty(JAVA_SCRIPT), "runtime_");
         set.removeAll(set2);
         set.add("javaScript");
-        String [] ret = new String[set.size()];
         for(int i=0 ; i< set.size(); i++)
-            ret[i] = (String) set.toArray()[i];
-        return ret;
+            map.put((String) set.toArray()[i], new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override
@@ -165,9 +166,9 @@ public class NodeJSAction implements ActuatorPlugin{
         } else if ("nodePath".equals(s)){
             nodePath = o.toString();
         } else {
-            Set<String> set = RawDataParser.parseKeyArgs((String) getProperty("javaScript"));
+            Set<String> set = RawDataParser.parseKeyArgs((String) getProperty(JAVA_SCRIPT));
             if(set.contains(s)){
-                String template = (String) getProperty("javaScript");
+                String template = (String) getProperty(JAVA_SCRIPT);
                 ST hello = new ST(template);
                 try{
                     Utils.getDouble(o);
@@ -175,7 +176,7 @@ public class NodeJSAction implements ActuatorPlugin{
                     o = "'" +o.toString() + "'";
                 }
                 hello.add(s, o);
-                setProperty("javaScript" , hello.render());
+                setProperty(JAVA_SCRIPT, hello.render());
             }
         }
     }

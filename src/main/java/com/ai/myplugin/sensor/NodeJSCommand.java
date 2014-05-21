@@ -4,10 +4,7 @@
  */
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -31,43 +28,48 @@ public class NodeJSCommand implements SensorPlugin {
     private int exitVal = -1;
     private String result = "";
     private static final String NAME = "NodeJSCommand";
+    private static final String JAVA_SCRIPT = "javaScript";
     private AtomicBoolean done = new AtomicBoolean(false);
 
+
+
     @Override
-    public String[] getRequiredProperties() {
-        if(getProperty("javaScript") == null)
-            return new String[] {"javaScript"};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        if(getProperty("javaScript") == null)  {
+            map.put(JAVA_SCRIPT, new PropertyType(DataType.STRING, true, true));
+            return map;
+        }
         Set<String> set = RawDataParser.parseKeyArgs((String) getProperty("javaScript"));
         Set<String> set2 = RawDataParser.getRuntimePropertiesFromTemplate((String) getProperty("javaScript"), "runtime_");
         set.removeAll(set2);
-        set.add("javaScript");
-        String [] ret = new String[set.size()];
+        set.add(JAVA_SCRIPT);
         for(int i=0 ; i< set.size(); i++)
-            ret[i] = (String) set.toArray()[i];
-        return ret;
+            map.put((String) set.toArray()[i], new PropertyType());
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
+    public Map<String, PropertyType>  getRuntimeProperties() {
         Set<String> set = RawDataParser.getRuntimePropertiesFromTemplate((String) getProperty("javaScript"), "runtime_");
         if(set.size() == 0)
-            return new String[]{};
-        String [] ret = new String[set.size()];
+            return new HashMap<>();
+        Map<String, PropertyType> map = new HashMap<>();
         for(int i=0 ; i< set.size(); i++)
-            ret[i] = (String) set.toArray()[i];
-        return ret;
+            map.put((String) set.toArray()[i], new PropertyType());
+        return map;
     }
 
     @Override
     public void setProperty(String s, Object o) {
-        if("javaScript".equals(s)){
+        if(JAVA_SCRIPT.equals(s)){
             javaScriptCommand = o.toString();
         } else if ("nodePath".equals(s)){
             nodePath = o.toString();
         } else {
-            Set<String> set = RawDataParser.parseKeyArgs((String) getProperty("javaScript"));
+            Set<String> set = RawDataParser.parseKeyArgs((String) getProperty(JAVA_SCRIPT));
             if(set.contains(s)){
-                String template = (String) getProperty("javaScript");
+                String template = (String) getProperty(JAVA_SCRIPT);
                 ST hello = new ST(template);
                 try{
                     Utils.getDouble(o);
@@ -75,7 +77,7 @@ public class NodeJSCommand implements SensorPlugin {
                     o = "'" +o.toString() + "'";
                 }
                 hello.add(s, o);
-                setProperty("javaScript" , hello.render());
+                setProperty(JAVA_SCRIPT, hello.render());
             }
         }
     }
@@ -99,7 +101,7 @@ public class NodeJSCommand implements SensorPlugin {
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
-        for(String runtimeProperty : getRuntimeProperties()){
+        for(String runtimeProperty : getRuntimeProperties().keySet()){
             log.info("set property "+ runtimeProperty + ", for sensor " + getName());
             setProperty(runtimeProperty, testSessionContext.getAttribute(runtimeProperty));
         }
@@ -297,7 +299,7 @@ public class NodeJSCommand implements SensorPlugin {
                 "\n" +
                 "console.log(a)" ;
         nodeJSCommand.setProperty("javaScript", javaScript);
-        System.out.println(Arrays.asList(nodeJSCommand.getRequiredProperties()).toString());
+        System.out.println(nodeJSCommand.getRequiredProperties().keySet().toString());
 
        // TestResult testResult = nodeJSCommand.execute(null);
        // log.info(testResult.toString());

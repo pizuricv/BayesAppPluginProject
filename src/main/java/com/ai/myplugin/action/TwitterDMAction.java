@@ -4,10 +4,7 @@
  */
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.RawDataParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -42,9 +39,15 @@ public class TwitterDMAction implements ActuatorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET,
-                TWITTER_ACCOUNT, TWITTER_MESSAGE};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put(CONSUMER_KEY, new PropertyType(DataType.STRING, true, true));
+        map.put(CONSUMER_SECRET, new PropertyType(DataType.STRING, true, true));
+        map.put(ACCESS_TOKEN, new PropertyType(DataType.STRING, true, true));
+        map.put(ACCESS_TOKEN_SECRET, new PropertyType(DataType.STRING, true, true));
+        map.put(TWITTER_ACCOUNT, new PropertyType(DataType.STRING, true, true));
+        map.put(TWITTER_MESSAGE, new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override

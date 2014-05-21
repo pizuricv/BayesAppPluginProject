@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -17,6 +15,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,14 +29,17 @@ public class LocationRawSensor implements SensorPlugin {
     String location;
     String [] states = {"Collected", "Not Collected"};
     private static final String NAME = "LocationRawSensor";
+
     @Override
-    public String[] getRequiredProperties() {
-        return new String []{"Location"};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(LOCATION, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override

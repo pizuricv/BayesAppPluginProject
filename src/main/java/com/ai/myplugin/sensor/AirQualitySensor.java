@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -19,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,13 +31,15 @@ public class AirQualitySensor implements SensorPlugin {
     private String location = null;
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{LOCATION};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(LOCATION, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override
@@ -65,7 +66,7 @@ public class AirQualitySensor implements SensorPlugin {
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        for(String property : getRequiredProperties()){
+        for(String property : getRequiredProperties().keySet()){
             if(getProperty(property) == null)
                 throw new RuntimeException("Required property "+property + " not defined");
         }

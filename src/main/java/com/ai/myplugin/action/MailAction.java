@@ -1,10 +1,7 @@
 package com.ai.myplugin.action;
 
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.conf.Configuration;
@@ -44,8 +41,12 @@ public class MailAction implements ActuatorPlugin {
     private String subject = "" ;
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {MAIL_TO, SUBJECT, MESSAGE};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put(MAIL_TO, new PropertyType(DataType.STRING, true, true));
+        map.put(SUBJECT, new PropertyType(DataType.STRING, true, true));
+        map.put(MESSAGE, new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override

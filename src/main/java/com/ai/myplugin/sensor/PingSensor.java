@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
@@ -22,10 +20,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -40,14 +35,15 @@ public class PingSensor implements SensorPlugin {
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
-
-    public String[] getRequiredProperties() {
-        return new String[] {ADDRESS};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(ADDRESS, new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType>  getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     public void setProperty(String string, Object obj) {

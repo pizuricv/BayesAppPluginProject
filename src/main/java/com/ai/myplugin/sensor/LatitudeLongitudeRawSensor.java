@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
@@ -19,6 +17,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,14 +32,18 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
     Double longitudeCoordinate;
     String [] states = {"Collected", "Not Collected"};
     private static final String NAME = "LatitudeLongitudeRawSensor";
+
     @Override
-    public String[] getRequiredProperties() {
-        return new String []{"latitude", "longitude"};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(LATITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(LONGITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override

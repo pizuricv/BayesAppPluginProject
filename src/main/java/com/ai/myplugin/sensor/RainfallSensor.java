@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
@@ -70,7 +68,7 @@ public class RainfallSensor implements SensorPlugin {
             return new EmptySensorResult();
         }
 
-        Optional<RainResult> parsed = parseResponse(stringToParse);
+        final Optional<RainResult> parsed = parseResponse(stringToParse);
 
         return new SensorResult() {
             @Override
@@ -121,18 +119,25 @@ public class RainfallSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {LOCATION, LONGITUDE, LATITUDE};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(LOCATION, new PropertyType(DataType.STRING, true, false));
+        map.put(LATITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(LONGITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[] {RUNTIME_LATITUDE, RUNTIME_LONGITUDE};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(RUNTIME_LATITUDE, new PropertyType(DataType.STRING, true, false));
+        map.put(RUNTIME_LONGITUDE, new PropertyType(DataType.DOUBLE, true, false));
+        return map;
     }
 
     @Override
     public void setProperty(String s, Object o) {
-        if(Arrays.asList(getRequiredProperties()).contains(s)) {
+        if(getRequiredProperties().keySet().contains(s)) {
             propertiesMap.put(s, o);
         } else {
             throw new RuntimeException("Property "+ s + " not in the required settings");

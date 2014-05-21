@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
@@ -16,6 +14,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -161,13 +161,15 @@ public class SensulosSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{ID};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(ID, new PropertyType(DataType.INTEGER, true, true));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String,PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override

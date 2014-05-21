@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,8 +22,10 @@ public class ActionPrintScreen implements ActuatorPlugin{
     Map<String, Object> propertiesMap = new HashMap<String, Object>();
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{DUMMY_PROPERTY};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put(DUMMY_PROPERTY, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override

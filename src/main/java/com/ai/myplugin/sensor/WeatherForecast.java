@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
@@ -15,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,13 +31,15 @@ public class WeatherForecast implements SensorPlugin {
 
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {"City"};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(CITY, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     @Override

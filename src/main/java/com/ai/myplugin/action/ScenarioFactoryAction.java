@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -20,6 +18,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,20 +44,29 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
     private URL url;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, java.lang.Object>();
 
+
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{TARGET, SERVER_ADDRESS, USER_NAME, USER_PASSWORD, NETWORK,
-        TYPE, FREQUENCY, STOP_STATE, OPERATOR, THRESHOLD, SCENARIO_NAME, RESOURCE, START};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put(TARGET, new PropertyType(DataType.STRING, true, true));
+        map.put(SERVER_ADDRESS, new PropertyType(DataType.STRING, true, true));
+        map.put(USER_NAME, new PropertyType(DataType.STRING, true, true));
+        map.put(USER_PASSWORD, new PropertyType(DataType.STRING, true, true));
+        map.put(NETWORK, new PropertyType(DataType.STRING, true, true));
+        map.put(TYPE, new PropertyType(DataType.STRING, true, true));
+        map.put(FREQUENCY, new PropertyType(DataType.INTEGER, true, true));
+        map.put(STOP_STATE, new PropertyType(DataType.STRING, true, true));
+        map.put(OPERATOR, new PropertyType(DataType.INTEGER, true, true));
+        map.put(THRESHOLD, new PropertyType(DataType.DOUBLE, true, true));
+        map.put(SCENARIO_NAME, new PropertyType(DataType.STRING, true, true));
+        map.put(RESOURCE, new PropertyType(DataType.STRING, true, true));
+        map.put(START, new PropertyType(DataType.BOOLEAN, true, true));
+        return map;
     }
 
     @Override
     public void setProperty(String string, Object obj) {
-        String properties [] = getRequiredProperties();
-        if(Arrays.asList(properties).contains(string)) {
-            propertiesMap.put(string, obj);
-        } else {
-            throw new RuntimeException("Property "+ string + " not in the required settings");
-        }
+        propertiesMap.put(string, obj);
     }
 
     @Override

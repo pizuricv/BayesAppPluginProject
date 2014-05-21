@@ -4,10 +4,7 @@
  */
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 @PluginImplementation
@@ -27,8 +25,10 @@ public class WebHookAction implements ActuatorPlugin{
     private URL hook;
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {HOOK_URL};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put(HOOK_URL, new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override

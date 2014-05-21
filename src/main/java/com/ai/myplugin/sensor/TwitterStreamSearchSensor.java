@@ -5,9 +5,7 @@
 
 package com.ai.myplugin.sensor;
 
-import com.ai.api.SensorPlugin;
-import com.ai.api.SensorResult;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.SentimentAnalysis;
 import com.ai.myplugin.util.TwitterConfig;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -36,17 +34,19 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
     protected ExecutorService cleanUpService = Executors.newSingleThreadExecutor();
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String []{SEARCH_TERMS};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(SEARCH_TERMS, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override
-    public String[] getRuntimeProperties() {
-        return new String[]{};
+    public Map<String, PropertyType> getRuntimeProperties() {
+        return new HashMap<>();
     }
 
     public void setProperty(String string, Object obj) {
-        if(Arrays.asList(getRequiredProperties()).contains(string)) {
+        if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);
         } else {
             throw new RuntimeException("Property "+ string + " not in the required settings");

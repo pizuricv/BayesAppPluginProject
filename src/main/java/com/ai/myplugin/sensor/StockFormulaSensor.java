@@ -1,5 +1,7 @@
 package com.ai.myplugin.sensor;
 
+import com.ai.api.DataType;
+import com.ai.api.PropertyType;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.FormulaParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -7,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,8 +23,12 @@ public class StockFormulaSensor extends StockAbstractSensor {
     FormulaParser formulaParser = new FormulaParser();
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{STOCK, THRESHOLD, FORMULA_DEFINITION};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(STOCK, new PropertyType(DataType.STRING, true, false));
+        map.put(THRESHOLD, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(FORMULA_DEFINITION, new PropertyType(DataType.STRING, true, false));
+        return map;
     }
 
     @Override

@@ -1,6 +1,11 @@
 package com.ai.myplugin.sensor;
 
+import com.ai.api.DataType;
+import com.ai.api.PropertyType;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 @PluginImplementation
@@ -16,8 +21,11 @@ public class DateSensor extends TimeAbstractSensor {
     }
 
     @Override
-    public String[] getRequiredProperties() {
-        return new String[] {TIME_ZONE, DATE};
+    public Map<String, PropertyType> getRequiredProperties() {
+        Map<String, PropertyType> map = new HashMap<>();
+        map.put(TIME_ZONE, new PropertyType(DataType.STRING, true, false));
+        map.put(DATE, new PropertyType(DataType.DATE, true, false));
+        return map;
     }
 
     public static void main (String []args){

@@ -5,16 +5,14 @@
 
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
-import com.ai.api.SessionContext;
-import com.ai.api.SessionParams;
+import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,9 +29,15 @@ public class NetworkWire implements ActuatorPlugin{
     private URL url;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
+
     @Override
-    public String[] getRequiredProperties() {
-        return new String[]{SCENARIO_ID, SERVER_ADDRESS, USER_NAME, USER_PASSWORD};
+    public Map<String,PropertyType> getRequiredProperties() {
+        Map<String,PropertyType> map = new HashMap<>();
+        map.put(SCENARIO_ID, new PropertyType(DataType.LONG, true, true));
+        map.put(SERVER_ADDRESS, new PropertyType(DataType.STRING, true, true));
+        map.put(USER_NAME, new PropertyType(DataType.STRING, true, true));
+        map.put(USER_PASSWORD, new PropertyType(DataType.STRING, true, true));
+        return map;
     }
 
     @Override
