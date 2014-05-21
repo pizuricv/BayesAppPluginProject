@@ -139,6 +139,8 @@ public class RawDataParser {
     };
 
     public static Set<String> getRuntimePropertiesFromTemplate(String template, String startString){
+        if(template == null || startString == null)
+            return new HashSet<>();
         Set<String> set = parseKeyArgs(template);
         Set<String> ret = new HashSet<String>();
         for(String key : set)
