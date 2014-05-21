@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class Rest {
     private static final Log log = LogFactory.getLog(Rest.class);
 
-    private static final int TIMEOUT_MILLIS = (int)TimeUnit.SECONDS.toMillis(30);
+    private static final int TIMEOUT_MILLIS = (int)TimeUnit.SECONDS.toMillis(300);
 
     public static RestReponse httpGet(String urlPath, Map<String, String> httpSettings) throws IOException {
         log.info("GET " + urlPath);
