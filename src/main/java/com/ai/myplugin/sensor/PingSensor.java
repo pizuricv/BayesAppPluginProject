@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
+@PluginHeader (version = "1.0.1", author = "Veselin")
 public class PingSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(PingSensor.class);
 
@@ -190,6 +191,14 @@ public class PingSensor implements SensorPlugin {
             log.error(ex.getMessage(), ex);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType("result", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("time", "seconds", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return list;
     }
 
     static class PingResult{
