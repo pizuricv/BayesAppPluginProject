@@ -15,6 +15,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,21 @@ public class LocationRawSensor implements SensorPlugin {
                 }
             };
         }
+    }
+
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType("zip", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("country", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("city", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("latitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("latitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("longitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("street_number", "number", DataType.INTEGER, true, CollectedType.INSTANT));
+        list.add(new RawDataType("region", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("street_name", "string", DataType.STRING, true, CollectedType.INSTANT));
+        return list;
     }
 
     @Override

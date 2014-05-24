@@ -47,5 +47,6 @@ public class TemperatureSensor extends WeatherAbstractSensor{
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
         log.info(testResult.getObserverState());
+        log.info(testResult.getRawData());
     }
 }

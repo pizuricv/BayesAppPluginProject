@@ -12,10 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -188,6 +186,24 @@ public class LocationSensor implements SensorPlugin {
             }
         };
 
+    }
+
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType(RUNTIME_LATITUDE, "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType(RUNTIME_LONGITUDE, "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("distance", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        list.add(new RawDataType("zip", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("country", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("city", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("latitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("latitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("longitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("street_number", "number", DataType.INTEGER, true, CollectedType.INSTANT));
+        list.add(new RawDataType("region", "string", DataType.STRING, true, CollectedType.INSTANT));
+        list.add(new RawDataType("street_name", "string", DataType.STRING, true, CollectedType.INSTANT));
+        return list;
     }
 
     @Override

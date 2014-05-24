@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,7 @@ public class AirQualitySensor implements SensorPlugin {
             @Override
             public String getRawData() {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("value", finalValue);
+                jsonObject.put("airQuality", finalValue);
 
                 if(finalO3 != -1)
                     jsonObject.put("O3", finalO3);
@@ -190,6 +191,20 @@ public class AirQualitySensor implements SensorPlugin {
                 return jsonObject.toJSONString();
             }
         };
+    }
+
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType("airQuality", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("O3", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("CO", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("NO2", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("PM10", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("SO2", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("PM25", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("C6H6", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return list;
     }
 
     private double getDouble(String value) {

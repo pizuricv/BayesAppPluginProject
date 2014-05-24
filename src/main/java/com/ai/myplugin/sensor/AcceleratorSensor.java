@@ -12,10 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -123,6 +121,14 @@ public class AcceleratorSensor implements SensorPlugin {
             }
         };
 
+    }
+
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType(RUNTIME_ACCELERATOR, "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType(ACCELERATOR_THRESHOLD, "value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return list;
     }
 
     @Override

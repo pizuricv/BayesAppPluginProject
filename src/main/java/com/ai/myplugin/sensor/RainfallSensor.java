@@ -200,6 +200,17 @@ public class RainfallSensor implements SensorPlugin {
         }
     }
 
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType("min", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        list.add(new RawDataType("max", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        list.add(new RawDataType("avg", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        list.add(new RawDataType("mm_per_hour", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        list.add(new RawDataType("forecast_raw", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        return list;
+    }
+
     private JSONObject resultToJson(RainResult result){
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();

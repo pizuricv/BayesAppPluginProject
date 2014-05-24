@@ -143,8 +143,14 @@ public class RawFormulaSensor implements SensorPlugin {
                 jsonObject.put("formulaValue", finalRes);
                 return  jsonObject.toJSONString();
             }
-
         };
+    }
+
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType("formulaValue", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        return list;
     }
 
     @Override

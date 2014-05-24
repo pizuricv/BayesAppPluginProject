@@ -194,6 +194,18 @@ public abstract class StockAbstractSensor implements SensorPlugin {
         } ;
     }
 
+    @Override
+    public List<RawDataType> getRawDataTypes() {
+        List<RawDataType> list = new ArrayList<>();
+        list.add(new RawDataType("moving_average", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("high", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("price", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("low", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("percent", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        list.add(new RawDataType("volume", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return list;
+    }
+
     private void parseOutput(String tag, Map<String, Double> parsing, StringTokenizer stringTokenizer) {
         try{
             String string = stringTokenizer.nextToken();
@@ -250,6 +262,6 @@ public abstract class StockAbstractSensor implements SensorPlugin {
         stockSensor.setProperty(STOCK, "BAR.BR");
         stockSensor.setProperty(THRESHOLD, "-1.0");
         log.debug(stockSensor.execute(null).getObserverState());
-        log.debug(stockSensor.execute(null).getRawData());
+        log.info(stockSensor.execute(null).getRawData());
     }
 }
