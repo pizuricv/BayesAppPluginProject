@@ -12,7 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * FIXME what does this do?
+ */
 @PluginImplementation
 public class ActionPrintScreen implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(ActionPrintScreen.class);

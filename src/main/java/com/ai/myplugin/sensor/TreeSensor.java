@@ -91,36 +91,33 @@ public class TreeSensor implements SensorPlugin {
             showAll = Boolean.parseBoolean((String) getProperty(SHOW_ALL));
         }
 
-        Map<Double, Double> map;
+        Geocoder.LatLng latLng;
         try {
-            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+            latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION),
                     getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return new EmptySensorResult();
         }
-        Double latitude = (Double) map.keySet().toArray()[0];
-        Double longitude = (Double) map.values().toArray()[0];
 
-        log.info("Current location: "+ latitude + ","+longitude);
+        log.info("Current location: " + latLng);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, longitude);
+        jsonObject.put(RUNTIME_LATITUDE, latLng.latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, latLng.longitude);
 
         ArrayList<MyTreeData> treeDatas = new ArrayList<MyTreeData>();
         try{
             JSONObject jsonObj = Rest.httpGet(pathURL).json();
             JSONArray trees = (JSONArray)jsonObj.get("Bomeninventaris");
             for(Object parking : trees){
-                treeDatas.add(new MyTreeData(parking, latitude, longitude));
+                treeDatas.add(new MyTreeData(parking, latLng.latitude, latLng.longitude));
             }
             log.info("sorting...");
             Collections.sort(treeDatas);
             log.info("sorting done");
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage(), e);
             return new EmptySensorResult();
         }
         log.info("Best spot is " + treeDatas.get(0));

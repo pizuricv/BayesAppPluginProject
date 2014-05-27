@@ -22,15 +22,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
 public class NodeJSCommand implements SensorPlugin {
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
-    private static final int WAIT_FOR_RESULT = 5;
+
+    private static final String NAME = "NodeJSCommand";
+    private static final String JAVA_SCRIPT = "javaScript";
+
     private String javaScriptCommand;
     private String nodePath = NodeConfig.getNodePath();
     private String workingDir = NodeConfig.getNodeDir();
-    private int exitVal = -1;
-    private String result = "";
-    private static final String NAME = "NodeJSCommand";
-    private static final String JAVA_SCRIPT = "javaScript";
-    private AtomicBoolean done = new AtomicBoolean(false);
 
 
 
@@ -112,60 +110,15 @@ public class NodeJSCommand implements SensorPlugin {
             javaScriptCommand = "RAW_STRING = '"+jsonObject.toString() + "';\n" + javaScriptCommand;
         }
 
-        File file;
-        File dir = new File(workingDir);
-        String javascriptFile = "";
-
         try {
-            try {
-                javascriptFile =  Long.toString(System.nanoTime()) + "runs.js";
-                file = new File(dir+ File.separator + javascriptFile);
-                BufferedWriter output = new BufferedWriter(new FileWriter(file));
-                output.write(javaScriptCommand);
-                output.close();
-            } catch ( IOException e ) {
-                e.printStackTrace();
-                log.error(e.getMessage());
-                return new EmptySensorResult();
-            }
+            Node node = new Node(nodePath, workingDir);
 
-            ProcessBuilder pb = new ProcessBuilder(nodePath, javascriptFile);
-            pb.directory(new File(workingDir));
-            Process process = pb.start();
+            final Node.NodeResult result = node.executeScript(javaScriptCommand);
 
-            StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), StdType.ERROR);
-            StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), StdType.OUTPUT);
-
-            errorGobbler.start();
-            outputGobbler.start();
-
-            exitVal = process.waitFor();
-
-            log.debug(getName() + " ExitValue: " + exitVal);
-            file.delete();
-
-            (new Runnable() {
-                //waitForResult is not a timeout for the javaScriptCommand itself, but how long you wait before the stream of
-                //output data is processed, should be really fast.
-                private int waitForResult = WAIT_FOR_RESULT;
-                @Override
-                public void run() {
-                    while(!done.get() && waitForResult > 0)
-                        try {
-                            Thread.sleep(1000);
-                            log.debug(".");
-                            log.info(result);
-                            waitForResult --;
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            break;
-                        }
-                }
-            } ).run();
             return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
-                    return  exitVal == 0 ;
+                    return  result.exitVal == 0 ;
                 }
 
                 @Override
@@ -176,22 +129,21 @@ public class NodeJSCommand implements SensorPlugin {
                 @Override
                 public String getObserverState() {
                     try {
-                        JSONObject obj = new JSONObject(result);
+                        JSONObject obj = new JSONObject(result.output);
                         return (String) obj.get("observedState");
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error(e.getMessage());
+                        log.error(e.getMessage(), e);
+                        return null;
                     }
-                    return null;
                 }
 
                 @Override
                 public List<Map<String, Number>> getObserverStates() {
                     try {
-                        Map <String, Number> map = new ConcurrentHashMap<String, Number>();
-                        ArrayList list = new ArrayList();
+                        Map <String, Number> map = new ConcurrentHashMap<>();
+                        List<Map <String, Number>> list = new ArrayList<>();
                         list.add(map);
-                        JSONObject obj = new JSONObject(result);
+                        JSONObject obj = new JSONObject(result.output);
                         JSONObject o  = (JSONObject) obj.get("observedStates");
                         Iterator iterator = o.keys();
                         while(iterator.hasNext()){
@@ -201,28 +153,26 @@ public class NodeJSCommand implements SensorPlugin {
                         }
                         return list;
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error(e.getMessage());
+                        log.error(e.getMessage(), e);
+                        return null;
                     }
-                    return null;
                 }
 
                 @Override
                 public String getRawData() {
                     try {
-                        JSONObject obj = new JSONObject(result);
+                        JSONObject obj = new JSONObject(result.output);
                         return obj.get("rawData").toString();
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error(e.getMessage());
+                        log.error(e.getMessage(), e);
+                        return null;
                     }
-                    return null;
                 }
             }  ;
 
+            // FIXME catching throwable is a bad idea
         } catch (Throwable t) {
-            log.error(t.getLocalizedMessage());
-            t.printStackTrace();
+            log.error(t.getLocalizedMessage(), t);
             return new EmptySensorResult();
         }
     }
@@ -237,42 +187,6 @@ public class NodeJSCommand implements SensorPlugin {
         return null;
     }
 
-    enum StdType {
-        ERROR, OUTPUT
-    }
-
-    private class StreamGobbler extends Thread {
-        InputStream is;
-        private StdType stdType;
-
-        StreamGobbler(InputStream is, StdType type) {
-            this.is = is;
-            this.stdType = type;
-        }
-
-        public void run() {
-            try {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line;
-                while ((line = br.readLine()) != null)
-                    logLine(line, stdType);
-                done.set(true);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
-        private void logLine(String line, StdType type) {
-            if(type.equals(StdType.ERROR)){
-                log.error("Error executing the script >" + line);
-                //throw new RuntimeException("Error executing the script "+ getName() + " : error is "+ line);
-            } else{
-                result += line;
-                log.info(line);
-            }
-        }
-    }
 
     @Override
     public void setup(SessionContext testSessionContext) {

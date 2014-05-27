@@ -74,8 +74,6 @@ public class TwitterDMAction implements ActuatorPlugin {
     @Override
     public void action(SessionContext testSessionContext) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
-        Configuration configuration;
-        boolean success = true;
 
         fetchTwitterPropertiesFromFile();
 
@@ -95,12 +93,10 @@ public class TwitterDMAction implements ActuatorPlugin {
         }
 
         try {
-            DirectMessage message = twitter.sendDirectMessage((String) getProperty(TWITTER_ACCOUNT),
-                    twitterMessage);
+            DirectMessage message = twitter.sendDirectMessage((String) getProperty(TWITTER_ACCOUNT), twitterMessage);
             log.info("Direct message successfully sent to " + message.getRecipientScreenName());
         } catch (TwitterException te) {
-            te.printStackTrace();
-            log.error("Failed to send a direct message: " + te.getMessage());
+            log.error("Failed to send a direct message: " + te.getMessage(), te);
             throw new RuntimeException(te);
         }
     }

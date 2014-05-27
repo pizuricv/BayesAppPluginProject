@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Utils {
     private static final Log log = LogFactory.getLog(Utils.class);
@@ -15,6 +16,10 @@ public class Utils {
     private static final String RUNTIME_LONGITUDE = "runtime_longitude";
 
     public static Double getDouble(Object obj){
+        if(obj == null){
+            return null;
+        }
+
         Number number;
         if(obj instanceof String){
             try {
@@ -40,53 +45,49 @@ public class Utils {
         return number.doubleValue();
     }
 
-
-
-    public static Map<Double, Double> getLocation(SessionContext testSessionContext, Object location,
+    public static Geocoder.LatLng getLocation(SessionContext testSessionContext, Object location,
                                                   Object longitude, Object latitude) throws Exception {
 
-        Map<Double, Double> mapLocation = new HashMap<Double, Double>();
-        Object rt1 = null;
-        Object rt2 = null;
-        if(testSessionContext != null){
-            rt1 = testSessionContext.getAttribute(RUNTIME_LATITUDE);
-            rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
+        Optional<Geocoder.LatLng> runtimeLatLng = getRuntimeLatLng(testSessionContext);
+
+        // ugly syntax because there is no or in Java8 :-s
+
+        return runtimeLatLng
+                .orElseGet(() -> getProvidedLatLng(latitude, longitude)
+                        .orElseGet(() -> getLatLngByLocation(location)
+                                .orElseThrow(() -> new RuntimeException("latitude, longitude and/or location not configured"))));
+    }
+
+    private static Optional<Geocoder.LatLng> getProvidedLatLng(Object latitude, Object longitude){
+        if (latitude == null || longitude == null) {
+            return Optional.empty();
+        }else{
+            return Optional.of(new Geocoder.LatLng(Utils.getDouble(latitude), Utils.getDouble(longitude)));
         }
-        if(rt1 == null || rt2 == null){
-            log.warn("no runtime longitude or latitude given, it will use configured location instead");
-            if(latitude == null || longitude == null){
-                if(location != null){
-                    log.info("Location configured as the address: " + location +  " , try to get coordinates");
-                    JSONObject jsonObject;
-                    try {
-                        jsonObject = LocationRawSensor.getLongitudeLatitudeForAddress(location.toString());
-                    } catch (Exception e) {
-                        String message = "location could not be found "+ e.getMessage();
-                        e.printStackTrace();
-                        log.error(message);
-                        throw new Exception(message);
-                    }
-                    double lon = Utils.getDouble(jsonObject.get("longitude"));
-                    double lat = Utils.getDouble(jsonObject.get("latitude"));
-                    log.info("Use configured location: "+ lat + ","+lon);
-                    mapLocation.put(lat, lon);
-                } else {
-                    String message = "longitude or latitude not configured";
-                    log.error(message);
-                    throw new Exception(message);
-                }
-            } else{
-                double lat = Utils.getDouble(latitude);
-                double lon = Utils.getDouble(longitude);
-                log.info("Use configured location: "+ lat + ","+lon);
-                mapLocation.put(lat, lon);
-            }
+    }
+
+    private static Optional<Geocoder.LatLng> getLatLngByLocation(Object location){
+        if (location != null) {
+            log.info("Location configured as the address: " + location + " , try to get coordinates");
+            Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location.toString());
+            log.info("Use location: " + latLng);
+            return Optional.of(latLng);
         } else {
-            double lat = Utils.getDouble(rt1);
-            double lon = Utils.getDouble(rt2);
-            log.info("Use runtime location: "+ lat + ","+lon);
-            mapLocation.put(lat, lon);
+            return Optional.empty();
         }
-        return mapLocation;
+    }
+
+    private static Optional<Geocoder.LatLng> getRuntimeLatLng(SessionContext context){
+        Double runtimeLatitude = null;
+        Double runtimeLongitude = null;
+        if(context != null){
+            runtimeLatitude = Utils.getDouble(context.getAttribute(RUNTIME_LATITUDE));
+            runtimeLongitude = Utils.getDouble(context.getAttribute(RUNTIME_LONGITUDE));
+        }
+        if(runtimeLatitude == null || runtimeLongitude == null){
+            return Optional.empty();
+        }else{
+            return Optional.of(new Geocoder.LatLng(runtimeLatitude, runtimeLongitude));
+        }
     }
 }

@@ -14,6 +14,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/*
+ * FIXME ugly design
+ */
 public abstract class TimeAbstractSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(TimeAbstractSensor.class);
     String timeZone;
@@ -110,8 +113,7 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
                                 gregorianCalendar.get(Calendar.MONTH) == dateToCompare.get(Calendar.MONTH) &&
                                 gregorianCalendar.get(Calendar.DAY_OF_MONTH) == dateToCompare.get(Calendar.DAY_OF_MONTH) ?  "true" : "false";
                     } catch (ParseException e) {
-                        log.error(e.getLocalizedMessage());
-                        e.printStackTrace();
+                        log.error(e.getLocalizedMessage(), e);
                         throw new RuntimeException(e);
                     }
                 }
@@ -168,22 +170,5 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
     @Override
     public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
-    }
-
-    public static void main(String args []){
-        TimeAbstractSensor timeSensor = new TimeAbstractSensor() {
-            @Override
-            protected String getTag() {
-                return MONTH;
-            }
-
-            @Override
-            protected String getSensorName() {
-                return "";
-            }
-        };
-        timeSensor.setProperty(TIME_ZONE, "");
-        log.debug(timeSensor.execute(null).getObserverState());
-        log.debug(Arrays.toString(timeSensor.getSupportedStates()));
     }
 }

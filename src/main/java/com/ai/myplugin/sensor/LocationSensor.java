@@ -86,17 +86,11 @@ public class LocationSensor implements SensorPlugin {
         Double runtime_longitude = Utils.getDouble(rt2);
         log.info("Current location: "+ runtime_latitude + ","+runtime_longitude);
 
-        JSONObject jsonObject = new JSONObject();
-
-        Map<String, String> map = new ConcurrentHashMap<String, String>();
-        map.put("X-APIKeys-Authorization", APIKeys.getMashapeKey());
-
         Double configuredLatitude = getProperty(LATITUDE) == null || "".equals(getProperty(LATITUDE))?
                 Double.MAX_VALUE: Utils.getDouble(getProperty(LATITUDE));
         Double configuredLongitude = getProperty(LONGITUDE) == null || "".equals(getProperty(LONGITUDE))?
                 Double.MAX_VALUE: Utils.getDouble(getProperty(LONGITUDE));
 
-        String str;
 
         Map currentData = new ConcurrentHashMap();
         try {
@@ -115,10 +109,13 @@ public class LocationSensor implements SensorPlugin {
             log.warn(e.getMessage());
         }
 
+
+        JSONObject rawData = new JSONObject();
+
         if(!configuredLatitude.equals(Double.MAX_VALUE) && !configuredLongitude.equals(Double.MAX_VALUE)){
             log.info("Location configured, try to get more data");
             try {
-                jsonObject = LatitudeLongitudeRawSensor.reverseLookupAddress(configuredLongitude, configuredLatitude);
+                rawData = LatitudeLongitudeRawSensor.reverseLookupAddress(configuredLongitude, configuredLatitude);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.warn(e.getMessage());
@@ -127,13 +124,14 @@ public class LocationSensor implements SensorPlugin {
             try {
                 if(getProperty(LOCATION) != null){
                     log.info("Location configured as the address: " + getProperty(LOCATION) +  " , try to get coordinates");
-                    jsonObject = LocationRawSensor.getLongitudeLatitudeForAddress(getProperty(LOCATION).toString());
-                    configuredLongitude = Utils.getDouble(jsonObject.get("longitude"));
-                    configuredLatitude = Utils.getDouble(jsonObject.get("latitude"));
-                    jsonObject.put("configured_latitude", configuredLatitude);
-                    jsonObject.put("configured_longitude", configuredLongitude);
-                } else
+                    Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(getProperty(LOCATION).toString());
+                    configuredLongitude = latLng.longitude;
+                    configuredLatitude = latLng.latitude;
+                    rawData.put("configured_latitude", configuredLatitude);
+                    rawData.put("configured_longitude", configuredLongitude);
+                } else {
                     throw new RuntimeException("configured location not properly set");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
@@ -141,17 +139,17 @@ public class LocationSensor implements SensorPlugin {
             }
         }
         if(currentData.size() > 0){
-           jsonObject.putAll(currentData);
+           rawData.putAll(currentData);
         }
         log.info("Configured location: "+ configuredLatitude + ","+configuredLongitude);
         double distance = FormulaParser.calculateDistance(runtime_latitude, runtime_longitude,
                 configuredLatitude, configuredLongitude);
         log.info("Computed distance: " + distance);
-        jsonObject.put("distance", distance);
-        jsonObject.put(RUNTIME_LATITUDE, runtime_latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, runtime_longitude);
+        rawData.put("distance", distance);
+        rawData.put(RUNTIME_LATITUDE, runtime_latitude);
+        rawData.put(RUNTIME_LONGITUDE, runtime_longitude);
 
-        log.info("raw data is "+jsonObject.toJSONString());
+        log.info("raw data is " + rawData.toJSONString());
 
         final String state;
         if(distance  < Utils.getDouble(getProperty(DISTANCE)))
@@ -159,7 +157,7 @@ public class LocationSensor implements SensorPlugin {
         else
             state = states[1];
 
-        final JSONObject finalJsonObject = jsonObject;
+        final JSONObject finalRawData = rawData;
         return new SensorResult() {
             @Override
             public boolean isSuccess() {
@@ -183,7 +181,7 @@ public class LocationSensor implements SensorPlugin {
 
             @Override
             public String getRawData() {
-                return finalJsonObject.toJSONString();
+                return finalRawData.toJSONString();
             }
         };
 

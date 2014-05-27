@@ -85,21 +85,18 @@ public class ParkingSensor implements SensorPlugin {
         /*if(getProperty(LOCATION) == null)
             setProperty(LOCATION, getProperty(CITY));       */
 
-        Map<Double, Double> map;
+        Geocoder.LatLng latLng;
         try {
-            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+            latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION),
                     getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return new EmptySensorResult();
         }
-        Double latitude = (Double) map.keySet().toArray()[0];
-        Double longitude = (Double) map.values().toArray()[0];
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, longitude);
+        jsonObject.put(RUNTIME_LATITUDE, latLng.latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, latLng.longitude);
 
         String pathURL = "http://datatank.gent.be/Mobiliteitsbedrijf/Parkings11.json";
         ArrayList<MyParkingData> parkingDatas = new ArrayList<MyParkingData>();
@@ -107,7 +104,7 @@ public class ParkingSensor implements SensorPlugin {
             JSONObject parkingObj = Rest.httpGet(pathURL).json();
             JSONArray parkings = ((JSONArray)((JSONObject) (parkingObj.get("Parkings11"))).get("parkings"));
             for(Object parking : parkings){
-                parkingDatas.add(new MyParkingData(parking, latitude, longitude));
+                parkingDatas.add(new MyParkingData(parking, latLng.latitude, latLng.longitude));
             }
             Collections.sort(parkingDatas);
         } catch (Exception e) {

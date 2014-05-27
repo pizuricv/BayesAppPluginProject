@@ -6,9 +6,13 @@
 package com.ai.myplugin.action;
 
 import com.ai.api.*;
+import com.ai.myplugin.util.Node;
 import com.ai.myplugin.util.NodeConfig;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
+import com.ai.myplugin.util.io.IOUtil;
+import com.ai.myplugin.util.io.StdType;
+import com.ai.myplugin.util.io.StreamGobbler;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,19 +22,18 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginImplementation
 public class NodeJSAction implements ActuatorPlugin{
     private static final Log log = LogFactory.getLog(NodeJSAction.class);
-    private static final int WAIT_FOR_RESULT = 5;
     private static final String JAVA_SCRIPT = "javaScript";
     private String javaScriptCommand;
     private String nodePath = NodeConfig.getNodePath();
     private String workingDir = NodeConfig.getNodeDir();
-    private int exitVal = -1;
-    private String result = "";
-    private AtomicBoolean done = new AtomicBoolean(false);
+
 
     @Override
     public void action(SessionContext testSessionContext) {
@@ -42,62 +45,9 @@ public class NodeJSAction implements ActuatorPlugin{
             javaScriptCommand = "RAW_STRING = '"+jsonObject.toString() + "';\n" + javaScriptCommand;
         }
 
-        File file;
-        File dir = new File(workingDir);
-        String javascriptFile = "";
-
-        try {
-            try {
-                javascriptFile =  Long.toString(System.nanoTime()) + "runs.js";
-                file = new File(dir+ File.separator + javascriptFile);
-                BufferedWriter output = new BufferedWriter(new FileWriter(file));
-                output.write(javaScriptCommand);
-                output.close();
-            } catch ( IOException e ) {
-                e.printStackTrace();
-                log.error(e.getMessage());
-                throw new RuntimeException(e);
-            }
-
-            ProcessBuilder pb = new ProcessBuilder(nodePath, javascriptFile);
-            pb.directory(new File(workingDir));
-            Process process = pb.start();
-
-            StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), StdType.ERROR);
-            StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), StdType.OUTPUT);
-
-            errorGobbler.start();
-            outputGobbler.start();
-
-            exitVal = process.waitFor();
-
-            log.debug(getName() + " ExitValue: " + exitVal);
-            file.delete();
-
-            (new Runnable() {
-                //waitForResult is not a timeout for the javaScriptCommand itself, but how long you wait before the stream of
-                //output data is processed, should be really fast.
-                private int waitForResult = WAIT_FOR_RESULT;
-                @Override
-                public void run() {
-                    while(!done.get() && waitForResult > 0)
-                        try {
-                            Thread.sleep(1000);
-                            System.out.print(".");
-                            System.out.print(result);
-                            waitForResult --;
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            break;
-                        }
-                }
-            } ).run();
-
-        } catch (Throwable t) {
-            log.error(t.getLocalizedMessage());
-            t.printStackTrace();
-            throw new RuntimeException(t);
-        }
+        Node node = new Node(nodePath, workingDir);
+        Node.NodeResult result = node.executeScript(javaScriptCommand);
+        // TODO do we want to fail on non-0 exit code?
     }
 
     @Override
@@ -156,51 +106,6 @@ public class NodeJSAction implements ActuatorPlugin{
     @Override
     public String getDescription() {
         return "webscript action";
-    }
-
-    enum StdType {
-        ERROR, OUTPUT
-    }
-
-    private class StreamGobbler extends Thread {
-        InputStream is;
-        private StdType stdType;
-
-        StreamGobbler(InputStream is, StdType type) {
-            this.is = is;
-            this.stdType = type;
-        }
-
-        public void run() {
-            try {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line;
-                while ((line = br.readLine()) != null)
-                    logLine(line, stdType);
-                done.set(true);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
-        private void logLine(String line, StdType type) {
-            if(type.equals(StdType.ERROR)){
-                log.error("Error executing the script >" + line);
-            } else{
-                result += line;
-                log.info(line);
-            }
-        }
-    }
-
-    public static void main(String [] args) {
-        NodeJSAction nodeJSAction = new NodeJSAction();
-        nodeJSAction.getRequiredProperties();
-        String javaScript =  "a = { observedState:\"world\"};\n" +
-                "console.log(a)" ;
-        nodeJSAction.setProperty("javaScript", javaScript);
-        nodeJSAction.action(null);
     }
 
 }

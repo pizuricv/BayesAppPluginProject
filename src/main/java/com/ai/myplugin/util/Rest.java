@@ -17,6 +17,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -47,10 +48,10 @@ public class Rest {
             conn.setReadTimeout(TIMEOUT_MILLIS);
             conn.setRequestMethod("GET");
 
-            String body = executeAndReturnBodyAsString(conn);
+            RestReponse response = getResponse(conn);
             long elapsed = System.currentTimeMillis() - start;
             log.info("GET " + urlPath + " in " + elapsed + " ms");
-            return new RestReponse(body);
+            return response;
         } finally {
             if(conn != null) {
                 conn.disconnect();
@@ -63,12 +64,66 @@ public class Rest {
     }
 
 
-    private static String executeAndReturnBodyAsString(HttpURLConnection conn) throws IOException {
+    public static RestReponse httpPost(String urlPath, final String query, String charset) throws IOException{
+        log.info("POST " + urlPath);
+
+        URL url;
+        try {
+            url = new URL(urlPath);
+        } catch (MalformedURLException e) {
+            throw new IOException(e);
+        }
+
+        long start = System.currentTimeMillis();
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true); // Triggers POST.
+            conn.setRequestProperty("Accept-Charset", charset);
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            writePostBody(query, charset, conn);
+
+            //Get Response
+            RestReponse response = getResponse(conn);
+            long elapsed = System.currentTimeMillis() - start;
+            log.info("POST " + urlPath + " in " + elapsed + " ms");
+            return response;
+        } finally {
+            if(conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
+    private static RestReponse getResponse(HttpURLConnection conn) throws IOException {
+        String body;
+        if(conn.getResponseCode() >= 400){
+            body = executeAndReturnBodyAsString(conn.getErrorStream());
+            // TODO do we still need to fail here or should the caller check?
+            throw new IOException("Got " + conn.getResponseCode() + " " + conn.getResponseMessage() + "\n" + body);
+        }else{
+            body = executeAndReturnBodyAsString(conn.getInputStream());
+            return new RestReponse(conn.getResponseCode(), conn.getContentType(), body);
+        }
+    }
+
+    private static void writePostBody(String query, String charset, HttpURLConnection conn) throws IOException {
         try(
-                InputStream is = conn.getInputStream();
+                OutputStream output = conn.getOutputStream()
+        ) {
+            output.write(query.getBytes(charset));
+            output.flush();
+        }
+    }
+
+    private static String executeAndReturnBodyAsString(InputStream inputStream) throws IOException {
+        try (
+                InputStream is = inputStream;
                 InputStreamReader reader = new InputStreamReader(is);
                 BufferedReader rd = new BufferedReader(reader)
-        ){
+        ) {
             return readToString(rd);
         }
     }
@@ -85,10 +140,16 @@ public class Rest {
     }
 
     public static class RestReponse{
-        // TODO we could also collect the failures in this class
+
+        private final int status;
+
         private final String body;
 
-        private RestReponse(String body) {
+        private final String contentType;
+
+        private RestReponse(final int status, final String contentType, final String body) {
+            this.status = status;
+            this.contentType = contentType;
             this.body = body;
         }
 

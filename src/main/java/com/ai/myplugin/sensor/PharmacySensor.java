@@ -10,6 +10,12 @@ import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
+
+import com.ai.api.SensorPlugin;
+import com.ai.api.SensorResult;
+import com.ai.api.SessionContext;
+import com.ai.myplugin.util.*;
+
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,23 +107,19 @@ public class PharmacySensor implements SensorPlugin {
         /*if(getProperty(LOCATION) == null)
             setProperty(LOCATION, getProperty(CITY));   */
 
-        Map<Double, Double> map;
+        Geocoder.LatLng latLng;
         try {
-            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
-                    getProperty(LONGITUDE), getProperty(LATITUDE));
+            latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return new EmptySensorResult();
         }
-        Double latitude = (Double) map.keySet().toArray()[0];
-        Double longitude = (Double) map.values().toArray()[0];
 
-        log.info("Current location: "+ latitude + ","+longitude);
+        log.info("Current location: " + latLng);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(RUNTIME_LATITUDE, latitude);
-        jsonObject.put(RUNTIME_LONGITUDE, longitude);
+        jsonObject.put(RUNTIME_LATITUDE, latLng.latitude);
+        jsonObject.put(RUNTIME_LONGITUDE, latLng.longitude);
 
         String pathURL = "http://datatank.gent.be/Gezondheid/Apotheken.json";
         ArrayList<MyPharmacyData> myPharmacyDatas = new ArrayList<MyPharmacyData>();
@@ -125,7 +127,7 @@ public class PharmacySensor implements SensorPlugin {
             JSONObject apothekenObject = Rest.httpGet(pathURL).json();
             JSONArray pharmaArray = (JSONArray)(apothekenObject.get("Apotheken"));
             for(Object pharma : pharmaArray){
-                myPharmacyDatas.add(new MyPharmacyData(pharma, latitude, longitude));
+                myPharmacyDatas.add(new MyPharmacyData(pharma, latLng.latitude, latLng.longitude));
             }
             Collections.sort(myPharmacyDatas);
         } catch (Exception e) {

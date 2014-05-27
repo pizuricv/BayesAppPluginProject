@@ -7,6 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
+import com.ai.myplugin.util.Geocoder;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -46,26 +47,22 @@ public class RainfallSensor implements SensorPlugin {
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Map<Double, Double> map;
+        Geocoder.LatLng latLng;
         try {
-            map = Utils.getLocation(testSessionContext, getProperty(LOCATION),
+            latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION),
                     getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return new EmptySensorResult();
         }
-        Double latitude = (Double) map.keySet().toArray()[0];
-        Double longitude = (Double) map.values().toArray()[0];
 
-        String pathURL =  BASE_URL + "lat="+latitude + "&lon="+longitude;
+        String pathURL = BASE_URL + "lat="+latLng.latitude + "&lon="+latLng.longitude;
 
         String stringToParse;
         try {
             stringToParse = Rest.httpGet(pathURL).body();
         } catch (IOException e) {
-            e.printStackTrace();
-            log.error("error in getting the data from " + pathURL + ", "+e.getMessage());
+            log.error("error in getting the data from " + pathURL + ", "+e.getMessage(), e);
             return new EmptySensorResult();
         }
 

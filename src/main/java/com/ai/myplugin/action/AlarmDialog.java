@@ -27,7 +27,6 @@ public class AlarmDialog implements ActuatorPlugin {
 
     public void setProperty(String string, Object obj) {
         alarmMessage = obj.toString();
-
     }
 
     public Object getProperty(String string) {
@@ -42,7 +41,6 @@ public class AlarmDialog implements ActuatorPlugin {
         return alarmMessage == null || alarmMessage.startsWith("No Value")? "Alarm message": alarmMessage;
     }
 
-    @Override
     public void action(SessionContext testSessionContext) {
         JOptionPane.showMessageDialog(null, getAlarmMessage(), "Action dialog", JOptionPane.ERROR_MESSAGE);
     }

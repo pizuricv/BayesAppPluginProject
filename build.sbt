@@ -4,7 +4,7 @@ name := "Bayes app plugins"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.11.1"
 
 scalacOptions += "-target:jvm-1.8"
 
@@ -19,12 +19,16 @@ libraryDependencies ++= Seq(
   "de.congrace" % "exp4j" % "0.3.11",
   "org.antlr" % "ST4" % "4.0.7",
   "javax.mail" % "mail" % "1.4.7",
-  // test
+  // ===== test =====
+  // if we want scala scripting (only since scala 2.11+)
+  // we only enable this for testing, it' up to the distribution to
+  // decide if they want to enable scala scripting
+  // "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
   "junit" % "junit" % "4.11" % "test",
   // scala test integration
-//  "org.specs2" %% "specs2" % "2.3.12" % "test",
-//  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
-//  "org.scalatest" %% "scalatest" % "2.1.5" % "test",
+  //  "org.specs2" %% "specs2" % "2.3.12" % "test",
+  //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
+  //  "org.scalatest" %% "scalatest" % "2.1.5" % "test",
   "com.novocode" % "junit-interface" % "0.11-RC1" % "test"
 )
 
@@ -41,4 +45,6 @@ javaSource in Test := baseDirectory.value / "src" / "main" / "test"
 //
 //crossPaths := false
 
-
+// needed to get the scripting engine working
+// http://stackoverflow.com/questions/23567500/how-to-use-scriptengine-in-scalatest
+fork in Test := true

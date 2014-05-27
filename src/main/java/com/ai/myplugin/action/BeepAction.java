@@ -5,7 +5,6 @@
 package com.ai.myplugin.action;
 
 import com.ai.api.ActuatorPlugin;
-import com.ai.api.ActuatorResult;
 import com.ai.api.PropertyType;
 import com.ai.api.SessionContext;
 import net.xeoh.plugins.base.annotations.PluginImplementation;

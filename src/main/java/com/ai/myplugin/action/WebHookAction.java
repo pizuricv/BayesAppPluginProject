@@ -18,6 +18,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * TODO clean up ugly
+ */
 @PluginImplementation
 public class WebHookAction implements ActuatorPlugin{
     private static String HOOK_URL = "callback_URL";

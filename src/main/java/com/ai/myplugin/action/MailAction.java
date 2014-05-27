@@ -126,7 +126,6 @@ public class MailAction implements ActuatorPlugin {
             message.setText(messageString + explainReason);
             Transport.send(message);
 
-
         } catch (MessagingException e) {
             e.printStackTrace();
             log.error(e.getMessage());
@@ -149,6 +148,10 @@ public class MailAction implements ActuatorPlugin {
     }
 
 
+    /*
+     * TODO write a proper test that uses
+     * https://weblogs.java.net/blog/2007/04/26/introducing-mock-javamail-project
+     */
     public static void main(String[] args) {
         MailAction mail = new MailAction();
         mail.setProperty(MAIL_TO, "veselin.pizurica@gmail.com");

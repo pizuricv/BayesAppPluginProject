@@ -7,6 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
+import com.ai.myplugin.util.Geocoder;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.logging.Log;
@@ -68,7 +69,10 @@ public class LocationRawSensor implements SensorPlugin {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         try {
-            final JSONObject jsonObject = getLongitudeLatitudeForAddress(location);
+            Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location);
+            final JSONObject jsonObject = new JSONObject();
+            jsonObject.put("latitude", latLng.latitude);
+            jsonObject.put("longitude", latLng.longitude);
             return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
@@ -96,8 +100,7 @@ public class LocationRawSensor implements SensorPlugin {
                 }
             };
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(), e);
             return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
@@ -160,21 +163,6 @@ public class LocationRawSensor implements SensorPlugin {
     @Override
     public String[] getSupportedStates() {
         return states;
-    }
-
-    public static JSONObject getLongitudeLatitudeForAddress(String address) throws Exception {
-        Map<String, String> map = new ConcurrentHashMap<String, String>();
-        map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
-
-        String url = "https://montanaflynn-geocode-location-information.p.mashape.com/address?address=" + URLEncoder.encode(address);
-        //String url = "https://metropolis-api-geocode.p.mashape.com/solve?address=" + URLEncoder.encode(address);
-       return Rest.httpGet(url, map).json();
-
-        //curl "https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false&key=AIzaSyAB4NA8aZi1wXgKRbMN8Z5BdNm7NkI9nb0"
-
-        /*String url =  "https://maps.googleapis.com/maps/api/geocode/json?address="  + URLEncoder.encode(address) +
-                "&sensor=false&key="+APIKeys.getGoogleKey(); */
-        //String ret = Rest.httpGet(url);
     }
 
     public static void main(String []args){
