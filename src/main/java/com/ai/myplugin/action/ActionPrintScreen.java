@@ -46,24 +46,12 @@ public class ActionPrintScreen implements ActuatorPlugin{
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         if(propertiesMap.containsKey(DUMMY_PROPERTY)){
             log.debug("###########DUMMY ACTION#######" + propertiesMap.get(DUMMY_PROPERTY));
         }  else{
             log.debug("###########DUMMY ACTION#######");
         }
-
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return true;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        };
     }
 
     @Override

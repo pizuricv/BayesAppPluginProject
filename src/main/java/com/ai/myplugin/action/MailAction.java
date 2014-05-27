@@ -87,67 +87,51 @@ public class MailAction implements ActuatorPlugin {
      * @param testSessionContext context for the action
      */
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
-        boolean success = true;
         try {
             fetchMailPropertiesFromFile();
         } catch (RuntimeException e) {
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
-            success = false;
+            throw new RuntimeException(e);
         }
-        if(success){
-            Properties props = new Properties();
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", "smtp.gmail.com");
-            props.put("mail.smtp.port", "587");
-            Session session = Session.getInstance(props,
-                    new javax.mail.Authenticator() {
-                        protected PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication((String)propertiesMap.get(MAIL_USER),
-                                    (String)propertiesMap.get(MAIL_PASSWORD));
-                        }
-                    });
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        Session session = Session.getInstance(props,
+                new javax.mail.Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication((String)propertiesMap.get(MAIL_USER),
+                                (String)propertiesMap.get(MAIL_PASSWORD));
+                    }
+                });
 
-            try {
+        try {
 
-                Message message = new MimeMessage(session);
-                message.setFrom(new InternetAddress((String) propertiesMap.get(MAIL_FROM)));
-                message.setRecipients(Message.RecipientType.TO,
-                        InternetAddress.parse((String) getProperty(MAIL_TO)));
-                message.setSubject((String) getProperty(SUBJECT));
-
-
-                Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
-                String messageString = (String) getProperty(MESSAGE);
-                messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
-
-                String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
-                message.setText(messageString + explainReason);
-                Transport.send(message);
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress((String) propertiesMap.get(MAIL_FROM)));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse((String) getProperty(MAIL_TO)));
+            message.setSubject((String) getProperty(SUBJECT));
 
 
-            } catch (MessagingException e) {
-                e.printStackTrace();
-                log.error(e.getMessage());
-                success = false;
-            }
+            Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
+            String messageString = (String) getProperty(MESSAGE);
+            messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
+
+            String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
+            message.setText(messageString + explainReason);
+            Transport.send(message);
+
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
         }
-
-        final boolean finalSuccess = success;
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return finalSuccess;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        } ;
     }
 
     @Override

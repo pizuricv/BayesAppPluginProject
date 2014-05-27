@@ -72,7 +72,7 @@ public class TwitterDMAction implements ActuatorPlugin {
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         Configuration configuration;
         boolean success = true;
@@ -97,24 +97,12 @@ public class TwitterDMAction implements ActuatorPlugin {
         try {
             DirectMessage message = twitter.sendDirectMessage((String) getProperty(TWITTER_ACCOUNT),
                     twitterMessage);
-            System.out.println("Direct message successfully sent to " + message.getRecipientScreenName());
+            log.info("Direct message successfully sent to " + message.getRecipientScreenName());
         } catch (TwitterException te) {
             te.printStackTrace();
-            System.out.println("Failed to send a direct message: " + te.getMessage());
-            success = false;
+            log.error("Failed to send a direct message: " + te.getMessage());
+            throw new RuntimeException(te);
         }
-        final boolean finalSuccess = success;
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return finalSuccess;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        };
     }
 
     @Override

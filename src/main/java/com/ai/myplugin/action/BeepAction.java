@@ -36,19 +36,8 @@ public class BeepAction implements ActuatorPlugin{
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         java.awt.Toolkit.getDefaultToolkit().beep();
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return true;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        };
     }
 
     @Override

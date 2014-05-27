@@ -80,10 +80,8 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
-
-        boolean testSuccess = true;
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
 //        String user = getProperty(USER_NAME) == null ? "user" : (String) getProperty(USER_NAME);
@@ -137,14 +135,14 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
             query = String.format("request=%s", URLEncoder.encode(jsonObject.toJSONString(), charset));
         } catch (UnsupportedEncodingException e) {
             log.error(e.getLocalizedMessage());
-            testSuccess = false;
+            throw new RuntimeException(e);
         }
 
         try {
             connection = url.openConnection();
         } catch (IOException e) {
             log.error(e.getLocalizedMessage());
-            testSuccess = false;
+            throw new RuntimeException(e);
         }
         connection.setDoOutput(true); // Triggers POST.
         connection.setRequestProperty("Accept-Charset", charset);
@@ -155,7 +153,7 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
             output.write(query.getBytes(charset));
         } catch (IOException e) {
             log.error(e.getLocalizedMessage());
-            testSuccess = false;
+            throw new RuntimeException(e);
         } finally {
             if (output != null)
                 try {
@@ -163,6 +161,7 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
                     output.close();
                 } catch (IOException e) {
                     log.error(e.getLocalizedMessage());
+                    throw new RuntimeException(e);
                 }
         }
 
@@ -190,22 +189,10 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
                 rd.close();
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage());
+                throw new RuntimeException(e);
             }
             log.debug("response from the server: " + response.toString());
         }
-
-        final boolean finalTestSuccess = testSuccess;
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return finalTestSuccess;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        };
     }
 
     @Override

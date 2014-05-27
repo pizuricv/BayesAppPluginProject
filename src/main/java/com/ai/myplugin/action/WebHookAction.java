@@ -57,8 +57,7 @@ public class WebHookAction implements ActuatorPlugin{
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
-        boolean testResult = false;
+    public void action(SessionContext testSessionContext) {
         if(hook == null){
             throw new RuntimeException("URL post hook not defined");
         }
@@ -86,6 +85,7 @@ public class WebHookAction implements ActuatorPlugin{
         } catch (IOException e) {
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
         connection.setDoOutput(true);
         connection.setDoInput(true);
@@ -95,6 +95,7 @@ public class WebHookAction implements ActuatorPlugin{
         } catch (ProtocolException e) {
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         connection.setRequestProperty("charset", "utf-8");
@@ -111,20 +112,8 @@ public class WebHookAction implements ActuatorPlugin{
         } catch (IOException e) {
             e.printStackTrace();
             log.error(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
-        testResult = true;
-        final boolean finalTestResult = testResult;
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return finalTestResult;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        };
     }
 
     @Override

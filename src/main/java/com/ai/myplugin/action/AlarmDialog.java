@@ -43,19 +43,8 @@ public class AlarmDialog implements ActuatorPlugin {
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         JOptionPane.showMessageDialog(null, getAlarmMessage(), "Action dialog", JOptionPane.ERROR_MESSAGE);
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return true;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        } ;
     }
 
     @Override

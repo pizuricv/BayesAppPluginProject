@@ -33,7 +33,7 @@ public class NodeJSAction implements ActuatorPlugin{
     private AtomicBoolean done = new AtomicBoolean(false);
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
@@ -56,17 +56,7 @@ public class NodeJSAction implements ActuatorPlugin{
             } catch ( IOException e ) {
                 e.printStackTrace();
                 log.error(e.getMessage());
-                return new ActuatorResult() {
-                    @Override
-                    public boolean isSuccess() {
-                        return false;
-                    }
-
-                    @Override
-                    public String getObserverState() {
-                        return null;
-                    }
-                };
+                throw new RuntimeException(e);
             }
 
             ProcessBuilder pb = new ProcessBuilder(nodePath, javascriptFile);
@@ -102,39 +92,11 @@ public class NodeJSAction implements ActuatorPlugin{
                         }
                 }
             } ).run();
-            return new ActuatorResult() {
-                @Override
-                public boolean isSuccess() {
-                    return  exitVal == 0 ;
-                }
-
-                @Override
-                public String getObserverState() {
-                    try {
-                        JSONObject obj = new JSONObject(result);
-                        return (String) obj.get("observedState");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        log.warn(e.getMessage());
-                    }
-                    return null;
-                }
-            }  ;
 
         } catch (Throwable t) {
             log.error(t.getLocalizedMessage());
             t.printStackTrace();
-            return new ActuatorResult() {
-                @Override
-                public boolean isSuccess() {
-                    return false;
-                }
-
-                @Override
-                public String getObserverState() {
-                    return null;
-                }
-            };
+            throw new RuntimeException(t);
         }
     }
 
@@ -238,10 +200,7 @@ public class NodeJSAction implements ActuatorPlugin{
         String javaScript =  "a = { observedState:\"world\"};\n" +
                 "console.log(a)" ;
         nodeJSAction.setProperty("javaScript", javaScript);
-        ActuatorResult result1 = nodeJSAction.action(null);
-        log.info("success = "+ result1.isSuccess());
-        log.info("state = " + result1.getObserverState());
-        //log.info("states " + testResult.getObserverStates());
+        nodeJSAction.action(null);
     }
 
 }

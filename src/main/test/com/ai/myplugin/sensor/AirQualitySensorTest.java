@@ -21,7 +21,7 @@ public class AirQualitySensorTest extends TestCase{
         log.debug(testResult.getObserverState());
         log.debug(testResult.getRawData());
         JSONParser parser = new JSONParser();
-        long value = (Long)(((JSONObject)parser.parse(testResult.getRawData())).get("value"));
+        long value = (Long)(((JSONObject)parser.parse(testResult.getRawData())).get("airQuality"));
         assertTrue(value < 11);
     }
 }

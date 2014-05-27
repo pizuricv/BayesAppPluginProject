@@ -63,10 +63,8 @@ public class ScenarioControlAction implements ActuatorPlugin{
     }
 
     @Override
-    public ActuatorResult action(SessionContext testSessionContext) {
+    public void action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
-
-        boolean testSuccess = true;
         Integer scenarioID = -1;
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
@@ -103,13 +101,13 @@ public class ScenarioControlAction implements ActuatorPlugin{
             query = String.format("action=%s", URLEncoder.encode((String) getProperty(COMMAND), charset));
         } catch (UnsupportedEncodingException e) {
             log.error(e.getLocalizedMessage());
-            testSuccess = false;
+            throw new RuntimeException(e);
         }
         try {
             connection = url.openConnection();
         } catch (IOException e) {
             log.error(e.getLocalizedMessage());
-            testSuccess = false;
+            throw new RuntimeException(e);
         }
         connection.setDoOutput(true); // Triggers POST.
         connection.setRequestProperty("Accept-Charset", charset);
@@ -120,7 +118,7 @@ public class ScenarioControlAction implements ActuatorPlugin{
             output.write(query.getBytes(charset));
         } catch (IOException e) {
             log.error(e.getLocalizedMessage());
-            testSuccess = false;
+            throw new RuntimeException(e);
         } finally {
             if (output != null)
                 try {
@@ -128,6 +126,7 @@ public class ScenarioControlAction implements ActuatorPlugin{
                     output.close();
                 } catch (IOException e) {
                     log.error(e.getLocalizedMessage());
+                    throw new RuntimeException(e);
                 }
         }
 
@@ -139,6 +138,7 @@ public class ScenarioControlAction implements ActuatorPlugin{
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage());
                 e.printStackTrace();
+                throw new RuntimeException(e);
             }
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String line;
@@ -150,27 +150,16 @@ public class ScenarioControlAction implements ActuatorPlugin{
                 }
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage());
+                throw new RuntimeException(e);
             }
             try {
                 rd.close();
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage());
+                throw new RuntimeException(e);
             }
             log.debug(response.toString());
         }
-
-        final boolean finalTestSuccess = testSuccess;
-        return new ActuatorResult() {
-            @Override
-            public boolean isSuccess() {
-                return finalTestSuccess;
-            }
-
-            @Override
-            public String getObserverState() {
-                return null;
-            }
-        };
     }
 
     @Override
