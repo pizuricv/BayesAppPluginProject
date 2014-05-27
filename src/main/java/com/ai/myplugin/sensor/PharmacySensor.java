@@ -110,7 +110,7 @@ public class PharmacySensor implements SensorPlugin {
         /*if(getProperty(LOCATION) == null)
             setProperty(LOCATION, getProperty(CITY));   */
 
-        Geocoder.LatLng latLng;
+        LatLng latLng;
         try {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {

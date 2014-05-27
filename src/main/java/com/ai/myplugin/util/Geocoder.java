@@ -28,7 +28,7 @@ public final class Geocoder {
         Map<String, String> httpSettings = new ConcurrentHashMap<String, String>();
         httpSettings.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
 
-        JSONObject response = null;
+        JSONObject response;
         try {
             response = Rest.httpGet(url, httpSettings).json();
         } catch (ParseException| IOException e) {
@@ -49,45 +49,53 @@ public final class Geocoder {
         return new LatLng(latitude, longitude);
     }
 
-    public static final class LatLng{
-        public final double latitude;
-        public final double longitude;
+    public static JSONObject reverseLookupAddress(double longitude, double latitude){
+        Map<String, String> map = new ConcurrentHashMap<String, String>();
+        map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
+        String latitudeCoordinateStr = "latitude="+ URLEncoder.encode(Double.toString(latitude));
+        String longitudeCoordinateStr = "longitude="+ URLEncoder.encode(Double.toString(longitude));
+        String url = "https://montanaflynn-geocode-location-information.p.mashape.com/reverse?" + longitudeCoordinateStr + "&"+ latitudeCoordinateStr;
 
-        public LatLng(final double latitude, final double longitude){
-            this.latitude = latitude;
-            this.longitude = longitude;
+        JSONObject response;
+        try {
+            response =  Rest.httpGet(url, map).json();
+        } catch (ParseException| IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
 
-        @Override
-        public String toString() {
-            return "LatLng{" +
-                    "latitude=" + latitude +
-                    ", longitude=" + longitude +
-                    '}';
-        }
+        // TODO do not return json but parse the result so we don't depend on this specific rest api
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+        // {"zip":"18661","country":"Saudi Arabia","city":null,"latitude":19.786089,"street_number":null,"region":"Riyadh Province","street_name":null,"longitude":45.2431035}
 
-            LatLng latLng = (LatLng) o;
+//        String city = jsonObjectRuntime.get("city") == null ? "not found" : jsonObjectRuntime.get("city").toString();
+//        String country = jsonObjectRuntime.get("country") == null ? "not found" : jsonObjectRuntime.get("country").toString();
+//        String streetName = jsonObjectRuntime.get("street_name") == null ? "not found" : jsonObjectRuntime.get("street_name").toString();
+//        String number = jsonObjectRuntime.get("street_number") == null ? "not found " : jsonObjectRuntime.get("street_number").toString();
 
-            if (Double.compare(latLng.latitude, latitude) != 0) return false;
-            if (Double.compare(latLng.longitude, longitude) != 0) return false;
 
-            return true;
-        }
+        return response;
 
-        @Override
-        public int hashCode() {
-            int result;
-            long temp;
-            temp = Double.doubleToLongBits(latitude);
-            result = (int) (temp ^ (temp >>> 32));
-            temp = Double.doubleToLongBits(longitude);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            return result;
-        }
+       /* Google
+       String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+ latitude +","+longitude+
+                "&sensor=false&key=" + APIKeys.getGoogleKey();
+        String ret = Rest.httpsGet(url);
+        //return (JSONObject) new JSONParser().parse(ret);
+        //TODO hack. need better parsing later
+        JSONObject obj = (JSONObject) new JSONParser().parse(ret);
+        JSONArray array = (JSONArray) obj.get("results");
+        JSONObject object = (JSONObject) array.get(0);
+        String addr = (String) object.get("formatted_address");
+        StringTokenizer stringTokenizer = new StringTokenizer(addr, ",");
+        String street = stringTokenizer.nextToken().trim();
+        String city = stringTokenizer.nextToken().trim();
+        String country = stringTokenizer.nextToken().trim();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("street", street);
+        jsonObject.put("city", city);
+        jsonObject.put("country", country);
+        return jsonObject;               */
+
     }
+
 }

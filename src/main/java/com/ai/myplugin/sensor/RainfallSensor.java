@@ -6,10 +6,7 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.EmptySensorResult;
-import com.ai.myplugin.util.Geocoder;
-import com.ai.myplugin.util.Rest;
-import com.ai.myplugin.util.Utils;
+import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import org.json.simple.JSONObject;
@@ -48,7 +45,7 @@ public class RainfallSensor implements SensorPlugin {
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Geocoder.LatLng latLng;
+        LatLng latLng;
         try {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (RuntimeException e) {

@@ -7,6 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
+import com.ai.myplugin.util.Geocoder;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -78,7 +79,7 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         try {
-            final JSONObject locationObject = reverseLookupAddress(longitudeCoordinate, latitudeCoordinate);
+            final JSONObject locationObject = Geocoder.reverseLookupAddress(longitudeCoordinate, latitudeCoordinate);
             log.info(locationObject.toJSONString());
             return new SensorResult() {
                 @Override
@@ -158,41 +159,4 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
         return states;
     }
 
-    public static JSONObject reverseLookupAddress(double longitude, double latitude) throws Exception {
-        Map<String, String> map = new ConcurrentHashMap<String, String>();
-        map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
-        String latitudeCoordinateStr = LATITUDE + "="+ URLEncoder.encode(Double.toString(latitude));
-        String longitudeCoordinateStr = LONGITUDE + "="+ URLEncoder.encode(Double.toString(longitude));
-        String url = "https://montanaflynn-geocode-location-information.p.mashape.com/reverse?" + longitudeCoordinateStr + "&"+ latitudeCoordinateStr;
-        return Rest.httpGet(url, map).json();
-
-       /* Google
-       String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+ latitude +","+longitude+
-                "&sensor=false&key=" + APIKeys.getGoogleKey();
-        String ret = Rest.httpsGet(url);
-        //return (JSONObject) new JSONParser().parse(ret);
-        //TODO hack. need better parsing later
-        JSONObject obj = (JSONObject) new JSONParser().parse(ret);
-        JSONArray array = (JSONArray) obj.get("results");
-        JSONObject object = (JSONObject) array.get(0);
-        String addr = (String) object.get("formatted_address");
-        StringTokenizer stringTokenizer = new StringTokenizer(addr, ",");
-        String street = stringTokenizer.nextToken().trim();
-        String city = stringTokenizer.nextToken().trim();
-        String country = stringTokenizer.nextToken().trim();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("street", street);
-        jsonObject.put("city", city);
-        jsonObject.put("country", country);
-        return jsonObject;               */
-
-    }
-
-    public static void main(String []args) throws ParseException {
-        LatitudeLongitudeRawSensor locationSensor = new LatitudeLongitudeRawSensor();
-        locationSensor.setProperty(LONGITUDE, 19.851858);
-        locationSensor.setProperty(LATITUDE, 45.262231);
-        System.out.println(locationSensor.execute(null).getRawData());
-        System.out.println(((JSONObject)new JSONParser().parse(locationSensor.execute(null).getRawData())).get("city"));
-    }
 }

@@ -94,7 +94,7 @@ public class TreeSensor implements SensorPlugin {
             showAll = Boolean.parseBoolean((String) getProperty(SHOW_ALL));
         }
 
-        Geocoder.LatLng latLng;
+        LatLng latLng;
         try {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION),
                     getProperty(LONGITUDE), getProperty(LATITUDE));

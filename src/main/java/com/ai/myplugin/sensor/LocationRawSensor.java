@@ -7,6 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.Geocoder;
+import com.ai.myplugin.util.LatLng;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import org.json.simple.JSONObject;
@@ -67,7 +68,7 @@ public class LocationRawSensor implements SensorPlugin {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
         try {
-            Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location);
+            LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location);
             final JSONObject jsonObject = new JSONObject();
             jsonObject.put("latitude", latLng.latitude);
             jsonObject.put("longitude", latLng.longitude);

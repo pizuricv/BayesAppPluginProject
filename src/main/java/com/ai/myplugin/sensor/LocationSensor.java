@@ -99,7 +99,7 @@ public class LocationSensor implements SensorPlugin {
         Map currentData = new ConcurrentHashMap();
         try {
             log.info("try to get more from runtime data");
-            JSONObject jsonObjectRuntime = LatitudeLongitudeRawSensor.reverseLookupAddress(runtime_longitude, runtime_latitude) ;
+            JSONObject jsonObjectRuntime = Geocoder.reverseLookupAddress(runtime_longitude, runtime_latitude) ;
             String city = jsonObjectRuntime.get("city") == null ? "not found" : jsonObjectRuntime.get("city").toString();
             String country = jsonObjectRuntime.get("country") == null ? "not found" : jsonObjectRuntime.get("country").toString();
             String streetName = jsonObjectRuntime.get("street_name") == null ? "not found" : jsonObjectRuntime.get("street_name").toString();
@@ -119,7 +119,7 @@ public class LocationSensor implements SensorPlugin {
         if(!configuredLatitude.equals(Double.MAX_VALUE) && !configuredLongitude.equals(Double.MAX_VALUE)){
             log.info("Location configured, try to get more data");
             try {
-                rawData = LatitudeLongitudeRawSensor.reverseLookupAddress(configuredLongitude, configuredLatitude);
+                rawData = Geocoder.reverseLookupAddress(configuredLongitude, configuredLatitude);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.warn(e.getMessage());
@@ -128,7 +128,7 @@ public class LocationSensor implements SensorPlugin {
             try {
                 if(getProperty(LOCATION) != null){
                     log.info("Location configured as the address: " + getProperty(LOCATION) +  " , try to get coordinates");
-                    Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(getProperty(LOCATION).toString());
+                    LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(getProperty(LOCATION).toString());
                     configuredLongitude = latLng.longitude;
                     configuredLatitude = latLng.latitude;
                     rawData.put("configured_latitude", configuredLatitude);

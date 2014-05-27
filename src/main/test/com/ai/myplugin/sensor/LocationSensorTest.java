@@ -7,7 +7,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
-import com.ai.myplugin.util.Geocoder;
+import com.ai.myplugin.util.LatLng;
 import junit.framework.TestCase;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -33,10 +33,10 @@ public class LocationSensorTest extends TestCase{
 
     public void testDistanceCalculation() throws ParseException {
         //Geocoder.LatLng gent = Geocoder.getLongitudeLatitudeForAddress("Krekelstraat 60, 9052 Gent, Belgium");
-        Geocoder.LatLng gent = new Geocoder.LatLng(50.9968091, 3.6862785);
+        LatLng gent = new LatLng(50.9968091, 3.6862785);
 
         //Geocoder.LatLng noviSad = Geocoder.getLongitudeLatitudeForAddress("Novi Sad");
-        Geocoder.LatLng noviSad = new Geocoder.LatLng(45.25, 19.85);
+        LatLng noviSad = new LatLng(45.25, 19.85);
 
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, gent.longitude);

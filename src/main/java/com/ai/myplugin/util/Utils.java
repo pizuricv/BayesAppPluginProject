@@ -43,10 +43,10 @@ public class Utils {
         return number.doubleValue();
     }
 
-    public static Geocoder.LatLng getLocation(SessionContext testSessionContext, Object location,
+    public static LatLng getLocation(SessionContext testSessionContext, Object location,
                                                   Object longitude, Object latitude) {
 
-        Optional<Geocoder.LatLng> runtimeLatLng = getRuntimeLatLng(testSessionContext);
+        Optional<LatLng> runtimeLatLng = getRuntimeLatLng(testSessionContext);
 
         // ugly syntax because there is no or in Java8 :-s
 
@@ -56,18 +56,18 @@ public class Utils {
                                 .orElseThrow(() -> new RuntimeException("latitude, longitude and/or location not configured"))));
     }
 
-    private static Optional<Geocoder.LatLng> getProvidedLatLng(Object latitude, Object longitude){
+    private static Optional<LatLng> getProvidedLatLng(Object latitude, Object longitude){
         if (latitude == null || longitude == null) {
             return Optional.empty();
         }else{
-            return Optional.of(new Geocoder.LatLng(Utils.getDouble(latitude), Utils.getDouble(longitude)));
+            return Optional.of(new LatLng(Utils.getDouble(latitude), Utils.getDouble(longitude)));
         }
     }
 
-    private static Optional<Geocoder.LatLng> getLatLngByLocation(Object location){
+    private static Optional<LatLng> getLatLngByLocation(Object location){
         if (location != null) {
             log.info("Location configured as the address: " + location + ", try to get coordinates");
-            Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location.toString());
+            LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location.toString());
             log.info("Use location: " + latLng);
             return Optional.of(latLng);
         } else {
@@ -75,7 +75,7 @@ public class Utils {
         }
     }
 
-    private static Optional<Geocoder.LatLng> getRuntimeLatLng(SessionContext context){
+    private static Optional<LatLng> getRuntimeLatLng(SessionContext context){
         Double runtimeLatitude = null;
         Double runtimeLongitude = null;
         if(context != null){
@@ -85,7 +85,7 @@ public class Utils {
         if(runtimeLatitude == null || runtimeLongitude == null){
             return Optional.empty();
         }else{
-            return Optional.of(new Geocoder.LatLng(runtimeLatitude, runtimeLongitude));
+            return Optional.of(new LatLng(runtimeLatitude, runtimeLongitude));
         }
     }
 }
