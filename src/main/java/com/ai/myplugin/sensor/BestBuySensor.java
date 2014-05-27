@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.apache.commons.logging.LogFactory.*;
 
 @PluginImplementation
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "Shopping")
 public class BestBuySensor implements SensorPlugin {
     protected static final Log log = getLog(BestBuySensor.class);
     static final String PRODUCT = "product";

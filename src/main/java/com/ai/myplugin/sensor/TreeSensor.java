@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/tree.png")
 public class TreeSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(TreeSensor.class);
     static final String DISTANCE = "distance";

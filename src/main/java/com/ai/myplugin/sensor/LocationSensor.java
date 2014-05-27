@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Location", iconURL = "http://app.waylay.io/icons/location.png")
 public class LocationSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(LocationSensor.class);
     static final String LOCATION = "location";

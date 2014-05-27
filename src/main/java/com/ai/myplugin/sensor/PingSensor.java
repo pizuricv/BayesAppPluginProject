@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
-@PluginHeader (version = "1.0.1", author = "Veselin")
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "Internet", iconURL = "http://app.waylay.io/icons/network.png")
 public class PingSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(PingSensor.class);
 

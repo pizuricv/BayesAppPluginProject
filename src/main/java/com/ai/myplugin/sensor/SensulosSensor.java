@@ -21,6 +21,7 @@ import java.util.Map;
 
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/sensulos.png")
 public class SensulosSensor implements SensorPlugin {
 
     private static final Log log = LogFactory.getLog(SensulosSensor.class);

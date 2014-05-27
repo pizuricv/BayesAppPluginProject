@@ -1,6 +1,7 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.DataType;
+import com.ai.api.PluginHeader;
 import com.ai.api.PropertyType;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.FormulaParser;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 29/10/13
  */
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Stock", iconURL = "http://app.waylay.io/icons/stock_formula.png")
 public class StockFormulaSensor extends StockAbstractSensor {
     private static final Log log = LogFactory.getLog(StockFormulaSensor.class);
     FormulaParser formulaParser = new FormulaParser();

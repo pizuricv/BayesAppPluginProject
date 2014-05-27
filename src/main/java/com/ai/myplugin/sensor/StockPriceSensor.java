@@ -5,12 +5,14 @@
 
 package com.ai.myplugin.sensor;
 
+import com.ai.api.PluginHeader;
 import com.ai.api.SensorResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.util.*;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Stock", iconURL = "http://app.waylay.io/icons/stock.png")
 public class StockPriceSensor extends StockAbstractSensor {
 
     @Override

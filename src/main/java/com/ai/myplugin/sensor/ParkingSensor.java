@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/parking.png")
 public class ParkingSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(ParkingSensor.class);
     static final String DISTANCE = "distance";

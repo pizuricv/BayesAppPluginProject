@@ -20,7 +20,7 @@ import java.util.*;
 
 
 @PluginImplementation
-
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "Environment", iconURL = "http://app.waylay.io/icons/uvindex.png")
 public class UVSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(UVSensor.class);
     private static String ZIPCODE = "zipcode";

@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Event Processing", iconURL = "http://app.waylay.io/icons/formula.png")
 public class RawFormulaSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
     FormulaParser formulaParser = new FormulaParser();

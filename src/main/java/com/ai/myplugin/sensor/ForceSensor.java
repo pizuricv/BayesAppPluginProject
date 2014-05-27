@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 26/12/13
  */
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/force.png")
 public class ForceSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(ForceSensor.class);
     static final String FORCE_THRESHOLD = "force_threshold";

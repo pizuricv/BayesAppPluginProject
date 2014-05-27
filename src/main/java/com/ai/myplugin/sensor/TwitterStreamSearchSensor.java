@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Social", iconURL = "http://app.waylay.io/icons/twitter_stream_sentiment.png")
 public class TwitterStreamSearchSensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(TwitterStreamSearchSensor.class);
     private static final String SEARCH_TERMS = "search_terms";

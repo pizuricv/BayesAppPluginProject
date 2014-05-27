@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 26/12/13
  */
 @PluginImplementation
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/acceleration.png")
 public class AcceleratorSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(AcceleratorSensor.class);
     static final String ACCELERATOR_THRESHOLD = "accelerator_threshold";

@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 // FIXME why does this depend on twitter4j internals?
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
 public class NodeJSCommand implements SensorPlugin {
     private static final Log log = LogFactory.getLog(NodeJSCommand.class);
     private static final int WAIT_FOR_RESULT = 5;

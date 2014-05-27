@@ -34,6 +34,7 @@ http://datatank.gent.be/Gezondheid/Apotheken.json
 </tr>
  */
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/pharmacy.png")
 public class PharmacySensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(PharmacySensor.class);
     static final String DISTANCE = "distance";

@@ -24,6 +24,7 @@ import java.util.Map;
 
 
 @PluginImplementation
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "Environment", iconURL = "http://app.waylay.io/icons/air_quality.png")
 public class AirQualitySensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(AirQualitySensor.class);
     public static final String LOCATION = "location";

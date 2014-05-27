@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Social", iconURL = "http://app.waylay.io/icons/twitter_query.png")
 public class TwitterQuerySensor implements SensorPlugin {
     private static final Log log = LogFactory.getLog(TwitterQuerySensor.class);
     private static final String SEARCH_TERMS = "search_terms";

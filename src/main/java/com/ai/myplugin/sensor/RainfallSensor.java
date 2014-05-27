@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Weather", iconURL = "http://app.waylay.io/icons/radar_weather.png")
 public class RainfallSensor implements SensorPlugin {
 
     protected static final Log log = LogFactory.getLog(RainfallSensor.class);

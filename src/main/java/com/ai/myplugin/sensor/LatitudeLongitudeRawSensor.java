@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Location", iconURL = "http://app.waylay.io/icons/location.png")
 public class LatitudeLongitudeRawSensor implements SensorPlugin {
     protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
 

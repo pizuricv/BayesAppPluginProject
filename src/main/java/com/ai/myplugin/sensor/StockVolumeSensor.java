@@ -5,11 +5,13 @@
 
 package com.ai.myplugin.sensor;
 
+import com.ai.api.PluginHeader;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import java.util.*;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Stock", iconURL = "http://app.waylay.io/icons/mvolume.png")
 public class StockVolumeSensor extends StockAbstractSensor {
 
     @Override

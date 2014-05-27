@@ -15,8 +15,9 @@ import org.json.simple.JSONObject;
 import java.util.*;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Event Processing", iconURL = "http://app.waylay.io/icons/formula.png")
 public class RawThresholdSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
+    private static final Log log = LogFactory.getLog(RawThresholdSensor.class);
     FormulaParser formulaParser = new FormulaParser();
 
     private ArrayList<Long> threshold = new ArrayList<Long>();
