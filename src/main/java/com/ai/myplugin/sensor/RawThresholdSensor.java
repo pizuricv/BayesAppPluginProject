@@ -9,15 +9,19 @@ import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Event Processing", iconURL = "http://app.waylay.io/icons/formula.png")
 public class RawThresholdSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(RawThresholdSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(RawThresholdSensor.class);
+
     FormulaParser formulaParser = new FormulaParser();
 
     private ArrayList<Long> threshold = new ArrayList<Long>();

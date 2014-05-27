@@ -1,17 +1,15 @@
 package com.ai.myplugin.util;
 
 import com.ai.api.SessionContext;
-import com.ai.myplugin.sensor.LocationRawSensor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Optional;
 
 public class Utils {
-    private static final Log log = LogFactory.getLog(Utils.class);
+    private static final Logger log = LoggerFactory.getLogger(Utils.class);
+
     private static final String RUNTIME_LATITUDE = "runtime_latitude";
     private static final String RUNTIME_LONGITUDE = "runtime_longitude";
 
@@ -46,7 +44,7 @@ public class Utils {
     }
 
     public static Geocoder.LatLng getLocation(SessionContext testSessionContext, Object location,
-                                                  Object longitude, Object latitude) throws Exception {
+                                                  Object longitude, Object latitude) {
 
         Optional<Geocoder.LatLng> runtimeLatLng = getRuntimeLatLng(testSessionContext);
 
@@ -68,7 +66,7 @@ public class Utils {
 
     private static Optional<Geocoder.LatLng> getLatLngByLocation(Object location){
         if (location != null) {
-            log.info("Location configured as the address: " + location + " , try to get coordinates");
+            log.info("Location configured as the address: " + location + ", try to get coordinates");
             Geocoder.LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location.toString());
             log.info("Use location: " + latLng);
             return Optional.of(latLng);

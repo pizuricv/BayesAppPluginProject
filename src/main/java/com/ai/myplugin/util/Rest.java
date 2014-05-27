@@ -5,25 +5,24 @@
 
 package com.ai.myplugin.util;
 
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.ai.myplugin.util.io.IOUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Rest {
-    private static final Log log = LogFactory.getLog(Rest.class);
+    private static final Logger log = LoggerFactory.getLogger(Rest.class);
 
     private static final int TIMEOUT_MILLIS = (int)TimeUnit.SECONDS.toMillis(300);
 
@@ -100,11 +99,16 @@ public class Rest {
     private static RestReponse getResponse(HttpURLConnection conn) throws IOException {
         String body;
         if(conn.getResponseCode() >= 400){
-            body = executeAndReturnBodyAsString(conn.getErrorStream());
-            // TODO do we still need to fail here or should the caller check?
-            throw new IOException("Got " + conn.getResponseCode() + " " + conn.getResponseMessage() + "\n" + body);
+            InputStream err = conn.getErrorStream();
+            if(err != null) {
+                body = IOUtil.readToString(err);
+                // TODO do we still need to fail here or should the caller check?
+                throw new IOException("Got " + conn.getResponseCode() + " " + conn.getResponseMessage() + "\n" + body);
+            }else{
+                throw new IOException("Got " + conn.getResponseCode() + " " + conn.getResponseMessage() + " but no contents");
+            }
         }else{
-            body = executeAndReturnBodyAsString(conn.getInputStream());
+            body = IOUtil.readToString(conn.getInputStream());
             return new RestReponse(conn.getResponseCode(), conn.getContentType(), body);
         }
     }
@@ -116,27 +120,6 @@ public class Rest {
             output.write(query.getBytes(charset));
             output.flush();
         }
-    }
-
-    private static String executeAndReturnBodyAsString(InputStream inputStream) throws IOException {
-        try (
-                InputStream is = inputStream;
-                InputStreamReader reader = new InputStreamReader(is);
-                BufferedReader rd = new BufferedReader(reader)
-        ) {
-            return readToString(rd);
-        }
-    }
-
-    private static String readToString(BufferedReader rd) throws IOException {
-        String body;
-        String inputLine;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((inputLine = rd.readLine()) != null){
-            stringBuilder.append(inputLine);
-        }
-        body = stringBuilder.toString();
-        return body;
     }
 
     public static class RestReponse{

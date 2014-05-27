@@ -2,12 +2,13 @@ package com.ai.myplugin.util;
 
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 
 
@@ -19,7 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * On Date: 28/10/13
  */
 public class FormulaParser {
-    private static final Log log = LogFactory.getLog(FormulaParser.class);
+
+    private static final Logger log = LoggerFactory.getLogger(FormulaParser.class);
+
     Map<String, ArrayList> prevValues = new ConcurrentHashMap();
     Map<String, UtilStats> statisticalSampleValues;
     Map<String, SlidingWindowStatsCounter> statisticalWindowValues;

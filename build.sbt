@@ -10,8 +10,10 @@ scalacOptions += "-target:jvm-1.8"
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
+val slf4jVersion = "1.7.7"
+
 libraryDependencies ++= Seq(
-  "commons-logging" % "commons-logging" % "1.0.4",
+  "org.slf4j" % "slf4j-api" % slf4jVersion,
   "org.jsoup" % "jsoup" % "1.7.3",
   "org.twitter4j" % "twitter4j-core" % "3.0.4",
   "org.twitter4j" % "twitter4j-stream" % "3.0.4",
@@ -25,6 +27,8 @@ libraryDependencies ++= Seq(
   // decide if they want to enable scala scripting
   // "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
   "junit" % "junit" % "4.11" % "test",
+  "org.slf4j" % "slf4j-simple" % slf4jVersion % "test",
+  "org.slf4j" % "jcl-over-slf4j" % slf4jVersion % "test",
   // scala test integration
   //  "org.specs2" %% "specs2" % "2.3.12" % "test",
   //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",

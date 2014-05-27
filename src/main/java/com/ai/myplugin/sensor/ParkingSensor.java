@@ -8,19 +8,22 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/parking.png")
 public class ParkingSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(ParkingSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ParkingSensor.class);
+
     static final String DISTANCE = "distance";
     static final String CITY = "city";
     static final String RUNTIME_LATITUDE = "runtime_latitude";

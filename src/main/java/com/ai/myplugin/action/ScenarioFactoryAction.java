@@ -8,23 +8,24 @@ package com.ai.myplugin.action;
 import com.ai.api.*;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class ScenarioFactoryAction implements ActuatorPlugin{
-    private static final Log log = LogFactory.getLog(ScenarioFactoryAction.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ScenarioFactoryAction.class);
+
     private static final String SERVER_ADDRESS = "server address";
     private static final String USER_NAME = "username";
     private static final String USER_PASSWORD = "password";
@@ -40,8 +41,6 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
     private static final String FREQUENCY = "frequency";
     private static final String NAME = "ScenarioFactory";
 
-
-    private URL url;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, java.lang.Object>();
 
 
@@ -97,6 +96,7 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
             throw new RuntimeException(errorMessage);
         }
 
+        URL url;
         try {
             url = new URL(server);
         } catch (MalformedURLException e) {
@@ -171,7 +171,7 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
             try {
                 is = connection.getInputStream();
             } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage(), e);
                 e.printStackTrace();
             }
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));

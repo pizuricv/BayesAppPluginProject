@@ -10,10 +10,11 @@ import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +23,10 @@ import java.util.Map;
 
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/sensulos.png")
-public class SensulosSensor implements SensorPlugin {
+public class SensolusSensor implements SensorPlugin {
 
-    private static final Log log = LogFactory.getLog(SensulosSensor.class);
+    private static final Logger log = LoggerFactory.getLogger(SensolusSensor.class);
+
     String baseUrl = "http://in.sensolus.com:8080";
     String user = "apps4ghent";
     String [] states = {"Collected", "Not Collected"};
@@ -195,41 +197,41 @@ public class SensulosSensor implements SensorPlugin {
     }
 
     public static void main(String []args) {
-        SensulosSensor sensulosSensor = new SensulosSensor();
-        sensulosSensor.setProperty(ID, "1071364b-83c4-4491-aad1-f35faaba1e63");
+        SensolusSensor sensolusSensor = new SensolusSensor();
+        sensolusSensor.setProperty(ID, "1071364b-83c4-4491-aad1-f35faaba1e63");
         SessionContext testSessionContext = new SessionContext(1);
 
-        SensorResult testResult = sensulosSensor.execute(testSessionContext);
+        SensorResult testResult = sensolusSensor.execute(testSessionContext);
         log.info(testResult.getRawData());
         log.info(testResult.getObserverState());
 
-        sensulosSensor.setProperty(ID, "120ceb4a-92f2-4837-8ea4-4372cd559639");
-        testResult = sensulosSensor.execute(testSessionContext);
+        sensolusSensor.setProperty(ID, "120ceb4a-92f2-4837-8ea4-4372cd559639");
+        testResult = sensolusSensor.execute(testSessionContext);
         log.info(testResult.getRawData());
         log.info(testResult.getObserverState());
 
-        sensulosSensor.setProperty(ID, "31a1967c-5a49-465c-a59d-7ef08f368b61");
-        testResult = sensulosSensor.execute(testSessionContext);
-        log.info(testResult.getRawData());
-        log.info(testResult.getObserverState());
-
-
-        sensulosSensor.setProperty(ID, "542bcd19-9ff2-4f84-a84d-7568d277ba5e");
-        testResult = sensulosSensor.execute(testSessionContext);
+        sensolusSensor.setProperty(ID, "31a1967c-5a49-465c-a59d-7ef08f368b61");
+        testResult = sensolusSensor.execute(testSessionContext);
         log.info(testResult.getRawData());
         log.info(testResult.getObserverState());
 
 
-        sensulosSensor.setProperty(ID, "614ba218-913e-42a1-b4e8-af6fb232f2fb");
-
-        testResult = sensulosSensor.execute(testSessionContext);
+        sensolusSensor.setProperty(ID, "542bcd19-9ff2-4f84-a84d-7568d277ba5e");
+        testResult = sensolusSensor.execute(testSessionContext);
         log.info(testResult.getRawData());
         log.info(testResult.getObserverState());
 
 
-        sensulosSensor.setProperty(ID, "8bb4ad28-fb61-492d-aaad-d0e544bf7f26");
+        sensolusSensor.setProperty(ID, "614ba218-913e-42a1-b4e8-af6fb232f2fb");
 
-        testResult = sensulosSensor.execute(testSessionContext);
+        testResult = sensolusSensor.execute(testSessionContext);
+        log.info(testResult.getRawData());
+        log.info(testResult.getObserverState());
+
+
+        sensolusSensor.setProperty(ID, "8bb4ad28-fb61-492d-aaad-d0e544bf7f26");
+
+        testResult = sensolusSensor.execute(testSessionContext);
         log.info(testResult.getRawData());
         log.info(testResult.getObserverState());
 

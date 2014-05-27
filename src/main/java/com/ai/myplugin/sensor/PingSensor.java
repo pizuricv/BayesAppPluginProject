@@ -10,15 +10,14 @@ import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader (version = "1.0.1", author = "Veselin", category = "Internet", iconURL = "http://app.waylay.io/icons/network.png")
 public class PingSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(PingSensor.class);
+    private static final Logger log = LoggerFactory.getLogger(PingSensor.class);
 
     private static final String ADDRESS = "address";
     private static final String ALIVE = "Alive";

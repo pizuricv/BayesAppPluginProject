@@ -4,12 +4,11 @@
 package com.ai.myplugin.util;
 
 import com.ai.myplugin.sensor.WeatherAbstractSensor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class OpenWeatherParser {
 
-    private static final Log log = LogFactory.getLog(OpenWeatherParser.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenWeatherParser.class);
 
     private static final String server = "http://api.openweathermap.org/data/2.5/";
 

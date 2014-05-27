@@ -24,19 +24,19 @@ public class StockVolumeSensor extends StockAbstractSensor {
         return "StockVolume";
     }
 
-    public static void main(String[] args){
-        StockVolumeSensor stockSensor = new StockVolumeSensor();
-        stockSensor.setProperty(STOCK, "MSFT");
-        stockSensor.setProperty(THRESHOLD, "36");
-        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
-        log.debug(stockSensor.execute(null).getObserverState());
-
-        stockSensor.setProperty(STOCK, "GOOG");
-        stockSensor.setProperty(THRESHOLD, "800.0");
-        log.debug(stockSensor.execute(null).getObserverState());
-
-        stockSensor.setProperty(STOCK, "BAR.BR");
-        stockSensor.setProperty(THRESHOLD, "-1.0");
-        log.debug(stockSensor.execute(null).getObserverState());
-    }
+//    public static void main(String[] args){
+//        StockVolumeSensor stockSensor = new StockVolumeSensor();
+//        stockSensor.setProperty(STOCK, "MSFT");
+//        stockSensor.setProperty(THRESHOLD, "36");
+//        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
+//        log.debug(stockSensor.execute(null).getObserverState());
+//
+//        stockSensor.setProperty(STOCK, "GOOG");
+//        stockSensor.setProperty(THRESHOLD, "800.0");
+//        log.debug(stockSensor.execute(null).getObserverState());
+//
+//        stockSensor.setProperty(STOCK, "BAR.BR");
+//        stockSensor.setProperty(THRESHOLD, "-1.0");
+//        log.debug(stockSensor.execute(null).getObserverState());
+//    }
 }

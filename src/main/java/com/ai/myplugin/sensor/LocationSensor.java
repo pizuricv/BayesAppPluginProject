@@ -8,10 +8,11 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,11 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Location", iconURL = "http://app.waylay.io/icons/location.png")
 public class LocationSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(LocationSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(LocationSensor.class);
+
     static final String LOCATION = "location";
     static final String LATITUDE = "latitude";
     static final String LONGITUDE = "longitude";
     static final String DISTANCE = "distance";
+
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
 

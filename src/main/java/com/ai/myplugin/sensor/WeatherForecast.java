@@ -9,8 +9,8 @@ import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -20,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 //currently not exposed, TODO check if that one should be removed later
 //@PluginImplementation
 public class WeatherForecast implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(WeatherForecast.class);
+
+    private static final Logger log = LoggerFactory.getLogger(RawFormulaSensor.class);
 
     static final String server = "https://george-vustrey-weather.p.mashape.com/api.php?_method=getForecasts&location=";
     static final String CITY = "city";

@@ -1,25 +1,28 @@
 package com.ai.myplugin.util.io;
 
-import com.ai.myplugin.action.NodeJSAction;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class StreamGobbler extends Thread {
 
-    private final Log log;
+    private static final AtomicLong counter = new AtomicLong();
+
+    private final Logger log;
     private final InputStream is;
     private final StdType stdType;
     private final CountDownLatch latch;
 
     private StringBuffer buffer = new StringBuffer();
 
-    public StreamGobbler(final InputStream is, final StdType type, final Log log, final CountDownLatch latch) {
+    public StreamGobbler(final InputStream is, final StdType type, final Logger log, final CountDownLatch latch) {
+        super("StreamGobbler-" + counter.incrementAndGet() + "-" + type);
         this.is = is;
         this.stdType = type;
         this.log = log;
@@ -32,7 +35,9 @@ public class StreamGobbler extends Thread {
             BufferedReader br = new BufferedReader(isr);
             String line;
             while ((line = br.readLine()) != null) {
-                logLine(line, stdType);
+                logLine(line);
+                // FIXME this is not 100% correct, might add an extra newline?
+                buffer.append(line +  System.lineSeparator());
             }
             latch.countDown();
         } catch (IOException ioe) {
@@ -41,15 +46,14 @@ public class StreamGobbler extends Thread {
     }
 
     public String getOutput(){
-        return buffer.toString();
+        return buffer.toString().trim();
     }
 
-    private void logLine(String line, StdType type) {
-        if(type == StdType.ERROR){
+    private void logLine(String line) {
+        if(stdType == StdType.ERROR){
             log.error("Error executing the script > " + line);
         } else{
             log.info(line);
         }
-        buffer.append(line);
     }
 }

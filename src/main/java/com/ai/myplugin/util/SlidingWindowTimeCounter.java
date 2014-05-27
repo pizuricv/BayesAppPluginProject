@@ -1,7 +1,7 @@
 package com.ai.myplugin.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,7 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * On Date: 27/10/13
  */
 public class SlidingWindowTimeCounter {
-    private static final Log log = LogFactory.getLog(SlidingWindowTimeCounter.class);
+
+    private static final Logger log = LoggerFactory.getLogger(SlidingWindowTimeCounter.class);
+
     private final String name;
     private int slidingWindowMinutes = 5;
     ConcurrentHashMap<Long, AtomicInteger> map = new ConcurrentHashMap<Long, AtomicInteger>();

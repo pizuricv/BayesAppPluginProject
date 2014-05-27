@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class DateSensorTest {
     @Test
     public void testActionMatch(){
         DateSensor sensor = new DateSensor();
-        sensor.setProperty(DateSensor.DATE_FORMAT, LocalDateTime.now().toString());
+        sensor.setProperty(DateSensor.DATE_FORMAT, LocalDateTime.now().atZone(ZoneId.of("UTC")).toString());
         sensor.setProperty(DateSensor.TIME_ZONE, "UTC");
         String result = sensor.execute(null).getObserverState();
         assertEquals("true", result);

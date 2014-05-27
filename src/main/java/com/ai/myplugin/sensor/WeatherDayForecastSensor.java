@@ -22,38 +22,38 @@ public class WeatherDayForecastSensor extends WeatherAbstractSensor{
         return "WeatherDayForecastSensor";
     }
 
-    public static void main(String[] args){
-        WeatherDayForecastSensor weatherSensor = new WeatherDayForecastSensor();
-        weatherSensor.setProperty("city", "Gent");
-        SensorResult testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "London");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Sidney");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Bangalore");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Chennai");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Moscow");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Belgrade");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Split");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-    }
+//    public static void main(String[] args){
+//        WeatherDayForecastSensor weatherSensor = new WeatherDayForecastSensor();
+//        weatherSensor.setProperty("city", "Gent");
+//        SensorResult testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "London");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "Sidney");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "Bangalore");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "Chennai");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "Moscow");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "Belgrade");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//
+//        weatherSensor.setProperty("city", "Split");
+//        testResult = weatherSensor.execute(null);
+//        log.debug(testResult.getObserverState());
+//    }
 }

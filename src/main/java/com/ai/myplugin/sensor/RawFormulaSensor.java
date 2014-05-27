@@ -10,9 +10,9 @@ import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,8 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Event Processing", iconURL = "http://app.waylay.io/icons/formula.png")
 public class RawFormulaSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(RawFormulaSensor.class);
-    FormulaParser formulaParser = new FormulaParser();
+
+    private static final Logger log = LoggerFactory.getLogger(RawFormulaSensor.class);
+
+    private final FormulaParser formulaParser = new FormulaParser();
 
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";

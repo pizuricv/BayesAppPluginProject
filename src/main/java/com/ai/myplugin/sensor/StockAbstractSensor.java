@@ -9,15 +9,17 @@ import com.ai.api.*;
 
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class StockAbstractSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(StockAbstractSensor.class);
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String STOCK = "stock";
     public static final String THRESHOLD = "threshold";
@@ -237,31 +239,4 @@ public abstract class StockAbstractSensor implements SensorPlugin {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
-    public static void main(String[] args){
-        StockAbstractSensor stockSensor = new StockAbstractSensor() {
-            @Override
-            protected String getTag() {
-                return "PRICE";
-            }
-
-            @Override
-            protected String getSensorName() {
-                return "Price sensor";
-            }
-        };
-        stockSensor.setProperty(STOCK, "MSFT");
-        stockSensor.setProperty(THRESHOLD, 36);
-        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
-        log.debug(stockSensor.execute(null).getObserverState());
-
-
-        stockSensor.setProperty(STOCK, "GOOG");
-        stockSensor.setProperty(THRESHOLD, "800.0");
-        log.debug(stockSensor.execute(null).getObserverState());
-
-        stockSensor.setProperty(STOCK, "BAR.BR");
-        stockSensor.setProperty(THRESHOLD, "-1.0");
-        log.debug(stockSensor.execute(null).getObserverState());
-        log.info(stockSensor.execute(null).getRawData());
-    }
 }

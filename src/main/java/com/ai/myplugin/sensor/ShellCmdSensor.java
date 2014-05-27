@@ -5,35 +5,38 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
+import com.ai.myplugin.util.io.Exec;
+import com.ai.myplugin.util.io.ExecResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @PluginImplementation
 public class ShellCmdSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(ShellCmdSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ShellCmdSensor.class);
+
+    public static final String PROPERTY_THRESHOLD = "threshold";
+    public static final String PROPERTY_COMMAND = "command";
+
     private String command;
-    private ArrayList<Long> threshold = new ArrayList<Long>();
-    private ArrayList<String> states = new ArrayList<String>();
+    private List<Long> thresholds = new ArrayList<>();
+    private List<String> states = new ArrayList<>();
     private static final String parseString = "result=";
-    private int exitVal = -1;
-    private String result ="";
+
     private static final String NAME = "ShellCommand";
-    private String output = "";
-    private AtomicBoolean done = new AtomicBoolean(false);
 
     @Override
     public Map<String,PropertyType> getRequiredProperties() {
         Map<String,PropertyType> map = new HashMap<>();
-        map.put("threshold", new PropertyType(DataType.DOUBLE, true, false));
-        map.put("command", new PropertyType(DataType.STRING, true, false));
+        map.put(PROPERTY_THRESHOLD, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(PROPERTY_COMMAND, new PropertyType(DataType.STRING, true, false));
         return map;
     }
 
@@ -44,38 +47,46 @@ public class ShellCmdSensor implements SensorPlugin {
 
     //comma separated list of thresholds
     @Override
-    public void setProperty(String s, Object o) {
-        if("threshold".endsWith(s)){
-            if(o instanceof String)  {
-                String input = (String) o;
-                StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
-                int i = 0;
-                states.add("level_"+ i++);
-                while(stringTokenizer.hasMoreElements()){
-                    threshold.add(Long.parseLong(stringTokenizer.nextToken()));
+    public void setProperty(String property, Object value) {
+        switch(property){
+            case PROPERTY_COMMAND:
+                command = value.toString();
+                break;
+            case PROPERTY_THRESHOLD:
+                if(value instanceof String)  {
+                    String input = (String) value;
+                    StringTokenizer stringTokenizer = new StringTokenizer(input, ",");
+                    int i = 0;
                     states.add("level_"+ i++);
+                    while(stringTokenizer.hasMoreElements()){
+                        thresholds.add(Long.parseLong(stringTokenizer.nextToken()));
+                        states.add("level_"+ i++);
+                    }
+                } else {
+                    thresholds.add((Long) value);
+                    states.add("level_0");
+                    states.add("level_1");
                 }
-            } else {
-                threshold.add((Long) o);
-                states.add("level_0");
-                states.add("level_1");
-            }
-            Collections.reverse(threshold);
-        } else if ("command".equals(s)){
-            command = o.toString();
-
+                Collections.reverse(thresholds);
+                break;
+            default:
+                // ignore
         }
     }
 
     @Override
-    public Object getProperty(String s) {
-        if("threshold".endsWith(s)){
-            return threshold;
-        } else if("command".endsWith(s)){
-            return command;
-        }
-        else{
-            throw new RuntimeException("Property " + s + " not recognised by " + getName());
+    public Object getProperty(String property) {
+        switch(property) {
+            case PROPERTY_COMMAND:
+                return command;
+            case PROPERTY_THRESHOLD:
+                return thresholds
+                        .stream()
+                        .sorted() // undo previous reverse sorting
+                        .map(Object::toString)
+                        .collect(Collectors.joining(","));
+            default:
+                throw new RuntimeException("Property " + property + " not recognised by " + getName());
         }
     }
 
@@ -83,51 +94,35 @@ public class ShellCmdSensor implements SensorPlugin {
     public String getDescription() {
         return "Shell script, in order to parse the result correctly, add the line in the script in format result=$RES\n" +
                 "example: \"result=5\", and 5 will be compared to the threshold\n" +
-                "the result state is in a format level_$num, ant the number of states is the number_of_thresholds+1";
+                "the result state is in a format level_$num, and the number of states is the number_of_thresholds+1";
     }
 
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        Runtime rt = Runtime.getRuntime();
         try {
-
-            Runtime rt = Runtime.getRuntime();
             Process process = rt.exec(command);
 
-            StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), StdType.ERROR);
-            StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), StdType.OUTPUT);
+            ExecResult execResult = Exec.awaitTermination(process, log);
 
-            errorGobbler.start();
-            outputGobbler.start();
+            log.debug(getName() + " ExitValue: " + execResult.exitVal);
 
-            exitVal = process.waitFor();
+            String result = "";
+            BufferedReader br = new BufferedReader(new StringReader(execResult.output));
+            String line;
+            while ((line = br.readLine()) != null) {
+                log.debug("Found result " + line);
+                result = mapResult(line.replaceAll(parseString, ""));
+            }
 
-            log.debug(getName() + " ExitValue: " + exitVal);
+            final String finalState = result;
 
             return new SensorResult() {
-                {
-                    (new Runnable() {
-                        //waitForResult is not a timeout for the command itself, but how long you wait before the stream of
-                        //output data is processed, should be really fast.
-                        private int waitForResult = 3;
-                        @Override
-                        public void run() {
-                            while(!done.get() && waitForResult > 0)
-                                try {
-                                    Thread.sleep(1000);
-                                    System.out.print(".");
-                                    waitForResult --;
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                    break;
-                                }
-                        }
-                    } ).run();
-                }
 
                 @Override
                 public boolean isSuccess() {
-                    return  exitVal == 0 && !("error").equals("command");
+                    return  execResult.exitVal == 0 && !("error").equals("command");
                 }
 
                 @Override
@@ -137,24 +132,25 @@ public class ShellCmdSensor implements SensorPlugin {
 
                 @Override
                 public String getObserverState() {
-                    return result;
+                    return finalState;
                 }
 
                 @Override
                 public List<Map<String, Number>> getObserverStates() {
-                    return null;
+                    return Collections.emptyList();
                 }
 
                 @Override
                 public String getRawData() {
-                    return output;
+                    return execResult.output;
                 }
-            }  ;
+            };
 
-        } catch (Throwable t) {
-            log.error(t.getLocalizedMessage());
-            t.printStackTrace();
-            throw new RuntimeException(t);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         }
     }
 
@@ -168,52 +164,10 @@ public class ShellCmdSensor implements SensorPlugin {
         return states.toArray(new String[states.size()]);
     }
 
-    enum StdType {
-        ERROR, OUTPUT
-    }
-
-    private class StreamGobbler extends Thread {
-        InputStream is;
-        private StdType stdType;
-
-        StreamGobbler(InputStream is, StdType type) {
-            this.is = is;
-            this.stdType = type;
-        }
-
-        public void run() {
-            try {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line;
-                while ((line = br.readLine()) != null)
-                    logLine(line, stdType);
-                done.set(true);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
-        private void logLine(String line, StdType type) {
-            if(type.equals(StdType.ERROR)){
-                log.error("Error executing the script >" + line);
-                throw new RuntimeException("Error executing the script "+ getName() + " : error is "+ line);
-            } else{
-                if(line.startsWith(parseString)){
-                    output += line;
-                    log.debug("Found result " + line);
-                    result = mapResult(line.replaceAll(parseString,""));
-                } else{
-                    log.debug(line);
-                }
-            }
-        }
-    }
-
     private String mapResult(String result) {
         Long res = Long.parseLong(result);
         int i = states.size() - 1;
-        for(Long l : threshold){
+        for(Long l : thresholds){
             if(res  > l){
                 return "level_" + i;
             }

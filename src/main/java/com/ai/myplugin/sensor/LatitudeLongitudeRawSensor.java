@@ -10,11 +10,11 @@ import com.ai.myplugin.util.APIKeys;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -25,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Location", iconURL = "http://app.waylay.io/icons/location.png")
 public class LatitudeLongitudeRawSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(LocationRawSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(LatitudeLongitudeRawSensor.class);
 
     static final String LATITUDE = "latitude";
     static final String LONGITUDE = "longitude";

@@ -1,8 +1,7 @@
 package com.ai.myplugin.util;
 
 import com.ai.myplugin.util.conf.Config;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 

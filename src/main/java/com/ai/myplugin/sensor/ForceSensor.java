@@ -8,11 +8,12 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/force.png")
 public class ForceSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(ForceSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ForceSensor.class);
+
     static final String FORCE_THRESHOLD = "force_threshold";
     static final String RUNTIME_FORCE = "runtime_force";
 

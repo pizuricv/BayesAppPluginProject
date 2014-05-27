@@ -2,6 +2,8 @@ package com.ai.myplugin.util;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -12,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Mashape geocoder
  */
 public final class Geocoder {
+
+    private static final Logger log = LoggerFactory.getLogger(Geocoder.class);
 
     private Geocoder(){
         throw new UnsupportedOperationException("Utility class");
@@ -28,6 +32,7 @@ public final class Geocoder {
         try {
             response = Rest.httpGet(url, httpSettings).json();
         } catch (ParseException| IOException e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
 

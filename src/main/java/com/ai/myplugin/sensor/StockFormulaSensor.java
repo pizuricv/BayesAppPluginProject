@@ -6,9 +6,9 @@ import com.ai.api.PropertyType;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.FormulaParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Stock", iconURL = "http://app.waylay.io/icons/stock_formula.png")
 public class StockFormulaSensor extends StockAbstractSensor {
-    private static final Log log = LogFactory.getLog(StockFormulaSensor.class);
-    FormulaParser formulaParser = new FormulaParser();
+
+    private static final Logger log = LoggerFactory.getLogger(StockAbstractSensor.class);
+
+    private final FormulaParser formulaParser = new FormulaParser();
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {

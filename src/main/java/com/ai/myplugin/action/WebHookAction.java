@@ -6,9 +6,10 @@ package com.ai.myplugin.action;
 
 import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -23,8 +24,10 @@ import java.util.Map;
  */
 @PluginImplementation
 public class WebHookAction implements ActuatorPlugin{
+
+    private static final Logger log = LoggerFactory.getLogger(WebHookAction.class);
+
     private static String HOOK_URL = "callback_URL";
-    private static final Log log = LogFactory.getLog(WebHookAction.class);
     private URL hook;
 
     @Override
@@ -40,8 +43,7 @@ public class WebHookAction implements ActuatorPlugin{
             try {
                 hook = new URL(o.toString());
             } catch (MalformedURLException e) {
-                e.printStackTrace();
-                log.error(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage(), e);
             }} else {
             throw new RuntimeException("Property "+ string + " not in the required settings");
         }
@@ -100,6 +102,8 @@ public class WebHookAction implements ActuatorPlugin{
             log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
+
+        // FIXME this is wrong, putting json in form-urlencoded
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         connection.setRequestProperty("charset", "utf-8");
         connection.setRequestProperty("Content-Length", "" + Integer.toString(jsonObject.toJSONString().getBytes().length));

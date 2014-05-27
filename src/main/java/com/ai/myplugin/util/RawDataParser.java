@@ -7,11 +7,11 @@ package com.ai.myplugin.util;
 
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 
 import java.util.*;
@@ -19,11 +19,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class RawDataParser {
-    private static final Log log = LogFactory.getLog(RawDataParser.class);
+    private static final Logger log = LoggerFactory.getLogger(RawDataParser.class);
 
     public static String parseTemplateFromContext(String template, SessionContext testSessionContext){
         return parseTemplateFromRawMap(template, (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA));
-    };
+    }
 
     public static String parseTemplateFromRawMap(String template, Map sessionMap){
         log.debug("parseTemplateFromRawMap " + template);

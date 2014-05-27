@@ -2,8 +2,8 @@ package com.ai.myplugin.action;
 
 import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.script.*;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 @PluginImplementation
 public class ScriptAction implements ActuatorPlugin {
 
-    private static final Log log = LogFactory.getLog(ScriptAction.class);
+    private static final Logger log = LoggerFactory.getLogger(ScriptAction.class);
 
     public static final String PROPERTY_SCRIPT = "script";
     public static final String PROPERTY_ENGINE = "engine";

@@ -11,9 +11,9 @@ import com.ai.myplugin.util.SlidingWindowTimeCounter;
 import com.ai.myplugin.util.TwitterConfig;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.*;
 import twitter4j.TwitterException;
 import java.io.IOException;
@@ -24,7 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Social", iconURL = "http://app.waylay.io/icons/twitter_sentiment.png")
 public class TwitterSentimentSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(TwitterSentimentSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(TwitterSentimentSensor.class);
+
     private static final String SEARCH_TERMS = "search_terms";
     private static final String WINDOW = "window";
     private int window = 15;

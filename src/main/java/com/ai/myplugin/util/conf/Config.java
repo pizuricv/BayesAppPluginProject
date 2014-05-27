@@ -1,8 +1,7 @@
 package com.ai.myplugin.util.conf;
 
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +11,7 @@ import java.util.Properties;
 
 public final class Config {
 
-    private static final Log log = LogFactory.getLog(Config.class);
+    private static final Logger log = LoggerFactory.getLogger(Config.class);
 
     private static final String CONFIG_FILE = "bn.properties";
 

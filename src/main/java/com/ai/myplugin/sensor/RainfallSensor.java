@@ -11,9 +11,10 @@ import com.ai.myplugin.util.Geocoder;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.internal.org.json.JSONArray;
 
 import java.io.IOException;
@@ -26,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Weather", iconURL = "http://app.waylay.io/icons/radar_weather.png")
 public class RainfallSensor implements SensorPlugin {
 
-    protected static final Log log = LogFactory.getLog(RainfallSensor.class);
+    private static final Logger log = LoggerFactory.getLogger(RainfallSensor.class);
 
-    private static final String LOCATION = "location";
+    static final String LOCATION = "location";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
     private static final String RUNTIME_LATITUDE = "runtime_latitude";
@@ -49,20 +50,18 @@ public class RainfallSensor implements SensorPlugin {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         Geocoder.LatLng latLng;
         try {
-            latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION),
-                    getProperty(LONGITUDE), getProperty(LATITUDE));
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
+        } catch (RuntimeException e) {
+            log.error("error in getting the location: " + e.getMessage(), e);
             return new EmptySensorResult();
         }
-
         String pathURL = BASE_URL + "lat="+latLng.latitude + "&lon="+latLng.longitude;
 
         String stringToParse;
         try {
             stringToParse = Rest.httpGet(pathURL).body();
         } catch (IOException e) {
-            log.error("error in getting the data from " + pathURL + ", "+e.getMessage(), e);
+            log.error("error in getting the data from " + pathURL + ", " + e.getMessage(), e);
             return new EmptySensorResult();
         }
 
@@ -138,7 +137,7 @@ public class RainfallSensor implements SensorPlugin {
         if(getRequiredProperties().keySet().contains(s)) {
             propertiesMap.put(s, o);
         } else {
-            throw new RuntimeException("Property "+ s + " not in the required settings");
+            throw new RuntimeException("Property " + s + " not in the required settings");
         }
     }
 
@@ -164,7 +163,7 @@ public class RainfallSensor implements SensorPlugin {
             mm/per uur = 10^((waarde -109)/32)
             Dus 77 = 0.1 mm/uur
              */
-        StringTokenizer stringTokenizer = new StringTokenizer(stringToParse, "|");
+        StringTokenizer stringTokenizer = new StringTokenizer(stringToParse, "\n");
         if(stringTokenizer.countTokens() < 2)
             throw new RuntimeException("there is nothing to parse " + stringToParse);
         //TODO check how to do it better, now only the aggregate for the next hour

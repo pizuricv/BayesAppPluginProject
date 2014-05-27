@@ -6,9 +6,10 @@
 package com.ai.myplugin.action;
 
 import com.ai.api.*;
+import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -21,7 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class ScenarioControlAction implements ActuatorPlugin{
-    private static final Log log = LogFactory.getLog(ScenarioControlAction.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ScenarioControlAction.class);
+
     private static final String SERVER_ADDRESS = "server address";
     private static final String USER_NAME = "username";
     private static final String USER_PASSWORD = "password";
@@ -65,100 +68,40 @@ public class ScenarioControlAction implements ActuatorPlugin{
     @Override
     public void action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
-        Integer scenarioID = -1;
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
 //        String user = getProperty(USER_NAME) == null ? "user" : (String) getProperty(USER_NAME);
 //        String password = getProperty(USER_PASSWORD) == null ? "password" : (String) getProperty(USER_PASSWORD);
         String server = (String) getProperty(SERVER_ADDRESS);
-        if(server.endsWith("/")){
-            server = server.substring(0, server.lastIndexOf("/"));
-        }
 
+        Integer scenarioID = null;
         try {
             scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
-        } catch (Exception e){
+        } catch (NumberFormatException e){
             log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
-        if(server == null || scenarioID.equals(-1)) {
-            String errorMessage = "error in the configuration of the sensor " + getDescription();
-            log.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+        if(server == null || scenarioID == null) {
+            throw new RuntimeException("error in the configuration of the sensor " + getDescription());
         }
 
-        try {
-            url = new URL(server+ "/scenarios/" + scenarioID);
-        } catch (MalformedURLException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        }
-
-        URLConnection connection = null;
         String charset = "UTF-8";
-        String query = null;
+        String query;
         try {
             query = String.format("action=%s", URLEncoder.encode((String) getProperty(COMMAND), charset));
         } catch (UnsupportedEncodingException e) {
-            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
-        }
-        try {
-            connection = url.openConnection();
-        } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        }
-        connection.setDoOutput(true); // Triggers POST.
-        connection.setRequestProperty("Accept-Charset", charset);
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        OutputStream output = null;
-        try {
-            output = connection.getOutputStream();
-            output.write(query.getBytes(charset));
-        } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
-        } finally {
-            if (output != null)
-                try {
-                    output.flush();
-                    output.close();
-                } catch (IOException e) {
-                    log.error(e.getLocalizedMessage());
-                    throw new RuntimeException(e);
-                }
         }
 
-        //Get Response
-        InputStream is = null;
-        if(connection != null){
-            try {
-                is = connection.getInputStream();
-            } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuffer response = new StringBuffer();
-            try {
-                while((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-            } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
-                throw new RuntimeException(e);
-            }
-            try {
-                rd.close();
-            } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
-                throw new RuntimeException(e);
-            }
-            log.debug(response.toString());
+        if(server.endsWith("/")){
+            server = server.substring(0, server.lastIndexOf("/"));
+        }
+        String url = server + "/scenarios/" + scenarioID;
+        try {
+            Rest.RestReponse response = Rest.httpPost(url, query, charset);
+        } catch (IOException e) {
+            log.error(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
     }
 

@@ -6,11 +6,8 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class StockFormulaSensorTest extends TestCase{
-    private static final Log log = LogFactory.getLog(StockFormulaSensorTest.class);
 
     public void testStockFormula(){
         StockFormulaSensor stockFormulaSensor = new StockFormulaSensor();
@@ -18,15 +15,15 @@ public class StockFormulaSensorTest extends TestCase{
         stockFormulaSensor.setProperty("threshold", 0);
         stockFormulaSensor.setProperty("formula", "<this.rawData.price> - <this.rawData.moving_average>");
         SensorResult SensorResult = stockFormulaSensor.execute(null);
-        log.info(SensorResult.getObserverState());
-        log.info(SensorResult.getRawData());
+        System.out.println(SensorResult.getObserverState());
+        System.out.println(SensorResult.getRawData());
 
 
         stockFormulaSensor.setProperty("stock", "GOOG");
         stockFormulaSensor.setProperty("threshold", .15);
         stockFormulaSensor.setProperty("formula", "(<this.rawData.price> - <this.rawData.moving_average>)/<this.rawData.moving_average>");
         SensorResult = stockFormulaSensor.execute(null);
-        log.info(SensorResult.getObserverState());
-        log.info(SensorResult.getRawData());
+        System.out.println(SensorResult.getObserverState());
+        System.out.println(SensorResult.getRawData());
     }
 }

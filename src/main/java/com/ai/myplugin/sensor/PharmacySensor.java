@@ -17,15 +17,16 @@ import com.ai.api.SessionContext;
 import com.ai.myplugin.util.*;
 
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +43,9 @@ http://datatank.gent.be/Gezondheid/Apotheken.json
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/pharmacy.png")
 public class PharmacySensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(PharmacySensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(PharmacySensor.class);
+
     static final String DISTANCE = "distance";
     static final String CITY = "city";
     static final String RUNTIME_LATITUDE = "runtime_latitude";

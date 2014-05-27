@@ -8,14 +8,13 @@ import com.ai.api.*;
 import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.RawDataParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.DirectMessage;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.Date;
@@ -25,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class TwitterDMAction implements ActuatorPlugin {
-    private static final Log log = LogFactory.getLog(TwitterDMAction.class);
+
+    private static final Logger log = LoggerFactory.getLogger(TwitterDMAction.class);
 
     private final String CONSUMER_KEY = "OAuthConsumerKey";
     private final String CONSUMER_SECRET = "OAuthConsumerSecret";

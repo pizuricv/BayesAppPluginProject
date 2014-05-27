@@ -8,11 +8,11 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -22,7 +22,9 @@ import java.util.*;
 @PluginImplementation
 @PluginHeader (version = "1.0.1", author = "Veselin", category = "Environment", iconURL = "http://app.waylay.io/icons/uvindex.png")
 public class UVSensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(UVSensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(UVSensor.class);
+
     private static String ZIPCODE = "zipcode";
     private static String zipCode = null;
     static final String server = "http://iaspub.epa.gov/enviro/efservice/getEnvirofactsUVHOURLY/ZIP/";

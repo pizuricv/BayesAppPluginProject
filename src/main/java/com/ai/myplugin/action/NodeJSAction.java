@@ -6,29 +6,23 @@
 package com.ai.myplugin.action;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.Node;
-import com.ai.myplugin.util.NodeConfig;
-import com.ai.myplugin.util.RawDataParser;
-import com.ai.myplugin.util.Utils;
-import com.ai.myplugin.util.io.IOUtil;
-import com.ai.myplugin.util.io.StdType;
-import com.ai.myplugin.util.io.StreamGobbler;
+import com.ai.myplugin.util.*;
+import com.ai.myplugin.util.io.ExecResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.internal.org.json.JSONObject;
 import org.stringtemplate.v4.ST;
-import java.io.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginImplementation
 public class NodeJSAction implements ActuatorPlugin{
-    private static final Log log = LogFactory.getLog(NodeJSAction.class);
+    private static final Logger log = LoggerFactory.getLogger(NodeJSAction.class);
+
     private static final String JAVA_SCRIPT = "javaScript";
     private String javaScriptCommand;
     private String nodePath = NodeConfig.getNodePath();
@@ -46,7 +40,7 @@ public class NodeJSAction implements ActuatorPlugin{
         }
 
         Node node = new Node(nodePath, workingDir);
-        Node.NodeResult result = node.executeScript(javaScriptCommand);
+        ExecResult result = node.executeScript(javaScriptCommand);
         // TODO do we want to fail on non-0 exit code?
     }
 

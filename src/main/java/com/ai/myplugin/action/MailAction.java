@@ -6,9 +6,9 @@ import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.conf.Configuration;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ import javax.mail.internet.MimeMessage;
 
 @PluginImplementation
 public class MailAction implements ActuatorPlugin {
-    private static final Log log = LogFactory.getLog(MailAction.class);
+    private static final Logger log = LoggerFactory.getLogger(MailAction.class);
 
     private static final String NAME = "Mail";
 
@@ -92,8 +92,6 @@ public class MailAction implements ActuatorPlugin {
         try {
             fetchMailPropertiesFromFile();
         } catch (RuntimeException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
         Properties props = new Properties();
@@ -127,8 +125,6 @@ public class MailAction implements ActuatorPlugin {
             Transport.send(message);
 
         } catch (MessagingException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }

@@ -9,13 +9,13 @@ import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,9 @@ import java.util.Map;
 @PluginImplementation
 @PluginHeader (version = "1.0.1", author = "Veselin", category = "Environment", iconURL = "http://app.waylay.io/icons/air_quality.png")
 public class AirQualitySensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(AirQualitySensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(AirQualitySensor.class);
+
     public static final String LOCATION = "location";
     String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
     String detailInfoIRCURL = "http://deus.irceline.be/~celinair/actair/actair.php?lan=nl";

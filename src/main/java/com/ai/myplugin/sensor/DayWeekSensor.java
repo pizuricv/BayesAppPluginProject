@@ -17,8 +17,4 @@ public class DayWeekSensor extends TimeAbstractSensor {
         return "DayInWeek";
     }
 
-    public static void main (String []args){
-        DayWeekSensor daySensor = new DayWeekSensor();
-        log.debug(daySensor.execute(null).getObserverState());
-    }
 }

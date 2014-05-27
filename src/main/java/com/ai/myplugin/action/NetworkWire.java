@@ -8,8 +8,8 @@ package com.ai.myplugin.action;
 import com.ai.api.*;
 import com.ai.myplugin.util.Rest;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.*;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 public class NetworkWire implements ActuatorPlugin{
-    private static final Log log = LogFactory.getLog(NetworkWire.class);
+    private static final Logger log = LoggerFactory.getLogger(NetworkWire.class);
 
     public static final String SERVER_ADDRESS = "server address";
     private static final String USER_NAME = "username";
@@ -99,7 +99,7 @@ public class NetworkWire implements ActuatorPlugin{
         }
         String url = server+ "/scenarios/" + scenarioID + "/"+ node;
         try {
-            Rest.httpPost(url, query, charset);
+            Rest.RestReponse response = Rest.httpPost(url, query, charset);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

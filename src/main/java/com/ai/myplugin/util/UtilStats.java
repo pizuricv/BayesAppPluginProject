@@ -1,7 +1,7 @@
 package com.ai.myplugin.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,8 @@ import java.util.List;
  */
 public class UtilStats {
 
-    private static final Log log = LogFactory.getLog(UtilStats.class);
+    private static final Logger log = LoggerFactory.getLogger(UtilStats.class);
+
     private double[] samples = null;
     private int samplesLength = 0;
     public int n = 0;

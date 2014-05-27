@@ -9,24 +9,26 @@ import com.ai.api.*;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.apache.commons.logging.LogFactory.*;
-
 @PluginImplementation
 @PluginHeader (version = "1.0.1", author = "Veselin", category = "Shopping")
 public class BestBuySensor implements SensorPlugin {
-    protected static final Log log = getLog(BestBuySensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(BestBuySensor.class);
+
     static final String PRODUCT = "product";
     static final String PRICE = "price";
     static final String URL = "url";
@@ -111,7 +113,7 @@ public class BestBuySensor implements SensorPlugin {
                         //TODO check what's wrong with url
                         MyProduct myProduct = new MyProduct(shop, getProperty(PRODUCT).toString(), p, t, s, pathURL);
                         products.add(myProduct);
-                        log.info(myProduct.getAsJSON());
+                        log.info(myProduct.getAsJSON().toJSONString());
                     }
                 }
             }

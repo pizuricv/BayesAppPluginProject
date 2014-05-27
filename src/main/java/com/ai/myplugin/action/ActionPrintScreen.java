@@ -7,8 +7,9 @@ package com.ai.myplugin.action;
 
 import com.ai.api.*;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ import java.util.Map;
  */
 @PluginImplementation
 public class ActionPrintScreen implements ActuatorPlugin{
-    private static final Log log = LogFactory.getLog(ActionPrintScreen.class);
+    private static final Logger log = LoggerFactory.getLogger(ActionPrintScreen.class);
 
     private static final String DUMMY_PROPERTY = "dummy property that will be print out";
     private static final String NAME = "PrintOnStdoutXX";

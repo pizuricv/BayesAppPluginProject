@@ -11,9 +11,10 @@ import com.ai.myplugin.action.MailAction;
 import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.TwitterConfig;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.*;
 import twitter4j.TwitterException;
 import java.io.IOException;
@@ -25,7 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Social", iconURL = "http://app.waylay.io/icons/twitter_query.png")
 public class TwitterQuerySensor implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(TwitterQuerySensor.class);
+
+    private static final Logger log = LoggerFactory.getLogger(TwitterQuerySensor.class);
+
     private static final String SEARCH_TERMS = "search_terms";
     private static final String TIME_ZONE = "time_zone";
     private static final String FROM = "from";

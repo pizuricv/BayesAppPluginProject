@@ -8,15 +8,12 @@ import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class NodeJSCommandTest extends TestCase{
-    private static final Log log = LogFactory.getLog(NodeJSCommand.class);
 
     public void testExecute(){
         NodeJSCommand nodeJSCommand = new NodeJSCommand();
@@ -64,9 +61,9 @@ public class NodeJSCommandTest extends TestCase{
         nodeJSCommand.setProperty("javaScript", javaScript);
 
         SensorResult testResult = nodeJSCommand.execute(null);
-        log.info(testResult.toString());
-        log.info("state " + testResult.getObserverState());
-        log.info("rawData " + testResult.getRawData());
+        System.out.println(testResult.toString());
+        System.out.println("state " + testResult.getObserverState());
+        System.out.println("rawData " + testResult.getRawData());
     }
 
     public void testRuntimeTemplate(){

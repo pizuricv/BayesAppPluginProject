@@ -6,9 +6,9 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.OpenWeatherParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.net.URLEncoder;
@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class WeatherAbstractSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(WeatherAbstractSensor.class);
+
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
     String city;
     public static final String TEMP = "temperature";
     public static final String HUMIDITY = "humidity";
@@ -59,11 +61,11 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public void setProperty(String string, Object obj) {
-        if(string.equalsIgnoreCase(CITY)) {
-            city = URLEncoder.encode((String) obj);
+    public void setProperty(String property, Object value) {
+        if(property.equalsIgnoreCase(CITY)) {
+            city = URLEncoder.encode((String) value);
         } else {
-            throw new RuntimeException("Property "+ string + " not in the required settings");
+            throw new RuntimeException("Property "+ property + " not in the required settings");
         }
     }
 
@@ -391,58 +393,4 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
-    public static void main(String[] args){
-        WeatherAbstractSensor weatherSensor = new WeatherAbstractSensor() {
-            @Override
-            protected String getTag() {
-                return WEATHER;
-            }
-
-            @Override
-            protected String getSensorName() {
-                return "";
-            }
-        };
-        weatherSensor.setProperty("city", "Gent");
-        SensorResult testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-
-        weatherSensor.setProperty("city", "London");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Sidney");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Bangalore");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Chennai");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Moscow");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Belgrade");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-
-        weatherSensor.setProperty("city", "Split");
-        testResult = weatherSensor.execute(null);
-        log.debug(testResult.getObserverState());
-        testResult.getRawData();
-
-
-        log.debug("@@@@");
-        WeatherSensor weatherSensor1 = new WeatherSensor();
-        weatherSensor1.setProperty("city", "ffffff");
-        testResult = weatherSensor1.execute(null);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-    }
 }

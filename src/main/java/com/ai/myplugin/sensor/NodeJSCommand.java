@@ -6,22 +6,23 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.*;
+import com.ai.myplugin.util.io.ExecResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 import twitter4j.internal.org.json.JSONObject;
 
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 // FIXME why does this depend on twitter4j internals?
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
 public class NodeJSCommand implements SensorPlugin {
-    private static final Log log = LogFactory.getLog(NodeJSCommand.class);
+
+    private static final Logger log = LoggerFactory.getLogger(NodeJSCommand.class);
 
     private static final String NAME = "NodeJSCommand";
     private static final String JAVA_SCRIPT = "javaScript";
@@ -113,7 +114,7 @@ public class NodeJSCommand implements SensorPlugin {
         try {
             Node node = new Node(nodePath, workingDir);
 
-            final Node.NodeResult result = node.executeScript(javaScriptCommand);
+            final ExecResult result = node.executeScript(javaScriptCommand);
 
             return new SensorResult() {
                 @Override

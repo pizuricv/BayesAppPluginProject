@@ -1,9 +1,6 @@
 package com.ai.myplugin.util.io;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public final class IOUtil {
 
@@ -18,6 +15,20 @@ public final class IOUtil {
         ){
             output.write(contents);
             output.flush();
+        }
+    }
+
+    public static String readToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        pipe(inputStream, bos);
+        return bos.toString();
+    }
+
+    public static void pipe(InputStream is, OutputStream os) throws IOException {
+        int n;
+        byte[] buffer = new byte[1024];
+        while ((n = is.read(buffer)) > -1) {
+            os.write(buffer, 0, n);
         }
     }
 }

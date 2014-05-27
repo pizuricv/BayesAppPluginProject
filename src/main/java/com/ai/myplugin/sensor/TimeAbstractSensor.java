@@ -6,8 +6,8 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -16,9 +16,12 @@ import java.util.*;
 
 /*
  * FIXME ugly design
+ * FIXME migrate to the cleaner Java8 date/time api
  */
 public abstract class TimeAbstractSensor implements SensorPlugin {
-    protected static final Log log = LogFactory.getLog(TimeAbstractSensor.class);
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
     String timeZone;
     private String dateString;
     String [] returnStates;
@@ -92,7 +95,7 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
 
             @Override
             public String getObserverState() {
-                GregorianCalendar gregorianCalendar =  getProperty(TIME_ZONE) == null? new GregorianCalendar():
+                GregorianCalendar gregorianCalendar = getProperty(TIME_ZONE) == null? new GregorianCalendar():
                         new GregorianCalendar(TimeZone.getTimeZone((String) getProperty(TIME_ZONE)));
                 if(HOUR.equalsIgnoreCase(getTag())) {
                     return String.valueOf(gregorianCalendar.get(Calendar.HOUR_OF_DAY));
@@ -107,7 +110,8 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
                 } else if(DATE.equalsIgnoreCase(getTag())) {
                     SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
                     try {
-                        GregorianCalendar dateToCompare =  new GregorianCalendar();
+                        GregorianCalendar dateToCompare = getProperty(TIME_ZONE) == null? new GregorianCalendar():
+                                new GregorianCalendar(TimeZone.getTimeZone((String) getProperty(TIME_ZONE)));
                         dateToCompare.setTime(isoFormat.parse((String) getProperty(DATE_FORMAT)));
                         return gregorianCalendar.get(Calendar.YEAR) == dateToCompare.get(Calendar.YEAR)&&
                                 gregorianCalendar.get(Calendar.MONTH) == dateToCompare.get(Calendar.MONTH) &&
