@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class Rest {
@@ -101,14 +102,14 @@ public class Rest {
         if(conn.getResponseCode() >= 400){
             InputStream err = conn.getErrorStream();
             if(err != null) {
-                body = IOUtil.readToString(err);
+                body = IOUtil.readToString(err, Optional.ofNullable(conn.getContentEncoding()));
                 // TODO do we still need to fail here or should the caller check?
                 throw new IOException("Got " + conn.getResponseCode() + " " + conn.getResponseMessage() + "\n" + body);
             }else{
                 throw new IOException("Got " + conn.getResponseCode() + " " + conn.getResponseMessage() + " but no contents");
             }
         }else{
-            body = IOUtil.readToString(conn.getInputStream());
+            body = IOUtil.readToString(conn.getInputStream(), Optional.ofNullable(conn.getContentEncoding()));
             return new RestReponse(conn.getResponseCode(), conn.getContentType(), body);
         }
     }

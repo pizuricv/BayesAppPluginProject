@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 /*
@@ -108,15 +112,16 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
                 } else if(MONTH.equalsIgnoreCase(getTag())) {
                     return new DateFormatSymbols().getMonths()[gregorianCalendar.get(Calendar.MONTH)];
                 } else if(DATE.equalsIgnoreCase(getTag())) {
-                    SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
                     try {
-                        GregorianCalendar dateToCompare = getProperty(TIME_ZONE) == null? new GregorianCalendar():
-                                new GregorianCalendar(TimeZone.getTimeZone((String) getProperty(TIME_ZONE)));
-                        dateToCompare.setTime(isoFormat.parse((String) getProperty(DATE_FORMAT)));
-                        return gregorianCalendar.get(Calendar.YEAR) == dateToCompare.get(Calendar.YEAR)&&
-                                gregorianCalendar.get(Calendar.MONTH) == dateToCompare.get(Calendar.MONTH) &&
-                                gregorianCalendar.get(Calendar.DAY_OF_MONTH) == dateToCompare.get(Calendar.DAY_OF_MONTH) ?  "true" : "false";
-                    } catch (ParseException e) {
+                        Instant fromIso8601 = Instant.parse((String) getProperty(DATE_FORMAT));
+                        ZoneId zone = ZoneId.of((String) getProperty(TIME_ZONE));
+                        LocalDate local = fromIso8601.atZone(zone).toLocalDate();
+
+                        LocalDate now = LocalDate.now(zone);
+
+
+                        return local.equals(now) ?  "true" : "false";
+                    } catch (DateTimeException e) {
                         log.error(e.getLocalizedMessage(), e);
                         throw new RuntimeException(e);
                     }
