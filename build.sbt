@@ -43,8 +43,6 @@ unmanagedJars in Compile <<= baseDirectory map { base =>
   customJars.classpath
 }
 
-javaSource in Test := baseDirectory.value / "src" / "main" / "test"
-
 //autoScalaLibrary := false
 //
 //crossPaths := false

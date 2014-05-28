@@ -10,7 +10,8 @@
 
     <property name="classes" value="${basedir}/out" />
     <property name="src" value="${basedir}/src/main/java" />
-    <property name="src_test" value="${basedir}/src/main/test"/>
+    <property name="src_test" value="${basedir}/src/test/java"/>
+    <property name="res_test" value="${basedir}/src/test/resources"/>
     <property name="classes_test" value="${basedir}/test_out" />
     <property name="dist" value="${basedir}/dist" />
     <property name="lib" value="${basedir}/lib" />
@@ -70,6 +71,7 @@
       <classpath>
         <pathelement path="${classes}"/>
         <pathelement path="${classes_test}"/>
+        <pathelement path="${res_test}"/> <!-- should we copy them to the test_out instead? -->
         <fileset dir="lib">
           <include name="**/*.jar"/>
         </fileset>

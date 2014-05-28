@@ -6,6 +6,10 @@
 *.log
 
 target
-.idea
+reports
+dist
 
 bn.properties
+
+#IDE related files
+.idea
