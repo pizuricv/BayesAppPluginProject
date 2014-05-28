@@ -28,6 +28,7 @@ public class UVSensor implements SensorPlugin {
     private static String ZIPCODE = "zipcode";
     private static String zipCode = null;
     static final String server = "http://iaspub.epa.gov/enviro/efservice/getEnvirofactsUVHOURLY/ZIP/";
+    private String[] states = {"Green", "Yellow", "Orange", "Red", "Violet"};
 
     @Override
     public Map<String,PropertyType> getRequiredProperties() {
@@ -187,8 +188,8 @@ public class UVSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return new String[] {"Green", "Yellow", "Orange", "Red", "Violet"};
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     private class UVObject implements Comparable{

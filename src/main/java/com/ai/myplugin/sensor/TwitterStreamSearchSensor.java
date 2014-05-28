@@ -36,6 +36,7 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
     TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
     protected ExecutorService cleanUpService = Executors.newSingleThreadExecutor();
+    private String[] states = {"Found", "Not Found"};
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -144,8 +145,8 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return new String[] {"Found", "Not Found"};
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     public synchronized void runSentiment(final String searchTerms){

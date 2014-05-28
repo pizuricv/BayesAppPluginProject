@@ -225,8 +225,8 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return states;
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     @Override

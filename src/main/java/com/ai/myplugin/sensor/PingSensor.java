@@ -34,6 +34,7 @@ public class PingSensor implements SensorPlugin {
     private static final String NAME = "Ping";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
+    private String[] states =  {ALIVE, NOT_ALIVE};
 
     public Map<String,PropertyType> getRequiredProperties() {
         Map<String, PropertyType> map = new HashMap<>();
@@ -104,10 +105,10 @@ public class PingSensor implements SensorPlugin {
         return NAME;
     }
 
-    public String[] getSupportedStates() {
-        return new String[] {ALIVE, NOT_ALIVE} ;
+    @Override
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
-
 
     @Override
     public void setup(SessionContext testSessionContext) {

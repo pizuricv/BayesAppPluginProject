@@ -36,6 +36,7 @@ public class TwitterSentimentSensor implements SensorPlugin {
     private SlidingWindowTimeCounter mentions = new SlidingWindowTimeCounter(15, "mentions");
     private boolean running = false;
     TwitterStream twitterStream = new TwitterStreamFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
+    private String[] states = {"Positive", "Neutral", "Negative"};
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -123,8 +124,8 @@ public class TwitterSentimentSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return new String[] {"Positive", "Neutral", "Negative"};
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     public synchronized void runSentiment(final String searchTerms){

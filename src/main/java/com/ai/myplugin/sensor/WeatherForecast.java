@@ -13,8 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 //currently not exposed, TODO check if that one should be removed later
@@ -82,8 +81,8 @@ public class WeatherForecast implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return states;
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     @Override

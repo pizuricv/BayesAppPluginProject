@@ -35,6 +35,7 @@ public class TwitterQuerySensor implements SensorPlugin {
     private static final String DATE = "date";
     private Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     Twitter twitter = new TwitterFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
+    private String[] states = {"Found", "Not Found"};
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -142,8 +143,8 @@ public class TwitterQuerySensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return new String[] {"Found", "Not Found"};
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     @Override

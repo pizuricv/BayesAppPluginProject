@@ -162,12 +162,11 @@ public class RawFormulaSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
+    public Set<String> getSupportedStates() {
         if(configuredStates.size() == 0)
-            return new String[] {"Above", "Equal", "Below",};
+            return new HashSet(Arrays.asList(new String[] {"Above", "Equal", "Below"}));
         else
-            return configuredStates.toArray(new String[configuredStates.size()]);
-
+            return new HashSet(configuredStates);
     }
 
     private String mapResult(Double value) {

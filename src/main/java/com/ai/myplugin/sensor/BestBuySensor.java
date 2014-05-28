@@ -183,8 +183,8 @@ public class BestBuySensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return states;
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     public static void main(String []args)  {

@@ -184,8 +184,8 @@ public class NodeJSCommand implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return null;
+    public Set<String> getSupportedStates() {
+        return new HashSet();
     }
 
 

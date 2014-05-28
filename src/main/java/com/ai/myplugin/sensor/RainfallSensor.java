@@ -41,6 +41,7 @@ public class RainfallSensor implements SensorPlugin {
     private static final String BASE_URL = "http://gps.buienradar.nl/getrr.php?";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
+    private String[] states = {STATE_CLEAR, STATE_RAIN, STATE_HEAVY_RAIN, STATE_STORM};
 
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
@@ -108,8 +109,8 @@ public class RainfallSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return new String[] {STATE_CLEAR, STATE_RAIN, STATE_HEAVY_RAIN, STATE_STORM};
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     @Override

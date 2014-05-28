@@ -250,8 +250,8 @@ public class PharmacySensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return states;
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     private class MyNightPharmacyData implements Comparable{

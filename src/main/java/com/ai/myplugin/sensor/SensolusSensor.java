@@ -16,9 +16,7 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @PluginImplementation
@@ -159,8 +157,8 @@ public class SensolusSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return states;
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     @Override

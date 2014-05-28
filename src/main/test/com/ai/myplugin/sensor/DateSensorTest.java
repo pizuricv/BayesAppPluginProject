@@ -20,7 +20,8 @@ public class DateSensorTest {
         sensor.setProperty(DateSensor.DATE_FORMAT, "2013-09-10T00:00:00.000Z");
         sensor.setProperty(DateSensor.TIME_ZONE, "UTC");
 
-        assertArrayEquals(new String[]{"true", "false"}, sensor.getSupportedStates());
+        assertTrue(sensor.getSupportedStates().contains("true"));
+        assertTrue(sensor.getSupportedStates().contains("false"));
 
         String result = sensor.execute(null).getObserverState();
         assertEquals("false", result);

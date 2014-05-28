@@ -174,11 +174,11 @@ public class RawThresholdSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
+    public Set<String> getSupportedStates() {
         if(definedStates.size() == 0)
-            return states.toArray(new String[states.size()]);
+            return new HashSet(states);
         else
-            return definedStates.toArray(new String[definedStates.size()]);
+            return new HashSet(definedStates);
     }
 
     private String mapResult(Double result) {

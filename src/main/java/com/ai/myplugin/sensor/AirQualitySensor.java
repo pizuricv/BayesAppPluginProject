@@ -17,10 +17,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @PluginImplementation
@@ -33,6 +30,7 @@ public class AirQualitySensor implements SensorPlugin {
     String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
     String detailInfoIRCURL = "http://deus.irceline.be/~celinair/actair/actair.php?lan=nl";
     private String location = null;
+    private String[] states = {"Excellent","Good", "Normal", "Poor", "Bad"};
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -246,8 +244,8 @@ public class AirQualitySensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return new String[] {"Excellent","Good", "Normal", "Poor", "Bad"};
+    public Set<String> getSupportedStates() {
+        return new HashSet(Arrays.asList(states));
     }
 
     public static void main(String []args){

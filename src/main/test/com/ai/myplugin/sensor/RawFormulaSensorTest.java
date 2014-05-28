@@ -136,7 +136,7 @@ public class RawFormulaSensorTest extends TestCase {
         System.out.println(SensorResult.getObserverState());
         System.out.println(SensorResult.getRawData());
         assertEquals("level_1", SensorResult.getObserverState());
-        assertEquals(3, rawFormulaSensor.getSupportedStates().length);
+        assertEquals(3, rawFormulaSensor.getSupportedStates().size());
 
     }
 

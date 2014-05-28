@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class WeatherAbstractSensor implements SensorPlugin {
@@ -369,17 +366,17 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
+    public Set<String> getSupportedStates() {
         if(TEMP.equals(getTag())){
-            return tempStates;
+            return new HashSet(Arrays.asList(tempStates));
         } else if(WEATHER.equals(getTag())){
-            return weatherStates;
+            return new HashSet(Arrays.asList(weatherStates));
         } else if(HUMIDITY.equals(getTag())){
-            return humidityStates;
+            return new HashSet(Arrays.asList(humidityStates));
         } else if(FORECAST.equals(getTag()) || WEEK_FORECAST.equals(getTag())){
-            return forecastStates;
+            return new HashSet(Arrays.asList(forecastStates));
         } else {
-            return new String[]{};
+            return new HashSet<>();
         }
     }
 

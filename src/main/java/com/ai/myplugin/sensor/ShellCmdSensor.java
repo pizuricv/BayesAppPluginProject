@@ -160,8 +160,8 @@ public class ShellCmdSensor implements SensorPlugin {
     }
 
     @Override
-    public String[] getSupportedStates() {
-        return states.toArray(new String[states.size()]);
+    public Set<String> getSupportedStates() {
+        return new HashSet(states);
     }
 
     private String mapResult(String result) {

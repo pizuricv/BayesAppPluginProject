@@ -13,7 +13,7 @@ public class StockMovingAverageSensorTest {
         StockMovingAverageSensor stockSensor = new StockMovingAverageSensor();
         stockSensor.setProperty(StockAbstractSensor.STOCK, "MSFT");
         stockSensor.setProperty(StockAbstractSensor.THRESHOLD, "36");
-        System.out.println(Arrays.toString(stockSensor.getSupportedStates()));
+        System.out.println(stockSensor.getSupportedStates());
         System.out.println(stockSensor.execute(null).getObserverState());
 
 
