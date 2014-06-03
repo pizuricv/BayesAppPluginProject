@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
 unmanagedBase := baseDirectory.value / "donotuse"
 
 unmanagedJars in Compile <<= baseDirectory map { base =>
-  val customJars = (base ** "waylay*.jar") +++ (base ** "jspf*.jar")
+  val customJars = (base ** "waylay*.jar") +++ (base ** "jspf*.jar") +++ (base ** "hue*.jar")
   customJars.classpath
 }
 
