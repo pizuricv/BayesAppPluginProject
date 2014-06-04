@@ -47,7 +47,6 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
     public Map<String, PropertyType> getRequiredProperties() {
         Map<String, PropertyType> map = new HashMap<>();
         map.put(TIME_ZONE, new PropertyType(DataType.STRING, true, false));
-        map.put(DATE_FORMAT, new PropertyType(DataType.STRING, true, false));
         return map;
     }
 

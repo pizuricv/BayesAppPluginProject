@@ -24,6 +24,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 @PluginImplementation
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/gmail.png")
 public class MailAction implements ActuatorPlugin {
     private static final Logger log = LoggerFactory.getLogger(MailAction.class);
 
