@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/control.png")
 public class ScenarioControlAction implements ActuatorPlugin{
 
     private static final Logger log = LoggerFactory.getLogger(ScenarioControlAction.class);

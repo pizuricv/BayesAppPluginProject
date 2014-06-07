@@ -23,6 +23,7 @@ import java.util.Map;
  * TODO clean up ugly
  */
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/hook.png")
 public class WebHookAction implements ActuatorPlugin{
 
     private static final Logger log = LoggerFactory.getLogger(WebHookAction.class);

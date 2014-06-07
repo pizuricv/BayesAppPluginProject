@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
 public class NodeJSAction implements ActuatorPlugin{
     private static final Logger log = LoggerFactory.getLogger(NodeJSAction.class);
 

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/graph.png")
 public class NetworkWire implements ActuatorPlugin{
     private static final Logger log = LoggerFactory.getLogger(NetworkWire.class);
 

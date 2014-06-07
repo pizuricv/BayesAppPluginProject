@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/twitter.png")
 public class TwitterDMAction implements ActuatorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(TwitterDMAction.class);
