@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
-@PluginHeader (version = "1.0.1", author = "Veselin", category = "Shopping")
+@PluginHeader (version = "1.0.1", author = "Veselin", category = "Shopping", iconURL = "http://app.waylay.io/icons/best_buy.png")
 public class BestBuySensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(BestBuySensor.class);
