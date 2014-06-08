@@ -42,13 +42,13 @@ public class TwitterDMAction implements ActuatorPlugin {
     @Override
     public Map<String,PropertyType> getRequiredProperties() {
         Map<String,PropertyType> map = new HashMap<>();
-        map.put(CONSUMER_KEY, new PropertyType(DataType.STRING, true, true));
-        map.put(CONSUMER_SECRET, new PropertyType(DataType.STRING, true, true));
         //normally these settings are on the server side
         map.put(ACCESS_TOKEN, new PropertyType(DataType.STRING, false, true));
         map.put(ACCESS_TOKEN_SECRET, new PropertyType(DataType.STRING, false, true));
-        map.put(TWITTER_ACCOUNT, new PropertyType(DataType.STRING, false, true));
-        map.put(TWITTER_MESSAGE, new PropertyType(DataType.STRING, false, true));
+        map.put(CONSUMER_KEY, new PropertyType(DataType.STRING, false, true));
+        map.put(CONSUMER_SECRET, new PropertyType(DataType.STRING, false, true));
+        map.put(TWITTER_ACCOUNT, new PropertyType(DataType.STRING, true, true));
+        map.put(TWITTER_MESSAGE, new PropertyType(DataType.STRING, true, true));
         return map;
     }
 
