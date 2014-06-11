@@ -6,6 +6,7 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,12 +135,16 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
             }
 
             @Override
-            public String getRawData(){
+            public String getRawData() {
                 SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
-                String date = date_format.format((new GregorianCalendar().getTime()));
-                return "{" +
-                        "date: " + date +
-                        "}";
+                Date date = new GregorianCalendar().getTime();
+                String dt = date_format.format(date);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("date", dt);
+                jsonObject.put("UTC", date.getTime() / 1000);
+                if (timeZone != null)
+                    jsonObject.put("timeZone", timeZone);
+                return jsonObject.toString();
             }
         };
     }
