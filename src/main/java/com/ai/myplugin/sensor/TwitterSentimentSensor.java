@@ -29,6 +29,7 @@ public class TwitterSentimentSensor implements SensorPlugin {
 
     private static final String SEARCH_TERMS = "search_terms";
     private static final String WINDOW = "window";
+    private static final String NAME = "TwitterSentiment";
     private int window = 15;
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     private SlidingWindowTimeCounter counterPositive = new SlidingWindowTimeCounter(15, "positive sentiment");
@@ -67,7 +68,7 @@ public class TwitterSentimentSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "TwitterSentimentSensor";
+        return "Twitter Sentiment Sensor, search for sentiment for a given keyword in the configured sliding window";
     }
 
     @Override
@@ -120,7 +121,7 @@ public class TwitterSentimentSensor implements SensorPlugin {
 
     @Override
     public String getName() {
-        return "TwitterSentimentSensor";
+        return NAME;
     }
 
     @Override

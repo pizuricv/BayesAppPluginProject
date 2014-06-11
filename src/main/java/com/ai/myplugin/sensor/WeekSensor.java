@@ -16,4 +16,9 @@ public class WeekSensor extends TimeAbstractSensor {
     protected String getSensorName() {
         return "Week";
     }
+
+    @Override
+    public String getDescription() {
+        return "Returns week in a month";
+    }
 }

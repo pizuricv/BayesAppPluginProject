@@ -27,7 +27,7 @@ public class LocationRawSensor implements SensorPlugin {
     static final String LOCATION = "location";
     String location;
     String [] states = {"Collected", "Not Collected"};
-    private static final String NAME = "LocationRawSensor";
+    private static final String NAME = "LongitudeLatitude";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -57,7 +57,8 @@ public class LocationRawSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Execute location sensor and provides raw data, return state is only indication whether the test eas successful";
+        return "Location sensor that returns longitude and latitude in raw data, " +
+                "return state only indicates whether the test eas successful";
     }
 
     @Override

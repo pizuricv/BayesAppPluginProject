@@ -28,7 +28,7 @@ public class RawThresholdSensor implements SensorPlugin {
     private ArrayList<String> states = new ArrayList<String>();
     //in case that states are defined via property
     private ArrayList<String> definedStates  = new ArrayList<String>();
-    private static final String NAME = "RawThresholdSensor";
+    private static final String NAME = "RawThreshold";
     private String rawData;
     private String node;
 

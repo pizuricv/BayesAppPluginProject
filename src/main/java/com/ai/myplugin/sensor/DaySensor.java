@@ -17,4 +17,9 @@ public class DaySensor extends TimeAbstractSensor {
         return "Day";
     }
 
+    @Override
+    public String getDescription() {
+        return "Returns day in a month";
+    }
+
 }

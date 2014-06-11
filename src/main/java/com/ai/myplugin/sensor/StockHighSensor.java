@@ -13,6 +13,11 @@ public class StockHighSensor extends StockAbstractSensor {
 
     @Override
     protected String getSensorName() {
-        return "StockHighSensor";
+        return "StockHigh";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Stock exchange sensor, high price value";
     }
 }

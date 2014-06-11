@@ -57,7 +57,7 @@ public class PharmacySensor implements SensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Found", "Not Found"};
-    private static final String NAME = "PharmacySensor";
+    private static final String NAME = "Pharmacy";
 
 
     @Override

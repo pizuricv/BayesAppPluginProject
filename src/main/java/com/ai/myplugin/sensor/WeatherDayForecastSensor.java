@@ -19,7 +19,13 @@ public class WeatherDayForecastSensor extends WeatherAbstractSensor{
 
     @Override
     protected String getSensorName() {
-        return "WeatherDayForecastSensor";
+        return "WeatherDayForecast";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Weather forecast, can only be used in the expert mode since it returns the states " +
+                "with associated probabilities rather than only one";
     }
 
 //    public static void main(String[] args){

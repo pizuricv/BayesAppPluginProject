@@ -34,7 +34,7 @@ public class ForceSensor implements SensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Below", "Above"};
-    private static final String NAME = "ForceSensor";
+    private static final String NAME = "Force";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {

@@ -37,7 +37,7 @@ public class BestBuySensor implements SensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Found", "Not Found"};
-    private static final String NAME = "BestBuySensor";
+    private static final String NAME = "BestBuy";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {

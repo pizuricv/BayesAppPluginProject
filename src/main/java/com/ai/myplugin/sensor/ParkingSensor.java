@@ -35,7 +35,7 @@ public class ParkingSensor implements SensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Found", "Not Found"};
-    private static final String NAME = "ParkingSensor";
+    private static final String NAME = "Parking";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {

@@ -28,7 +28,7 @@ public class SensolusSensor implements SensorPlugin {
     String baseUrl = "http://in.sensolus.com:8080";
     String user = "apps4ghent";
     String [] states = {"Collected", "Not Collected"};
-    private static final String NAME = "SensulosSensor";
+    private static final String NAME = "Sensulos";
     private static final String ID = "ID";
     private String id = "";
 

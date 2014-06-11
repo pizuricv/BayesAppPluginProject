@@ -35,7 +35,7 @@ public class LocationSensor implements SensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Within", "Out"};
-    private static final String NAME = "LocationSensor";
+    private static final String NAME = "LocationWithinDistance";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -71,7 +71,7 @@ public class LocationSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Checks whether a collected data is within a distance from a given location";
+        return "Checks whether current location (from runtime data) is within a distance from a given location";
     }
 
     @Override

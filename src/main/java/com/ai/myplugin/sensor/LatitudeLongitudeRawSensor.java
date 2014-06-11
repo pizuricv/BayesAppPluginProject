@@ -32,7 +32,7 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
     Double latitudeCoordinate;
     Double longitudeCoordinate;
     String [] states = {"Collected", "Not Collected"};
-    private static final String NAME = "LatitudeLongitudeRawSensor";
+    private static final String NAME = "ReverseLookupAddress";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {

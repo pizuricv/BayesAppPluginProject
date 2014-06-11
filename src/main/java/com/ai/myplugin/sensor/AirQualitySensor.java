@@ -27,6 +27,7 @@ public class AirQualitySensor implements SensorPlugin {
     private static final Logger log = LoggerFactory.getLogger(AirQualitySensor.class);
 
     public static final String LOCATION = "location";
+    private static final String NAME = "AirQuality";
     String pathURL = "http://luchtkwaliteit.vmm.be/lijst.php";
     String detailInfoIRCURL = "http://deus.irceline.be/~celinair/actair/actair.php?lan=nl";
     private String location = null;
@@ -240,7 +241,7 @@ public class AirQualitySensor implements SensorPlugin {
 
     @Override
     public String getName() {
-        return "AirQualitySensor";
+        return NAME;
     }
 
     @Override

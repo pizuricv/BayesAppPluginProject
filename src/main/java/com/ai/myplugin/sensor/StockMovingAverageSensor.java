@@ -25,4 +25,9 @@ public class StockMovingAverageSensor extends StockAbstractSensor {
         return "StockMovingAverage";
     }
 
+    @Override
+    public String getDescription() {
+        return "Stock exchange sensor, moving average price value";
+    }
+
 }

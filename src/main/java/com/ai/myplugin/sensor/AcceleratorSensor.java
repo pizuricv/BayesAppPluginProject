@@ -33,7 +33,7 @@ public class AcceleratorSensor implements SensorPlugin {
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
     String [] states = {"Below", "Above"};
-    private static final String NAME = "AccelerationSensor";
+    private static final String NAME = "Acceleration";
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {

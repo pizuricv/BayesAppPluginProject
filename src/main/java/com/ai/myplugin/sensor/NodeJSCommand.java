@@ -24,7 +24,7 @@ public class NodeJSCommand implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(NodeJSCommand.class);
 
-    private static final String NAME = "NodeJSCommand";
+    private static final String NAME = "JavaScript";
     private static final String JAVA_SCRIPT = "javaScript";
 
     private String javaScriptCommand;

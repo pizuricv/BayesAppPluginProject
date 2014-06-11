@@ -16,4 +16,9 @@ public class HourSensor extends TimeAbstractSensor {
     protected String getSensorName() {
         return "Hour";
     }
+
+    @Override
+    public String getDescription() {
+        return "Returns hour in a day";
+    }
 }

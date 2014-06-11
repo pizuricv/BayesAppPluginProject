@@ -60,7 +60,7 @@ public class UVSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "UV index sensor";
+        return "UV index sensor, right now only for US, provide zip code as the entry e.g. 20050 for Washington DC";
     }
 
     @Override

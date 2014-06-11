@@ -16,4 +16,9 @@ public class MonthSensor extends TimeAbstractSensor {
     protected String getSensorName() {
         return "Month";
     }
+
+    @Override
+    public String getDescription() {
+        return "Returns month in a year";
+    }
 }

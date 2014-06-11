@@ -29,6 +29,12 @@ public class WeatherWeekForecastSensor extends WeatherAbstractSensor{
     }
 
     @Override
+    public String getDescription() {
+        return "Weather forecast,  up to 1 week, can only be used in the expert mode since it returns the states " +
+                "with associated probabilities rather than only one";
+    }
+
+    @Override
     public Map<String, PropertyType> getRequiredProperties() {
         Map<String, PropertyType> map = new HashMap<>();
         map.put(CITY, new PropertyType(DataType.STRING, true, false));
@@ -67,7 +73,7 @@ public class WeatherWeekForecastSensor extends WeatherAbstractSensor{
 
     @Override
     protected String getSensorName() {
-        return "WeatherWeekForecastSensor";
+        return "WeatherWeekForecast";
     }
 
 //    public static void main(String[] args){

@@ -35,7 +35,7 @@ public class RawFormulaSensor implements SensorPlugin {
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
-    private static final String NAME = "RawFormulaSensor";
+    private static final String NAME = "RawFormula";
 
     @Override
     public Map<String,PropertyType> getRequiredProperties() {
@@ -85,7 +85,7 @@ public class RawFormulaSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Parse raw data from the scenario context";
+        return "Parse raw data from the context";
     }
 
     @Override

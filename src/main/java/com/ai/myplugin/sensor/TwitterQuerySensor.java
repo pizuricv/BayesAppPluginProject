@@ -33,6 +33,7 @@ public class TwitterQuerySensor implements SensorPlugin {
     private static final String TIME_ZONE = "time_zone";
     private static final String FROM = "from";
     private static final String DATE = "date";
+    private static final String NAME = "TwitterQuery";
     private Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     Twitter twitter = new TwitterFactory(TwitterConfig.getTwitterConfigurationBuilder()).getInstance();
     private String[] states = {"Found", "Not Found"};
@@ -65,8 +66,8 @@ public class TwitterQuerySensor implements SensorPlugin {
     }
 
     @Override
-    public String getDescription() {
-        return "TwitterQuerySensor";
+     public String getDescription() {
+        return "Twitter Query Sensor, search for the keywords and returns array of tweets that match the query";
     }
 
     @Override
@@ -139,7 +140,7 @@ public class TwitterQuerySensor implements SensorPlugin {
 
     @Override
     public String getName() {
-        return "TwitterQuerySensor";
+        return NAME;
     }
 
     @Override

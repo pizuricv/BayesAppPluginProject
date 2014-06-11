@@ -24,6 +24,11 @@ public class StockVolumeSensor extends StockAbstractSensor {
         return "StockVolume";
     }
 
+    @Override
+    public String getDescription() {
+        return "Stock exchange sensor, volume price value";
+    }
+
 //    public static void main(String[] args){
 //        StockVolumeSensor stockSensor = new StockVolumeSensor();
 //        stockSensor.setProperty(STOCK, "MSFT");

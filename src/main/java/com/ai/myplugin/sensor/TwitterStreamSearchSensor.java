@@ -30,6 +30,7 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
     private static final Logger log = LoggerFactory.getLogger(TwitterStreamSearchSensor.class);
 
     private static final String SEARCH_TERMS = "search_terms";
+    private static final String NAME = "TwitterStreamSearch";
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     private boolean running = false;
     private List<String> listFoundItems = Collections.synchronizedList(new ArrayList<String>());
@@ -64,7 +65,7 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "TwitterStreamSearchSensor";
+        return "Twitter Stream Search Sensor, that next to found tweets for a given search item also returns sentiment result";
     }
 
     @Override
@@ -141,7 +142,7 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
 
     @Override
     public String getName() {
-        return "TwitterStreamSearchSensor";
+        return NAME;
     }
 
     @Override

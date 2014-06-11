@@ -38,6 +38,7 @@ public class RainfallSensor implements SensorPlugin {
     static final String STATE_RAIN = "Rain";
     static final String STATE_HEAVY_RAIN = "Heavy Rain";
     static final String STATE_STORM = "Storm";
+    private static final String NAME = "WeatherRadar";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
     private String[] states = {STATE_CLEAR, STATE_RAIN, STATE_HEAVY_RAIN, STATE_STORM};
@@ -103,7 +104,7 @@ public class RainfallSensor implements SensorPlugin {
 
     @Override
     public String getName() {
-        return "RainfallSensor";
+        return NAME;
     }
 
     @Override

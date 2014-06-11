@@ -23,6 +23,11 @@ public class DateSensor extends TimeAbstractSensor {
     }
 
     @Override
+    public String getDescription() {
+        return "Returns date";
+    }
+
+    @Override
     public Map<String, PropertyType> getRequiredProperties() {
         Map<String, PropertyType> map = new HashMap<>();
         map.put(TIME_ZONE, new PropertyType(DataType.STRING, true, false));

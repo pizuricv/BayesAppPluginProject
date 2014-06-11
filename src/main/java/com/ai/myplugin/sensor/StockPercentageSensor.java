@@ -24,6 +24,11 @@ public class StockPercentageSensor extends StockAbstractSensor {
         return "StockPercentage";
     }
 
+    @Override
+    public String getDescription() {
+        return "Stock exchange sensor, percentage price value";
+    }
+
 //    public static void main(String[] args){
 //        StockPercentageSensor stockSensor = new StockPercentageSensor();
 //        stockSensor.setProperty(STOCK, "MSFT");

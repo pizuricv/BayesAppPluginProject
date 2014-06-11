@@ -42,7 +42,7 @@ public class StockFormulaSensor extends StockAbstractSensor {
 
     @Override
     protected String getSensorName() {
-        return "StockFormulaSensor";
+        return "StockFormula";
     }
 
     @Override
@@ -70,6 +70,11 @@ public class StockFormulaSensor extends StockAbstractSensor {
     public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
         formulaParser.restStats();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Stock exchange sensor, formula computation on the raw data";
     }
 
 

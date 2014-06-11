@@ -17,4 +17,9 @@ public class DayWeekSensor extends TimeAbstractSensor {
         return "DayInWeek";
     }
 
+    @Override
+    public String getDescription() {
+        return "Returns day in a week";
+    }
+
 }

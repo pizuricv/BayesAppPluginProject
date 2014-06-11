@@ -24,6 +24,11 @@ public class TemperatureSensor extends WeatherAbstractSensor{
         return "Temperature";
     }
 
+    @Override
+    public String getDescription() {
+        return "Temperature sensor";
+    }
+
 //    public static void main(String[] args){
 //        TemperatureSensor weatherSensor = new TemperatureSensor();
 //        weatherSensor.setProperty("city", "London");

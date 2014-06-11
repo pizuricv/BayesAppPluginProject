@@ -77,7 +77,7 @@ public class WeatherForecast implements SensorPlugin {
 
     @Override
     public String getName() {
-        return "WeatherForecast";
+        return NAME;
     }
 
     @Override
