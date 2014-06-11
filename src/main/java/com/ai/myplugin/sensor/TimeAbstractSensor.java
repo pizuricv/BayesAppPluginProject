@@ -6,12 +6,11 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormatSymbols;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.time.Instant;
