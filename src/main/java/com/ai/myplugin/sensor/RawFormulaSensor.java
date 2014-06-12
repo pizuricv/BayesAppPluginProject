@@ -6,8 +6,8 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
+import com.ai.myplugin.util.SensorResultBuilder;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
@@ -24,18 +24,18 @@ public class RawFormulaSensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(RawFormulaSensor.class);
 
+    private static final String NAME = "RawFormula";
+
     private final FormulaParser formulaParser = new FormulaParser();
 
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";
-    private Map deltaMap = new ConcurrentHashMap();
+    private final Map<String,Long> deltaMap = new ConcurrentHashMap<>();
     // if threshold is given as a list, then we will create states as the range
-    private ArrayList<String> configuredStates  = new ArrayList<String>();
-    private ArrayList<Long> thresholds = new ArrayList<Long>();
+    private final List<String> configuredStates  = new ArrayList<>();
+    private final List<Long> thresholds = new ArrayList<>();
 
-    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-
-    private static final String NAME = "RawFormula";
+    private final Map<String, Object> propertiesMap = new ConcurrentHashMap<>();
 
     @Override
     public Map<String,PropertyType> getRequiredProperties() {
@@ -95,11 +95,11 @@ public class RawFormulaSensor implements SensorPlugin {
         log.debug("Formula to parse: "+parseFormula);
 
         double res = 0;
-        if(parseFormula.indexOf("dt") > -1) {
-            Long prev = (Long) deltaMap.get("prevTime");
+        if(parseFormula.contains("dt")) {
+            Long prev = deltaMap.get("prevTime");
             if(prev == null)   {
                 deltaMap.put("prevTime", System.currentTimeMillis()/1000);
-                return new EmptySensorResult();
+                return SensorResultBuilder.failure().build();
             }
             Long currentTime = System.currentTimeMillis()/1000;
             deltaMap.put("prevTime", currentTime);
@@ -115,38 +115,45 @@ public class RawFormulaSensor implements SensorPlugin {
         } catch (Exception e) {
             log.error(e.getLocalizedMessage() + ", for formula: "+ parseFormula);
         }
-        final double finalRes = res;
-        if(!success)
-            return new EmptySensorResult();
-        else
+        if(!success) {
+            return SensorResultBuilder.failure().build();
+        }else {
+            final JSONObject jsonObject = new JSONObject();
+            jsonObject.put("formulaValue", res);
+            final double finalRes = res;
+//            return SensorResultBuilder
+//                    .success()
+//                    .withObserverState(mapResult(finalRes))
+//                    .withRawData(jsonObject)
+//                    .build();
+            // FIXME mapResult(finalRes) changes over time + tests fail when changed to above code
             return new SensorResult() {
-            @Override
-            public boolean isSuccess() {
-                return true;
-            }
+                @Override
+                public boolean isSuccess() {
+                    return true;
+                }
 
-            @Override
-            public String getName() {
-                return "Raw Data Sensor Result";
-            }
+                @Override
+                public String getName() {
+                    return "Raw Data Sensor Result";
+                }
 
-            @Override
-            public String getObserverState() {
-                return mapResult(finalRes);
-            }
+                @Override
+                public String getObserverState() {
+                    return mapResult(finalRes);
+                }
 
-            @Override
-            public List<Map<String, Number>> getObserverStates() {
-                return null;
-            }
+                @Override
+                public List<Map<String, Number>> getObserverStates() {
+                    return Collections.emptyList();
+                }
 
-            @Override
-            public String getRawData() {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("formulaValue", finalRes);
-                return  jsonObject.toJSONString();
-            }
-        };
+                @Override
+                public String getRawData() {
+                    return jsonObject.toJSONString();
+                }
+            };
+        }
     }
 
     @Override
@@ -163,10 +170,11 @@ public class RawFormulaSensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        if(configuredStates.size() == 0)
-            return new HashSet(Arrays.asList(new String[] {"Above", "Equal", "Below"}));
-        else
-            return new HashSet(configuredStates);
+        if(configuredStates.isEmpty()) {
+            return new HashSet<>(Arrays.asList(new String[]{"Above", "Equal", "Below"}));
+        }else {
+            return new HashSet<>(configuredStates);
+        }
     }
 
     private String mapResult(Double value) {
@@ -200,61 +208,4 @@ public class RawFormulaSensor implements SensorPlugin {
         formulaParser.restStats();
     }
 
-
-    public static void main(String []args){
-
-        Long time = System.currentTimeMillis()/1000;
-
-        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        rawFormulaSensor.setProperty("formula", "<node1.rawData.value1> + <node2.rawData.value2>");
-
-        rawFormulaSensor.setProperty("threshold", "4");
-        SessionContext testSessionContext = new SessionContext(1);
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        JSONObject objRaw = new JSONObject();
-        objRaw.put("value1", 1);
-        objRaw.put("time", time);
-        objRaw.put("rawData", objRaw.toJSONString());
-        mapTestResult.put("node1", objRaw);
-
-        objRaw = new JSONObject();
-        objRaw.put("value2", 1);
-        objRaw.put("time", time);
-        objRaw.put("rawData", objRaw.toJSONString());
-        mapTestResult.put("node2", objRaw);
-
-        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
-        SensorResult testResult = rawFormulaSensor.execute(testSessionContext);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-
-
-        StockPriceSensor stockPriceSensor = new StockPriceSensor();
-        stockPriceSensor.setProperty(StockPriceSensor.STOCK, "GOOG");
-        stockPriceSensor.setProperty(StockPriceSensor.THRESHOLD, "800.0");
-        testResult = stockPriceSensor.execute(testSessionContext);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-        JSONObject obj = new JSONObject();
-        obj.put("time", time);
-        obj.put("rawData", testResult.getRawData());
-        mapTestResult = new ConcurrentHashMap<String, Object>();
-        mapTestResult.put("GOOG", obj);
-        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
-
-        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price> - <GOOG.rawData.moving_average>");
-        rawFormulaSensor.setProperty("threshold", 100);
-        testResult = rawFormulaSensor.execute(testSessionContext);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-
-
-        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price>");
-        rawFormulaSensor.setProperty("threshold", 100);
-        testResult = rawFormulaSensor.execute(testSessionContext);
-        log.debug(testResult.getObserverState());
-        log.debug(testResult.getRawData());
-
-
-    }
 }

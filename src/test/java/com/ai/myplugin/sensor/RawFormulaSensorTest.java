@@ -17,6 +17,7 @@ import org.json.simple.parser.ParseException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RawFormulaSensorTest extends TestCase {
 
@@ -28,7 +29,7 @@ public class RawFormulaSensorTest extends TestCase {
 
         rawFormulaSensor.setProperty("threshold", "4");
         SessionContext SessionContext = new SessionContext(1);
-        Map<String, Object> mapSensorResult = new HashMap<String, Object>();
+        Map<String, Object> mapSensorResult = new HashMap<>();
         JSONObject jsonObject = new JSONObject();
         JSONObject jsonRaw = new JSONObject();
         jsonRaw.put("value1", 1);
@@ -43,6 +44,7 @@ public class RawFormulaSensorTest extends TestCase {
         System.out.println("value = " + value);
         assertEquals(value, 1+3.0);
     }
+
     public void testCalculationStates() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
         String formula = "<node1.rawData.value1> + <node2.rawData.value2>";
@@ -465,5 +467,62 @@ public class RawFormulaSensorTest extends TestCase {
         System.out.println("formula = " + formula);
         System.out.println("value = " + value);
         assertEquals(1. - 0 + 2, value);
+    }
+
+
+
+    public void test(){
+
+        Long time = System.currentTimeMillis()/1000;
+
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        rawFormulaSensor.setProperty("formula", "<node1.rawData.value1> + <node2.rawData.value2>");
+
+        rawFormulaSensor.setProperty("threshold", "4");
+        SessionContext testSessionContext = new SessionContext(1);
+        Map<String, Object> mapTestResult = new HashMap<>();
+        JSONObject objRaw = new JSONObject();
+        objRaw.put("value1", 1);
+        objRaw.put("time", time);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node1", objRaw);
+
+        objRaw = new JSONObject();
+        objRaw.put("value2", 1);
+        objRaw.put("time", time);
+        objRaw.put("rawData", objRaw.toJSONString());
+        mapTestResult.put("node2", objRaw);
+
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+        SensorResult testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+
+        StockPriceSensor stockPriceSensor = new StockPriceSensor();
+        stockPriceSensor.setProperty(StockPriceSensor.STOCK, "GOOG");
+        stockPriceSensor.setProperty(StockPriceSensor.THRESHOLD, "800.0");
+        testResult = stockPriceSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+        JSONObject obj = new JSONObject();
+        obj.put("time", time);
+        obj.put("rawData", testResult.getRawData());
+        mapTestResult = new ConcurrentHashMap<>();
+        mapTestResult.put("GOOG", obj);
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+
+        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price> - <GOOG.rawData.moving_average>");
+        rawFormulaSensor.setProperty("threshold", 100);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+
+        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price>");
+        rawFormulaSensor.setProperty("threshold", 100);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
     }
 }

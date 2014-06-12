@@ -6,7 +6,6 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.Rest;
 import com.ai.myplugin.util.Utils;
@@ -115,7 +114,7 @@ public class PharmacySensor implements SensorPlugin {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
 
         log.info("Current location: " + latLng);
@@ -135,7 +134,7 @@ public class PharmacySensor implements SensorPlugin {
             Collections.sort(myPharmacyDatas);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
 
         pathURL = "http://www.coopapotheken.be/wachtdienst_regio.php?regio="+getProperty(CITY);
@@ -173,9 +172,8 @@ public class PharmacySensor implements SensorPlugin {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            return new EmptySensorResult();
+            log.error(e.getMessage(), e);
+            return SensorResultBuilder.failure().build();
         }
         log.info("Best spot is "+myPharmacyDatas.get(0));
         JSONArray jsonArray = new JSONArray();

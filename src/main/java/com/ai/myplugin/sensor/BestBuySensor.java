@@ -6,7 +6,7 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.EmptySensorResult;
+import com.ai.myplugin.util.SensorResultBuilder;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
@@ -118,9 +118,8 @@ public class BestBuySensor implements SensorPlugin {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
-            return new EmptySensorResult();
+            log.error(e.getLocalizedMessage(), e);
+            return SensorResultBuilder.failure().build();
         }
         Collections.sort(products);
 

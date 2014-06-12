@@ -32,10 +32,11 @@ public class LocationSensor implements SensorPlugin {
     static final String RUNTIME_LATITUDE = "runtime_latitude";
     static final String RUNTIME_LONGITUDE = "runtime_longitude";
 
-    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-
-    String [] states = {"Within", "Out"};
     private static final String NAME = "LocationWithinDistance";
+
+    private final Map<String, Object> propertiesMap = new ConcurrentHashMap<>();
+
+    private final String [] states = {"Within", "Out"};
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -84,7 +85,7 @@ public class LocationSensor implements SensorPlugin {
         Object rt2 = testSessionContext.getAttribute(RUNTIME_LONGITUDE);
         if(rt1 == null || rt2 == null){
             log.warn("no runtime longitude or latitude given");
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
         Double runtime_latitude = Utils.getDouble(rt1);
         Double runtime_longitude = Utils.getDouble(rt2);
@@ -137,9 +138,8 @@ public class LocationSensor implements SensorPlugin {
                     throw new RuntimeException("configured location not properly set");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                log.error(e.getMessage());
-                return new EmptySensorResult();
+                log.error(e.getMessage(), e);
+                return SensorResultBuilder.failure().build();
             }
         }
         if(currentData.size() > 0){

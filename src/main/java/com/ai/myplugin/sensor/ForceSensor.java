@@ -78,7 +78,7 @@ public class ForceSensor implements SensorPlugin {
         Object rt1 = testSessionContext.getAttribute(RUNTIME_FORCE);
         if(rt1 == null){
             log.warn("no runtime force given");
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
         Double runtime_force = Utils.getDouble(rt1);
         log.info("Current force: " + runtime_force);

@@ -7,8 +7,8 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
-import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
+import com.ai.myplugin.util.SensorResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,7 @@ public class WeatherForecast implements SensorPlugin {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
         }
-        return new EmptySensorResult();
+        return SensorResultBuilder.failure().build();
     }
 
     @Override

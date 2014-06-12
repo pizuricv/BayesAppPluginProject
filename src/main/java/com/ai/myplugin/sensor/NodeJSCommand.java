@@ -174,7 +174,7 @@ public class NodeJSCommand implements SensorPlugin {
             // FIXME catching throwable is a bad idea
         } catch (Throwable t) {
             log.error(t.getLocalizedMessage(), t);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
     }
 

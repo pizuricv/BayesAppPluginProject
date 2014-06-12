@@ -6,8 +6,8 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.FormulaParser;
+import com.ai.myplugin.util.SensorResultBuilder;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import org.json.simple.JSONObject;
@@ -110,12 +110,12 @@ public class RawThresholdSensor implements SensorPlugin {
         Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA);
         if(mapTestResult == null){
             log.debug("no map found");
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
 
         JSONObject jsonObject = (JSONObject) (mapTestResult.get(node));
         if(jsonObject == null)
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         /*
         final Object value;
         try {
@@ -132,9 +132,8 @@ public class RawThresholdSensor implements SensorPlugin {
                     (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)) ;
             dataD =  FormulaParser.executeFormula(parseFormula);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-            return new EmptySensorResult();
+            log.error(e.getLocalizedMessage(), e);
+            return SensorResultBuilder.failure().build();
         }
 
         return new SensorResult() {

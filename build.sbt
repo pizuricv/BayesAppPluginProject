@@ -6,11 +6,18 @@ version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.11.1"
 
+// disable using the Scala version in output paths and artifacts
+crossPaths := false
+
 scalacOptions += "-target:jvm-1.8"
 
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+javacOptions in compile ++= Seq("-source", "1.8", "-target", "1.8")
+
+javacOptions in doc ++= Seq("-source", "1.8")
 
 val slf4jVersion = "1.7.7"
+
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % slf4jVersion,
@@ -21,6 +28,11 @@ libraryDependencies ++= Seq(
   "de.congrace" % "exp4j" % "0.3.11",
   "org.antlr" % "ST4" % "4.0.7",
   "javax.mail" % "mail" % "1.4.7",
+  "com.google.code.gson" % "gson" % "2.2.4",
+  "com.squareup.retrofit" % "retrofit" % "1.6.0",
+  // the xively java client is currently useless
+  // see https://github.com/xively/Xively4J/issues/12
+  //"com.xively.client" % "xively-java-client" % "0.1.0-SNAPSHOT",
   // ===== test =====
   // if we want scala scripting (only since scala 2.11+)
   // we only enable this for testing, it' up to the distribution to
@@ -39,7 +51,8 @@ libraryDependencies ++= Seq(
 unmanagedBase := baseDirectory.value / "donotuse"
 
 unmanagedJars in Compile <<= baseDirectory map { base =>
-  val customJars = (base ** "waylay*.jar") +++ (base ** "jspf*.jar") +++ (base ** "hue*.jar")
+  val baseLib = base / "lib"
+  val customJars = (baseLib ** "waylay*.jar") +++ (baseLib ** "jspf*.jar") +++ (base ** "hue*.jar")
   customJars.classpath
 }
 

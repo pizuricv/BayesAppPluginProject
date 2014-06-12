@@ -94,7 +94,7 @@ public class ParkingSensor implements SensorPlugin {
                     getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
 
         JSONObject jsonObject = new JSONObject();
@@ -112,7 +112,7 @@ public class ParkingSensor implements SensorPlugin {
             Collections.sort(parkingDatas);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
         log.info("Best spot is "+parkingDatas.get(0));
         JSONArray jsonArray = new JSONArray();

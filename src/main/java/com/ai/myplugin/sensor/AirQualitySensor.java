@@ -6,8 +6,8 @@
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
-import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
+import com.ai.myplugin.util.SensorResultBuilder;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
@@ -102,15 +102,14 @@ public class AirQualitySensor implements SensorPlugin {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
-            return new EmptySensorResult();
+            log.error(e.getLocalizedMessage(), e);
+            return SensorResultBuilder.failure().build();
         }
         if(value == -1){
             log.error("location not found");
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
-        //try to get more detail informatoin, don't fail if there is nothing
+        //try to get more detail information, don't fail if there is nothing
         try{
             stringToParse = Rest.httpGet(detailInfoIRCURL).body();
             Document doc = Jsoup.parse(stringToParse);

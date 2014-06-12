@@ -118,7 +118,7 @@ public class RawDataParser {
 
 
     /**
-     * find strings that are between < >
+     * find strings that are between &lt; &gt;
      * @param template
      * @return
      */
@@ -136,7 +136,7 @@ public class RawDataParser {
         }
         log.debug("found keys "+Arrays.asList(set).toString());
         return set;
-    };
+    }
 
     public static Set<String> getRuntimePropertiesFromTemplate(String template, String startString){
         if(template == null || startString == null)

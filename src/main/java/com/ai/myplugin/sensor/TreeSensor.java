@@ -100,7 +100,7 @@ public class TreeSensor implements SensorPlugin {
                     getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
 
         log.info("Current location: " + latLng);
@@ -121,7 +121,7 @@ public class TreeSensor implements SensorPlugin {
             log.info("sorting done");
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
         log.info("Best spot is " + treeDatas.get(0));
         JSONArray jsonArray = new JSONArray();

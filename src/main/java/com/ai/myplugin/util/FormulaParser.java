@@ -23,12 +23,12 @@ public class FormulaParser {
 
     private static final Logger log = LoggerFactory.getLogger(FormulaParser.class);
 
-    Map<String, ArrayList> prevValues = new ConcurrentHashMap();
-    Map<String, UtilStats> statisticalSampleValues;
-    Map<String, SlidingWindowStatsCounter> statisticalWindowValues;
-    Map<String, UtilStats> counterValues;
-    Map<String, SlidingWindowStatsCounter> counterWindowValues;
-    boolean initMaps = false;
+    private final Map<String, ArrayList> prevValues = new ConcurrentHashMap<>();
+    private Map<String, UtilStats> statisticalSampleValues;
+    private Map<String, SlidingWindowStatsCounter> statisticalWindowValues;
+    private Map<String, UtilStats> counterValues;
+    private Map<String, SlidingWindowStatsCounter> counterWindowValues;
+    private boolean initMaps = false;
 
     public synchronized void restStats(){
         if(initMaps){
@@ -42,10 +42,10 @@ public class FormulaParser {
     }
 
     private synchronized void initStats(){
-        statisticalSampleValues = new ConcurrentHashMap();
-        statisticalWindowValues = new ConcurrentHashMap();
-        counterValues = new ConcurrentHashMap();
-        counterWindowValues = new ConcurrentHashMap();
+        statisticalSampleValues = new ConcurrentHashMap<>();
+        statisticalWindowValues = new ConcurrentHashMap<>();
+        counterValues = new ConcurrentHashMap<>();
+        counterWindowValues = new ConcurrentHashMap<>();
         initMaps = true;
     }
 
@@ -58,18 +58,18 @@ public class FormulaParser {
     }
 
     /**
-     *  formula in format <node1.param1> OPER <node1.param3> OPER <node2.param3>
-     *  also can contain a previous values, such as <node1.param1>[-1] OPER <node2.param3>[-2]
+     *  formula in format &lt;node1.param1&gt; OPER &lt;node1.param3&gt; OPER &lt;node2.param3&gt;
+     *  also can contain a previous values, such as &lt;node1.param1&gt;[-1] OPER &lt;node2.param3&gt;[-2]
      *  there is also the option to make a geo distance calculation such as distance(node1,node2)
      *  in which case it will be assumed that the raw data has this information (latitude and longitude)
-     *  you can also add a stats in format <avg(node1.param1)>,<min(node1.param1)>, <max(node1.param1)>, <std(node1.param1)>
-     *  or add a sliding window (by time or the number of samples): <avg(5, samples, node1.param1)>, <avg(5, min, node1.param1)>
+     *  you can also add a stats in format &lt;avg(node1.param1)&gt;,&lt;min(node1.param1)&gt;, &lt;max(node1.param1)&gt;, &lt;std(node1.param1)&gt;
+     *  or add a sliding window (by time or the number of samples): &lt;avg(5, samples, node1.param1)&gt;, &lt;avg(5, min, node1.param1)&gt;
      *  it can be only one window size per paramValue. For the time window, it has to be at least 1 min, other option is hour, day
      *  YOU CANT mix different aggregation types per raw key.
      *  Another option is to compare distance between two nodes, in that case it will take the latitude and longitude of these nodes
      *  like distance(node1,node2).
-     *  For the count, you need to specify either 4 parameters <count(key, number, samples/time, node.param> , where key can be a number or string
-     *  and time can be expressed in minutes, hours or days or 2 parameters <count(key, node.param> that will count all events
+     *  For the count, you need to specify either 4 parameters &lt;count(key, number, samples/time, node.param&gt; , where key can be a number or string
+     *  and time can be expressed in minutes, hours or days or 2 parameters &lt;count(key, node.param&gt; that will count all events
      * @param sessionMap  are parameters on which formula will be computed
      * @return
      * @throws org.json.simple.parser.ParseException
@@ -77,13 +77,13 @@ public class FormulaParser {
     public String parseFormula(String formula, Map<String, Object>  sessionMap) throws ParseException {
         log.info("parsing formula " + formula);
         Set<String> keySet = RawDataParser.parseKeyArgs(formula);
-        Map<String, String> map = new ConcurrentHashMap<String, String>();
-        Map<String, Integer> addedToStack = new ConcurrentHashMap<String, Integer>();
+        Map<String, String> map = new ConcurrentHashMap<>();
+        Map<String, Integer> addedToStack = new ConcurrentHashMap<>();
         JSONObject jsonObject = new JSONObject(sessionMap);
-        Set<String> addedToSampleCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
-        Set<String> addedToCounter = new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
-        Set<String> addedToSampleWindowCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
-        Set<String> addedToCounterWindowCounter= new HashSet<String>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToSampleCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToCounter = new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToSampleWindowCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToCounterWindowCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
         for(String key : keySet)
@@ -94,7 +94,7 @@ public class FormulaParser {
                     initStats();
                 String OPERATOR = key.substring(0, key.indexOf("("));
                 String stringReplacement = "";
-                int startIndex = key.indexOf(",") == -1 ? key.indexOf("(") + 1 : key.lastIndexOf(",") + 1;
+                int startIndex = !key.contains(",") ? key.indexOf("(") + 1 : key.lastIndexOf(",") + 1;
                 String realKey = key.substring(startIndex, key.indexOf(")")).trim();
                 log.info("stats is on param " + realKey);
                 StatsType statsType = StatsType.STATS_REGULAR;
@@ -103,7 +103,7 @@ public class FormulaParser {
                 String searchTerm = "";
 
                 //initialize counters
-                if (key.indexOf(",") == -1) {
+                if (!key.contains(",")) {
                     if (!OPERATOR.equalsIgnoreCase("count")) {
                         statsType = StatsType.STATS_REGULAR;
                         if (statisticalSampleValues.get(realKey) == null)
@@ -240,12 +240,12 @@ public class FormulaParser {
         }
 
         //check for the previous data required by the formula
-        if(formula.indexOf(">[-") > -1){
+        if(formula.contains(">[-")){
             String [] pastValues = formula.split("]");
             for(String s : pastValues){
                 String []nextPass = s.split("<");
                 for(String sss : nextPass){
-                    if(sss.indexOf(">[-") > -1){
+                    if(sss.contains(">[-")){
                         String key = sss.substring(0, sss.indexOf(">")).trim();
                         if(map.get(key) == null){
                             throw new ParseException(1, "key" + key + " not in JSON object");
@@ -308,7 +308,7 @@ public class FormulaParser {
         String returnString =  hello.render();
 
         //location based formula distance(node1,node2)
-        if(returnString.indexOf("distance") > -1){
+        if(returnString.contains("distance")){
             log.info("parse distance " + formula);
             try{
                 String toReplace = returnString.substring(returnString.indexOf("distance"));

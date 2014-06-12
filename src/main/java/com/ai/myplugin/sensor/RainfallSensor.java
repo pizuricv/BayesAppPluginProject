@@ -51,7 +51,7 @@ public class RainfallSensor implements SensorPlugin {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (RuntimeException e) {
             log.error("error in getting the location: " + e.getMessage(), e);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
 
         BuienradarService service = new BuienradarService();
@@ -60,36 +60,16 @@ public class RainfallSensor implements SensorPlugin {
             result = service.fetch(latLng);
         } catch (IOException e) {
             log.error("error in getting the rainfall data: " + e.getMessage(), e);
-            return new EmptySensorResult();
+            return SensorResultBuilder.failure().build();
         }
         Optional<RainResult> finalResult = result;
 
-        return new SensorResult() {
-            @Override
-            public boolean isSuccess() {
-                return true;
-            }
+        return SensorResultBuilder
+                .success()
+                .withObserverState(finalResult.map(r -> evaluate(r)).orElse(null))
+                .withRawData(finalResult.map(r -> resultToJson(r).toString()).orElse(null))
+                .build();
 
-            @Override
-            public String getName() {
-                return "RainfallSensor test result";
-            }
-
-            @Override
-            public String getObserverState() {
-                return finalResult.map(r -> evaluate(r)).orElse(null);
-            }
-
-            @Override
-            public List<Map<String, Number>> getObserverStates() {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public String getRawData() {
-                return finalResult.map(r -> resultToJson(r).toString()).orElse(null);
-            }
-        };
     }
 
     @Override

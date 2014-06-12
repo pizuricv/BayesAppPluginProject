@@ -81,7 +81,7 @@ public class MailAction implements ActuatorPlugin {
 
     /**
      * message context can be provided the testSessionContext, in the format "messageTemplate"
-     * format "Hello world <{name:nodename, property:propertyname}>"
+     * format "Hello world &lt;{name:nodename, property:propertyname}&gt;"
      * Example "Weather in Gent today is {node:Gent, property: wheather}"
      * will be formated as "weather in Gent today is Rain, if the value of the property is Rain
      *

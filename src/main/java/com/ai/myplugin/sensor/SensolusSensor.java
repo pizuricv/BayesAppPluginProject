@@ -7,8 +7,8 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.APIKeys;
-import com.ai.myplugin.util.EmptySensorResult;
 import com.ai.myplugin.util.Rest;
+import com.ai.myplugin.util.SensorResultBuilder;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import org.json.simple.JSONObject;
@@ -135,9 +135,8 @@ public class SensolusSensor implements SensorPlugin {
                 }
             };
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            return new EmptySensorResult();
+            log.error(e.getMessage(), e);
+            return SensorResultBuilder.failure().build();
         }
     }
 

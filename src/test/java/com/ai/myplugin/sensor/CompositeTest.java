@@ -10,16 +10,20 @@ import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
 import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.Utils;
-import junit.framework.TestCase;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.Ignore;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CompositeTest extends TestCase{
+public class CompositeTest{
 
+    @Test
     public void testLocationsAndFormula() throws ParseException {
         LocationRawSensor locationRawSensor1 = new LocationRawSensor();
         locationRawSensor1.setProperty("location", "Gent");
@@ -32,7 +36,7 @@ public class CompositeTest extends TestCase{
         JSONObject jsonObject1 = new JSONObject();
 
         jsonObject1.put("rawData", locationRawSensor1.execute(null).getRawData());
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        Map<String, Object> mapTestResult = new HashMap<>();
         mapTestResult.put("node1", jsonObject1);
 
         JSONObject jsonObject2 = new JSONObject();
@@ -61,7 +65,7 @@ public class CompositeTest extends TestCase{
         assertEquals(855, Utils.getDouble(((JSONObject) (new JSONParser().parse(testResult.getRawData()))).get("formulaValue")), 10);
     }
 
-
+    @Test
     public void testSensorTemplate() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
@@ -82,7 +86,8 @@ public class CompositeTest extends TestCase{
 
     }
 
-       public void testSensorTemplateAndCount() throws Exception {
+    @Test
+    public void testSensorTemplateAndCount() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
         locationSensor.setProperty(LocationSensor.LATITUDE, 45.262231);
@@ -131,7 +136,7 @@ public class CompositeTest extends TestCase{
 
     }
 
-
+    @Test
     public void testSensorTemplateAndCount2() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
@@ -178,7 +183,7 @@ public class CompositeTest extends TestCase{
 
     }
 
-
+    @Test
     public void testSensorTemplateAndCountWithWindow() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
@@ -191,7 +196,7 @@ public class CompositeTest extends TestCase{
         JSONObject jsonObject1 = new JSONObject();
 
         jsonObject1.put("rawData", locationSensor.execute(testSessionContext).getRawData());
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+        Map<String, Object> mapTestResult = new HashMap<>();
         mapTestResult.put("node3", jsonObject1);
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
