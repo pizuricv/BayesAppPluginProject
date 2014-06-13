@@ -7,7 +7,6 @@ import com.ai.myplugin.util.conf.Config;
 import com.ai.myplugin.util.conf.Configuration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
@@ -18,20 +17,27 @@ import java.util.Set;
 @PluginHeader(version = "0.0.1", author = "Francis", category = "Net", iconURL = "http://app.waylay.io/icons/xively.png")
 public class XivelySensor implements SensorPlugin {
 
-    public static final String XIVELY_API_KEY = "apiKey";
+    public static final String PROPERTY_XIVELY_API_KEY = "apiKey";
+    public static final String SETTING_XIVELY_KEY = "xivelyKey";
 
     private String apiKey;
 
     private XivelyService xivelyService;
 
-    public XivelySensor() {
-        Configuration configuration = Config.load();
-        this.apiKey = configuration.getNonEmptyString("xivelyKey");
-    }
-
     @Override
     public String getName() {
         return "Xively";
+    }
+
+    @Override
+    public void setup(SessionContext sessionContext){
+        Configuration configuration = Config.load();
+        this.apiKey = configuration.getNonEmptyString(SETTING_XIVELY_KEY);
+    }
+
+    @Override
+    public void shutdown(SessionContext sessionContext) {
+
     }
 
     @Override
@@ -68,7 +74,7 @@ public class XivelySensor implements SensorPlugin {
     @Override
     public void setProperty(String property, Object value) {
         switch (property) {
-            case XIVELY_API_KEY:
+            case PROPERTY_XIVELY_API_KEY:
                 this.apiKey = value.toString();
                 break;
             default:
@@ -86,14 +92,4 @@ public class XivelySensor implements SensorPlugin {
         return null;
     }
 
-
-    @Override
-    public void setup(SessionContext sessionContext) {
-
-    }
-
-    @Override
-    public void shutdown(SessionContext sessionContext) {
-
-    }
 }
