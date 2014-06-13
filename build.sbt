@@ -15,15 +15,18 @@ javacOptions in compile ++= Seq("-source", "1.8", "-target", "1.8")
 
 javacOptions in doc ++= Seq("-source", "1.8")
 
+testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+
 val slf4jVersion = "1.7.7"
+val twitter4jVersion = "4.0.1"
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % slf4jVersion,
   "org.jsoup" % "jsoup" % "1.7.3",
-  "org.twitter4j" % "twitter4j-core" % "3.0.4",
-  "org.twitter4j" % "twitter4j-stream" % "3.0.4",
+  "org.twitter4j" % "twitter4j-core" % twitter4jVersion,
+  "org.twitter4j" % "twitter4j-stream" % twitter4jVersion,
   "com.googlecode.json-simple" % "json-simple" % "1.1.1",
   "de.congrace" % "exp4j" % "0.3.11",
   "org.antlr" % "ST4" % "4.0.7",
@@ -55,10 +58,6 @@ unmanagedJars in Compile <<= baseDirectory map { base =>
   val customJars = (baseLib ** "waylay*.jar") +++ (baseLib ** "jspf*.jar") +++ (base ** "hue*.jar")
   customJars.classpath
 }
-
-//autoScalaLibrary := false
-//
-//crossPaths := false
 
 // needed to get the scripting engine working
 // http://stackoverflow.com/questions/23567500/how-to-use-scriptengine-in-scalatest

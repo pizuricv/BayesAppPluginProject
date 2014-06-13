@@ -7,14 +7,17 @@ package com.ai.myplugin.sensor;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.api.SessionParams;
-import junit.framework.TestCase;
-import org.json.simple.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class NodeJSCommandTest extends TestCase{
+public class NodeJSCommandTest{
 
+    @Test
     public void testExecute(){
         NodeJSCommand nodeJSCommand = new NodeJSCommand();
         String javaScript =  "a = { observedState:\"world\",\n" +
@@ -36,6 +39,8 @@ public class NodeJSCommandTest extends TestCase{
         // log.info("state " + testResult.getObserverState());
         // log.info("rawData " + testResult.getRawData());
         // log.info("states " + testResult.getObserverStates());
+
+        // FIXME request npm module is not found, we should probably first call npm install request in the temp folder
 
         javaScript = "var request = require(\"request\");\n" +
                 "var url = \"http://datatank.gent.be/Onderwijs&Opvoeding/Basisscholen.json\";\n" +
@@ -66,6 +71,7 @@ public class NodeJSCommandTest extends TestCase{
         System.out.println("rawData " + testResult.getRawData());
     }
 
+    @Test
     public void testRuntimeTemplate(){
         NodeJSCommand nodeJSCommand = new NodeJSCommand();
         assertNotNull(nodeJSCommand.getRequiredProperties().get("javaScript"));
@@ -114,7 +120,7 @@ public class NodeJSCommandTest extends TestCase{
 
     }
 
-
+    @Test
     public void testGlobalRAWData(){
         NodeJSCommand nodeJSCommand = new NodeJSCommand();
         String javaScript =  "b = JSON.parse(RAW_STRING);\n" +
@@ -129,20 +135,23 @@ public class NodeJSCommandTest extends TestCase{
                 "console.log(a);" ;
         nodeJSCommand.setProperty("javaScript", javaScript);
 
-        JSONObject jsonObject = new JSONObject();
-        JSONObject raw = new JSONObject();
-        raw.put("key", "value");
+        JsonObject raw = new JsonObject();
+        raw.addProperty("key", "value");
 
-        jsonObject.put("rawData", raw);
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        mapTestResult.put("node1", jsonObject);
+        JsonObject node1 = new JsonObject();
+        node1.add("rawData", raw);
+
+        Map<String, Object> mapTestResult = new HashMap<>();
+        mapTestResult.put("node1", node1);
 
         SessionContext testSessionContext = new SessionContext(2);
 
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
         SensorResult testResult = nodeJSCommand.execute(testSessionContext);
         assertTrue(nodeJSCommand.getProperty("javaScript").toString().contains("RAW_STRING"));
-        assertEquals(raw.toJSONString(), testResult.getRawData());
+
+        Gson gson = new Gson();
+        assertEquals(gson.toJson(raw), testResult.getRawData());
 
     }
 

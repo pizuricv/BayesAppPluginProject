@@ -8,11 +8,12 @@ package com.ai.myplugin.action;
 import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import com.ai.myplugin.util.io.ExecResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import twitter4j.internal.org.json.JSONObject;
 import org.stringtemplate.v4.ST;
 
 import java.util.HashMap;
@@ -36,8 +37,10 @@ public class NodeJSAction implements ActuatorPlugin{
 
         if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
             Map sessionMap = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
-            JSONObject jsonObject = new JSONObject(sessionMap);
-            javaScriptCommand = "RAW_STRING = '"+jsonObject.toString() + "';\n" + javaScriptCommand;
+            Gson gson = new GsonBuilder().create();
+            String sessionMapJson = gson.toJson(sessionMap);
+            // TODO why the raw string and not a RAW object?
+            javaScriptCommand = "RAW_STRING = '" + sessionMapJson + "';\n" + javaScriptCommand;
         }
 
         Node node = new Node(nodePath, workingDir);

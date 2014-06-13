@@ -7,12 +7,15 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import com.ai.myplugin.util.io.ExecResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
-import twitter4j.internal.org.json.JSONObject;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +29,7 @@ public class NodeJSCommand implements SensorPlugin {
 
     private static final String NAME = "JavaScript";
     private static final String JAVA_SCRIPT = "javaScript";
+    public static final String NODE_PATH = "nodePath";
 
     private String javaScriptCommand;
     private String nodePath = NodeConfig.getNodePath();
@@ -62,23 +66,27 @@ public class NodeJSCommand implements SensorPlugin {
 
     @Override
     public void setProperty(String s, Object o) {
-        if(JAVA_SCRIPT.equals(s)){
-            javaScriptCommand = o.toString();
-        } else if ("nodePath".equals(s)){
-            nodePath = o.toString();
-        } else {
-            Set<String> set = RawDataParser.parseKeyArgs((String) getProperty(JAVA_SCRIPT));
-            if(set.contains(s)){
-                String template = (String) getProperty(JAVA_SCRIPT);
-                ST hello = new ST(template);
-                try{
-                    Utils.getDouble(o);
-                } catch (Exception e){
-                    o = "'" +o.toString() + "'";
+        switch (s) {
+            case JAVA_SCRIPT:
+                javaScriptCommand = o.toString();
+                break;
+            case NODE_PATH:
+                nodePath = o.toString();
+                break;
+            default:
+                Set<String> set = RawDataParser.parseKeyArgs((String) getProperty(JAVA_SCRIPT));
+                if (set.contains(s)) {
+                    String template = (String) getProperty(JAVA_SCRIPT);
+                    ST hello = new ST(template);
+                    try {
+                        Utils.getDouble(o);
+                    } catch (Exception e) {
+                        o = "'" + o.toString() + "'";
+                    }
+                    hello.add(s, o);
+                    setProperty(JAVA_SCRIPT, hello.render());
                 }
-                hello.add(s, o);
-                setProperty(JAVA_SCRIPT, hello.render());
-            }
+                break;
         }
     }
 
@@ -107,14 +115,19 @@ public class NodeJSCommand implements SensorPlugin {
         }
         if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
             Map sessionMap = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
-            JSONObject jsonObject = new JSONObject(sessionMap);
-            javaScriptCommand = "RAW_STRING = '"+jsonObject.toString() + "';\n" + javaScriptCommand;
+            Gson gson = new GsonBuilder().create();
+            String sessionMapJson = gson.toJson(sessionMap);
+            // TODO why the raw string and not a RAW object?
+            javaScriptCommand = "RAW_STRING = '" + sessionMapJson + "';\n" + javaScriptCommand;
         }
 
         try {
             Node node = new Node(nodePath, workingDir);
 
             final ExecResult result = node.executeScript(javaScriptCommand);
+
+            final Gson gson = new GsonBuilder().create();
+            Optional<JsonObject> output = Optional.ofNullable(gson.fromJson(result.output, JsonObject.class));
 
             return new SensorResult() {
                 @Override
@@ -129,47 +142,36 @@ public class NodeJSCommand implements SensorPlugin {
 
                 @Override
                 public String getObserverState() {
-                    try {
-                        JSONObject obj = new JSONObject(result.output);
-                        return (String) obj.get("observedState");
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        return null;
-                    }
+                    return output
+                            .flatMap(o -> Optional.ofNullable(o.get("observedState")))
+                            .map(JsonElement::getAsString)
+                            .orElse(null);
                 }
 
                 @Override
                 public List<Map<String, Number>> getObserverStates() {
-                    try {
-                        Map <String, Number> map = new ConcurrentHashMap<>();
-                        List<Map <String, Number>> list = new ArrayList<>();
-                        list.add(map);
-                        JSONObject obj = new JSONObject(result.output);
-                        JSONObject o  = (JSONObject) obj.get("observedStates");
-                        Iterator iterator = o.keys();
-                        while(iterator.hasNext()){
-                            String state = (String) iterator.next();
-                            Double value = Utils.getDouble(o.get(state));
-                            map.put(state, value);
-                        }
-                        return list;
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        return null;
-                    }
+                    return output
+                            .flatMap(o -> Optional.ofNullable(o.getAsJsonObject("observedStates")))
+                            .map(observedStates -> {
+                                Map <String, Number> observedStatesMap = new ConcurrentHashMap<>();
+                                for(Map.Entry<String, JsonElement> entry:observedStates.entrySet()){
+                                    observedStatesMap.put(entry.getKey(), entry.getValue().getAsNumber());
+                                }
+                                List<Map <String, Number>> list = new ArrayList<>();
+                                list.add(observedStatesMap);
+                                return list;
+                            })
+                            .orElse(null);
                 }
 
                 @Override
                 public String getRawData() {
-                    try {
-                        JSONObject obj = new JSONObject(result.output);
-                        return obj.get("rawData").toString();
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        return null;
-                    }
+                   return output
+                           .flatMap(o -> Optional.ofNullable(o.get("rawData")))
+                           .map(rawData -> gson.toJson(rawData))
+                           .orElse(null);
                 }
-            }  ;
+            };
 
             // FIXME catching throwable is a bad idea
         } catch (Throwable t) {
@@ -185,7 +187,7 @@ public class NodeJSCommand implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet();
+        return new HashSet<>();
     }
 
 

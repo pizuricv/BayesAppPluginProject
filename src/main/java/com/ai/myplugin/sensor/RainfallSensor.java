@@ -9,12 +9,14 @@ import com.ai.api.*;
 import com.ai.myplugin.services.BuienradarService;
 import com.ai.myplugin.services.RainResult;
 import com.ai.myplugin.util.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import twitter4j.internal.org.json.JSONArray;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -40,8 +42,8 @@ public class RainfallSensor implements SensorPlugin {
     static final String STATE_STORM = "Storm";
     private static final String NAME = "WeatherRadar";
 
-    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-    private String[] states = {STATE_CLEAR, STATE_RAIN, STATE_HEAVY_RAIN, STATE_STORM};
+    private final Map<String, Object> propertiesMap = new ConcurrentHashMap<>();
+    private final String[] states = {STATE_CLEAR, STATE_RAIN, STATE_HEAVY_RAIN, STATE_STORM};
 
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
@@ -63,11 +65,11 @@ public class RainfallSensor implements SensorPlugin {
             return SensorResultBuilder.failure().build();
         }
         Optional<RainResult> finalResult = result;
-
+        Gson gson = new GsonBuilder().create();
         return SensorResultBuilder
                 .success()
                 .withObserverState(finalResult.map(r -> evaluate(r)).orElse(null))
-                .withRawData(finalResult.map(r -> resultToJson(r).toString()).orElse(null))
+                .withRawData(finalResult.map(r -> gson.toJson(resultToJson(r))).orElse(null))
                 .build();
 
     }
@@ -89,7 +91,7 @@ public class RainfallSensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     @Override
@@ -142,22 +144,22 @@ public class RainfallSensor implements SensorPlugin {
         return list;
     }
 
-    private JSONObject resultToJson(RainResult result){
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
+    private JsonObject resultToJson(RainResult result){
+        JsonObject root = new JsonObject();
+        JsonArray forecasts = new JsonArray();
         int time = 0;
         for(RainResult.RainAmount amount : result.results){
-            JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put(Integer.toString(time), amount.amount.orElse(null));
-            jsonArray.put(jsonObject1);
+            JsonObject jsonObject1 = new JsonObject();
+            jsonObject1.addProperty(Integer.toString(time), amount.amount.orElse(null));
+            forecasts.add(jsonObject1);
             time +=5;
         }
-        jsonObject.put("min", result.min);
-        jsonObject.put("max", result.max);
-        jsonObject.put("avg", result.avg);
-        jsonObject.put("mm_per_hour", computeRainMM(result.avg));
-        jsonObject.put("forecast_raw", jsonArray);
-        return jsonObject;
+        root.addProperty("min", result.min);
+        root.addProperty("max", result.max);
+        root.addProperty("avg", result.avg);
+        root.addProperty("mm_per_hour", computeRainMM(result.avg));
+        root.add("forecast_raw", forecasts);
+        return root;
     }
 
     /*
