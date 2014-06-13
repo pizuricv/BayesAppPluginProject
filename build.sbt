@@ -9,13 +9,19 @@ scalaVersion := "2.11.1"
 // disable using the Scala version in output paths and artifacts
 crossPaths := false
 
-scalacOptions += "-target:jvm-1.8"
+scalacOptions += "-target:jvm-1.7" // "-target:jvm-1.8"
 
 javacOptions in compile ++= Seq("-source", "1.8", "-target", "1.8")
 
 javacOptions in doc ++= Seq("-source", "1.8")
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+
+testOptions += Tests.Argument(TestFrameworks.Specs2, "console", "junitxml")
+
+// needed to get the scripting engine working
+// http://stackoverflow.com/questions/23567500/how-to-use-scriptengine-in-scalatest
+fork in Test := true
 
 val slf4jVersion = "1.7.7"
 val twitter4jVersion = "4.0.1"
@@ -45,7 +51,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % slf4jVersion % "test",
   "org.slf4j" % "jcl-over-slf4j" % slf4jVersion % "test",
   // scala test integration
-  //  "org.specs2" %% "specs2" % "2.3.12" % "test",
+  "org.specs2" %% "specs2" % "2.3.12" % "test",
   //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
   //  "org.scalatest" %% "scalatest" % "2.1.5" % "test",
   "com.novocode" % "junit-interface" % "0.11-RC1" % "test"
@@ -58,7 +64,3 @@ unmanagedJars in Compile <<= baseDirectory map { base =>
   val customJars = (baseLib ** "waylay*.jar") +++ (baseLib ** "jspf*.jar") +++ (base ** "hue*.jar")
   customJars.classpath
 }
-
-// needed to get the scripting engine working
-// http://stackoverflow.com/questions/23567500/how-to-use-scriptengine-in-scalatest
-fork in Test := true

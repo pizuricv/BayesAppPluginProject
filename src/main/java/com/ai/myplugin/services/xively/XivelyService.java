@@ -61,7 +61,11 @@ public class XivelyService {
 
         @Override
         public void intercept(RequestFacade request) {
-            request.addHeader("X-ApiKey", apiKey);
+            if(apiKey != null){
+                request.addHeader("X-ApiKey", apiKey);
+            }else{
+                log.warn("Xively api key is not set");
+            }
         }
     }
 
