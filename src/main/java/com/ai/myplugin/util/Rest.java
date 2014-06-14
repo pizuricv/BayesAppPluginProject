@@ -63,8 +63,7 @@ public class Rest {
         return httpGet(urlPath, Collections.emptyMap());
     }
 
-
-    public static RestReponse httpPost(String urlPath, final String query, String charset) throws IOException{
+    public static RestReponse httpPost(String urlPath, final String query, String charset, String contentType) throws IOException {
         log.info("POST " + urlPath);
 
         URL url;
@@ -82,7 +81,7 @@ public class Rest {
             conn.setRequestMethod("POST");
             conn.setDoOutput(true); // Triggers POST.
             conn.setRequestProperty("Accept-Charset", charset);
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Content-Type", contentType);
             writePostBody(query, charset, conn);
 
             //Get Response
@@ -95,6 +94,12 @@ public class Rest {
                 conn.disconnect();
             }
         }
+
+    }
+
+
+    public static RestReponse httpPost(String urlPath, final String query, String charset) throws IOException{
+        return httpPost(urlPath, query, charset, "application/x-www-form-urlencoded");
     }
 
     private static RestReponse getResponse(HttpURLConnection conn) throws IOException {
