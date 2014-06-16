@@ -8,21 +8,22 @@ import com.ai.api.*;
 import com.ai.myplugin.util.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 // FIXME why does this depend on twitter4j internals?
-//TODO add plugin annotations
+@PluginImplementation
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
 public class JsSensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(NodeJSCommand.class);
 
-    private static final String NAME = "JavaScript";
+    private static final String NAME = "RPC JavaScript";
     private static final String JAVA_SCRIPT = "javaScript";
     //TODO add port number and server address
 
@@ -115,15 +116,17 @@ public class JsSensor implements SensorPlugin {
 
         try {
             //TODO change JSON part ....with latest libraries
+            UUID UUID = java.util.UUID.randomUUID();
             javaScriptCommand = Base64.getEncoder().encodeToString(javaScriptCommand.getBytes()).toString();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("jsonrpc", "2.0");
             jsonObject.put("method", "waylay_rpc");
             jsonObject.put("params", Arrays.asList(javaScriptCommand));
-            jsonObject.put("id", 2);
+            jsonObject.put("id", UUID.getMostSignificantBits());
             javaScriptCommand = jsonObject.toJSONString();
 
             Rest.RestReponse result = Rest.httpPost("http://localhost:5080", javaScriptCommand, "UTF-8", "application/json");
+            log.info("Output: "+result.body());
             Optional<JSONObject> output = Optional.ofNullable(result.json());
 
             return new SensorResult() {
@@ -144,6 +147,7 @@ public class JsSensor implements SensorPlugin {
 
                 @Override
                 public List<Map<String, Number>> getObserverStates() {
+                    //TODO fix it later
                     return null;
                 }
 
@@ -184,12 +188,11 @@ public class JsSensor implements SensorPlugin {
     public static void main(String [] args) {
         JsSensor nodeJSCommand = new JsSensor();
         nodeJSCommand.getRequiredProperties();
-        String javaScript =  "ret = { observedState: \"hello\", rawData: \"hello2\"}";
+        String javaScript =  "sandbox.value = { observedState: \"hello\", rawData: \"hello2\"}";
         nodeJSCommand.setProperty("javaScript", javaScript);
         SensorResult testResult = nodeJSCommand.execute(null);
         System.out.println(testResult.toString());
         System.out.println("state " + testResult.getObserverState());
         System.out.println("rawData " + testResult.getRawData());
-
     }
 }

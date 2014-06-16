@@ -14,9 +14,9 @@ var options = {
 // Create a server object with options
 var client = new rpc.Client(options);
 
-client.call(
-  {"jsonrpc": "2.0", "method": "waylay_rpc", "params": [new Buffer("1+3").toString('base64')], "id": 2},
-  function (err, res) {
+client.call (
+  {"jsonrpc": "2.0", "method": "waylay_rpc", "params": [new Buffer("var value = {observedState:\"hello\",rawData:{}};sandbox.send( value); ").toString('base64')], "id": 2},
+  function (err, res){
     // Did it all work ?
     if (err) { console.log(err); }
     else { console.log(res); }
