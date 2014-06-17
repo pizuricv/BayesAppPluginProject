@@ -16,7 +16,7 @@ sandbox.request({
        }
     };
     sandbox.console.log("done, state is: " + value.observedState);
-    sandbox.send(value);
+    sandbox.send(null,value);
   } else {
      sandbox.console.log("error" );
      var err = { code: response.statusCode, message: response };
