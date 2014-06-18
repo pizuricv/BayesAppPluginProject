@@ -112,11 +112,6 @@ public class TwitterQuerySensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "TwitterQuerySensor result";
-            }
-
-            @Override
             public String getObserverState() {
                 if(listTweets.size() == 0)
                     return "Not Found";

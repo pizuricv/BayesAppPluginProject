@@ -83,11 +83,6 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "TwitterQuerySensor result";
-            }
-
-            @Override
             public String getObserverState() {
                 if(listFoundItems.size() == 0)
                     return "Not Found";

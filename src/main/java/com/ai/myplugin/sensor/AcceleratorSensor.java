@@ -104,11 +104,6 @@ public class AcceleratorSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Accelerator result";
-            }
-
-            @Override
             public String getObserverState() {
                 return state;
             }

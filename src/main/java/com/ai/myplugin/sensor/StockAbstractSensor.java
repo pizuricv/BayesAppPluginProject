@@ -125,11 +125,6 @@ public abstract class StockAbstractSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Stock result";
-            }
-
-            @Override
             public String getObserverState() {
                 if("PRICE".equalsIgnoreCase(tag))  {
                     if(hashMap.get(PRICE) < threshold)

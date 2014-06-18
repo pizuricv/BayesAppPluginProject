@@ -156,11 +156,6 @@ public class AirQualitySensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Water level result";
-            }
-
-            @Override
             public String getObserverState() {
                 return mapValue(finalValue);
             }

@@ -92,11 +92,6 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Date result";
-            }
-
-            @Override
             public String getObserverState() {
                 GregorianCalendar gregorianCalendar = getProperty(TIME_ZONE) == null? new GregorianCalendar():
                         new GregorianCalendar(TimeZone.getTimeZone((String) getProperty(TIME_ZONE)));

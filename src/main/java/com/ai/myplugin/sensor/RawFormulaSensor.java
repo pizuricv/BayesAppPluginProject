@@ -134,11 +134,6 @@ public class RawFormulaSensor implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "Raw Data Sensor Result";
-                }
-
-                @Override
                 public String getObserverState() {
                     return mapResult(finalRes);
                 }

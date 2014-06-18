@@ -136,11 +136,6 @@ public class JsSensor implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "node result";
-                }
-
-                @Override
                 public String getObserverState() {
                     return ((JSONObject)output.get().get("result")).get("observedState").toString();
                 }

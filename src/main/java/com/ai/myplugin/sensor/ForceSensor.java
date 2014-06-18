@@ -104,11 +104,6 @@ public class ForceSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Force result";
-            }
-
-            @Override
             public String getObserverState() {
                 return state;
             }

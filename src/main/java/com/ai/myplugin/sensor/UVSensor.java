@@ -99,11 +99,6 @@ public class UVSensor implements SensorPlugin {
                         }
 
                         @Override
-                        public String getName() {
-                            return null;  //To change body of implemented methods use File | Settings | File Templates.
-                        }
-
-                        @Override
                         public String getObserverState() {
                             return null;  //To change body of implemented methods use File | Settings | File Templates.
                         }
@@ -150,11 +145,6 @@ public class UVSensor implements SensorPlugin {
             @Override
             public boolean isSuccess() {
                 return true;
-            }
-
-            @Override
-            public String getName() {
-                return "UV index test result";
             }
 
             @Override

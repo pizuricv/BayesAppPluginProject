@@ -86,11 +86,6 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "Location result";
-                }
-
-                @Override
                 public String getObserverState() {
                     return states[0];
                 }
@@ -112,11 +107,6 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
                 @Override
                 public boolean isSuccess() {
                     return true; //TODO need better way to provide BN with RAW SENSORS!!
-                }
-
-                @Override
-                public String getName() {
-                    return "Location result";
                 }
 
                 @Override

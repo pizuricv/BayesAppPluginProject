@@ -169,11 +169,6 @@ public class LocationSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Location result";
-            }
-
-            @Override
             public String getObserverState() {
                 return state;
             }

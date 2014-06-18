@@ -136,11 +136,6 @@ public class NodeJSCommand implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "node result";
-                }
-
-                @Override
                 public String getObserverState() {
                     return output
                             .flatMap(o -> Optional.ofNullable(o.get("observedState")))

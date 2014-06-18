@@ -46,11 +46,6 @@ public class SensolusSensor implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "Sensulos raw data";
-                }
-
-                @Override
                 public String getObserverState() {
                     return states[0];
                 }

@@ -89,11 +89,6 @@ public class TwitterSentimentSensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Twitter Sentiment";
-            }
-
-            @Override
             public String getObserverState() {
                 if(counterPositive.getTotalCount() > counterNegative.getTotalCount())
                     return "Positive";

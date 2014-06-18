@@ -144,11 +144,6 @@ public class BestBuySensor implements SensorPlugin {
             }
 
             @Override
-            public String getName() {
-                return "Best buy";
-            }
-
-            @Override
             public String getObserverState() {
                 return finalState;
             }

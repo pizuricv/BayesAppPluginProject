@@ -126,11 +126,6 @@ public class ShellCmdSensor implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "Shell Result";
-                }
-
-                @Override
                 public String getObserverState() {
                     return finalState;
                 }

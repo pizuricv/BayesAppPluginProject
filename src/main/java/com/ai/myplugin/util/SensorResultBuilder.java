@@ -100,11 +100,6 @@ public class SensorResultBuilder {
         }
 
         @Override
-        public String getName() {
-            return "[deprecated]";
-        }
-
-        @Override
         public String getObserverState() {
             return observerState;
         }

@@ -100,11 +100,6 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
                 }
 
                 @Override
-                public String getName() {
-                    return "Weather result";
-                }
-
-                @Override
                 public String getObserverState() {
                     if(getTag().equals(TEMP)){
                         return mapTemperature(finalTemp);
@@ -152,11 +147,6 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
                 @Override
                 public boolean isSuccess() {
                     return true;
-                }
-
-                @Override
-                public String getName() {
-                    return "Weather week forecast";
                 }
 
                 //TODO see how to flood this information back, probably will require the update of the interface
