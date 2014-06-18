@@ -117,7 +117,7 @@ public class JsSensor implements SensorPlugin {
         try {
             //TODO change JSON part ....with latest libraries
             UUID UUID = java.util.UUID.randomUUID();
-            javaScriptCommand = Base64.getEncoder().encodeToString(javaScriptCommand.getBytes()).toString();
+            //javaScriptCommand = Base64.getEncoder().encodeToString(javaScriptCommand.getBytes()).toString();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("jsonrpc", "2.0");
             jsonObject.put("method", "waylay_rpc");
@@ -183,7 +183,7 @@ public class JsSensor implements SensorPlugin {
     public static void main(String [] args) {
         JsSensor nodeJSCommand = new JsSensor();
         nodeJSCommand.getRequiredProperties();
-        String javaScript =  "sandbox.value = { observedState: \"hello\", rawData: \"hello2\"}";
+        String javaScript =  "value = { observedState: \"hello\", rawData: \"hello2\"};sandbox.send(null, value)";
         nodeJSCommand.setProperty("javaScript", javaScript);
         SensorResult testResult = nodeJSCommand.execute(null);
         System.out.println(testResult.toString());
