@@ -83,7 +83,7 @@ serv.addMethod('execute_sensor', function(para, callback){
     console.log("execute sensor: " + name);
     var dataTemp, data;
     try{
-      dataTemp = fs.readFileSync('./config.json');
+      dataTemp = fs.readFileSync('./sensors.json');
       data = JSON.parse(dataTemp);
       var sensor = data[name];
       if(sensor === "undefined"){
