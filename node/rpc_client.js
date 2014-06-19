@@ -63,3 +63,15 @@ client.call (
   }
 );
 }, 1500);
+
+
+setTimeout(function(){
+console.log('call 4: execute_action');
+client.call (
+  {"jsonrpc": "2.0", "method": "execute_sensor", "params": ["actionX"], "id": 7},
+  function (err, res){
+    // Did it all work ?
+    if (err) { console.log(err); }
+    else { console.log(res); }
+  });
+}, 1000);

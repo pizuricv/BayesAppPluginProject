@@ -23,7 +23,7 @@ strict: true
 var serv = new rpc.Server(options);
 
 function handleError(err, code, callback) {
-  console.log("error " + err);
+  console.log('error ' + err);
   var result;
   errorTotal ++;
   error = { code: code, message: err.message};
@@ -32,22 +32,22 @@ function handleError(err, code, callback) {
 
 function runScript (content, options, callback) {
   countTotal ++;
-  console.log("runScript script: " + content);
+  console.log('runScript script: ' + content);
   sandbox.send = callback;
   var promise = new Promise(function(resolve, reject) {
     try {
      // var _script = new Buffer(content, 'base64').toString('ascii');
      _script = content;
       if(options){
-        console.log("compile options: " + options);
-        var compiled =  dust.compile(_script, "dust");
+        console.log('compile options: ' + options);
+        var compiled =  dust.compile(_script, 'dust');
         dust.loadSource(compiled);
-        dust.render("dust", options, function(err, out) {
+        dust.render('dust', options, function(err, out) {
           console.log(out);
           _script = out;
         });
       }
-      console.log("executing script: " + _script);
+      console.log('executing script: ' + _script);
       var script = vm.createScript(_script,'myfile.vm');
       script.runInThisContext(sandbox);
       console.log('script executed');
@@ -57,60 +57,72 @@ function runScript (content, options, callback) {
      }
    });
   promise.then(function(result) {
-    console.log("Total number of requests:" +countTotal + ", total number of errors " + errorTotal);
+    console.log('Total number of requests: ' +countTotal + ', total number of errors ' + errorTotal);
   }, function(err) {
     handleError(err, -32603, callback);
   });
 }
 
-serv.addMethod('waylay_rpc', function (para, callback) {
-  countTotal ++;
-  console.log("recieved RPC call" );
-  if (para.length > 0) {
-    var name = para[0];
-    runScript(name, null, callback);
-  } else {
-    handleError(new Error("Invalid params "), 32602, callback);
-  }
-});
-
-//para[0] script name, para[1] options - using template
-serv.addMethod('execute_sensor', function(para, callback){
+function execute_plug(type, name, options, callback){
+  console.log('execute plug: ' + name);
   countTotal ++;
   var error, result;
-  if (para.length >0) {
-    var name = para[0];
-    console.log("execute sensor: " + name);
-    var dataTemp, data;
-    try{
+  var dataTemp, data;
+  try{
+    if(type === 'sensor')
       dataTemp = fs.readFileSync('./sensors.json');
-      data = JSON.parse(dataTemp);
-      var sensor = data[name];
-      if(sensor === "undefined"){
-        handleError(new Error("Invalid sensor name: " +name ), 32602, callback);
-      }
-      var content = data[name].script;
-      var options = para[1];
-      runScript(content, options, callback);
-    } catch(err){
-      handleError(err, -32602, callback);
-   }
- }
-});
+    else if(type === 'action')
+      dataTemp = fs.readFileSync('./actions.json');
+    else
+      throw new Error('Invalid plug type : '  + type);
+    data = JSON.parse(dataTemp);
+    if(data[name] === undefined)
+      throw new Error('Invalid plug name: '+ name);
+    var content = data[name].script;
+    runScript(content, options, callback);
+  } catch(err){
+    handleError(err, -32602, callback);
+  }
+}
 
-//para[0]: sensor name, para[1]: script  content, para[2] metadata
-serv.addMethod('register_sensor', function(para, callback){
+function listPlugs(type, callback) {
+  console.log('list plugs: ' + type);
+  countTotal ++;
+  var error, result, array = [];
+  var dataTemp, data;
+  try{
+    if(type === 'sensor')
+      dataTemp = fs.readFileSync('./sensors.json');
+    else if(type === 'action')
+      dataTemp = fs.readFileSync('./actions.json');
+    else
+      throw new Error('Invalid plug type : '  + type);
+    data = JSON.parse(dataTemp);
+    for(index in data){
+      console.log('found plug ' + index);
+      data[index].medatada.name = index;
+      array.push(data[index].medatada);
+    }
+    callback(null, array);
+  } catch(err){
+    handleError(err, -32603, callback);
+  }
+}
+
+function registerPlug(type, name, script, metadata, callback) {
+  console.log('register plug: ' + type + ", name: " +name);
   countTotal ++;
   var error, result;
-  if (para.length === 3) {
-    try {
-      var name = para[0];
-      var script = para[1];
-      console.log("receive sensor: " + name);
-      var metadata = para[2];
-      var dataTemp, data;
+  var dataTemp, data, fileName;
+  try {
       try{
-        dataTemp = fs.readFileSync('./sensors.json');
+        if(type === 'sensor')
+          fileName = './sensors.json';
+        else if(type === 'action')
+          fileName = './sensors.json';
+        else
+          throw new Error('Invalid plug type : '  + type);
+        dataTemp = fs.readFileSync(fileName);
         data = JSON.parse(dataTemp);
       } catch(err){
         console.log('Error loading configration');
@@ -120,8 +132,8 @@ serv.addMethod('register_sensor', function(para, callback){
                     script: script,
                     medatada: metadata
                   };
-      console.log("saving ... " + data);
-      fs.writeFile('./sensors.json', JSON.stringify(data), function (err) {
+      console.log('saving ...' + data);
+      fs.writeFile(fileName, JSON.stringify(data), function (err) {
       if (err) {
         handleError(err, -32000, callback);
         } else{
@@ -132,27 +144,58 @@ serv.addMethod('register_sensor', function(para, callback){
     } catch(err){
       handleError(err, -32000, callback);
     }
+}
+serv.addMethod('waylay_rpc', function (para, callback) {
+  console.log('recieved RPC call');
+  countTotal ++;
+  if (para.length > 0) {
+    var name = para[0];
+    runScript(name, null, callback);
+  } else {
+    handleError(new Error('Invalid params'), 32602, callback);
+  }
+});
+
+//para[0] script name, para[1] options - using template
+serv.addMethod('execute_sensor', function(para, callback){
+  console.log('execute_sensor');
+  execute_plug('sensor', para[0], para[1], callback);
+});
+
+//para[0] script name, para[1] options - using template
+serv.addMethod('execute_action', function(para, callback){
+  console.log('execute_action');
+  execute_plug('action', para[0], para[1], callback);
+});
+
+//para[0]: sensor name, para[1]: script  content, para[2] metadata
+serv.addMethod('register_sensor', function(para, callback){
+  console.log('register sensor');
+    if (para.length === 3) {
+        registerPlug('sensor', para[0], para[1], para[2], callback);
    } else {
-    handleError(new Error("Invalid params "), -32602, callback);
+    handleError(new Error('Invalid params'), -32602, callback);
+   }
+});
+
+//para[0]: sensor name, para[1]: script  content, para[2] metadata
+serv.addMethod('register_action', function(para, callback){
+  console.log('register action');
+    if (para.length === 3) {
+        registerPlug('action', para[0], para[1], para[2], callback);
+   } else {
+    handleError(new Error('Invalid params'), -32602, callback);
    }
 });
 
 serv.addMethod('sensors', function (para, callback) {
-  countTotal ++;
   console.log('get list of all sensors');
-  var error, result, array = [];
-  try{
-        dataTemp = fs.readFileSync('./sensors.json');
-        data = JSON.parse(dataTemp);
-        for(index in data){
-          console.log('found sensor ' + index);
-          data[index].medatada.name = index;
-          array.push(data[index].medatada);
-          callback(null, array);
-        }
-      } catch(err){
-        handleError(err, -32603, callback)
-      }
+  listPlugs('sensor', callback);
+});
+
+serv.addMethod('actions', function (para, callback) {
+  console.log('get list of all actions');
+  listPlugs('action', callback);
 });
 
 serv.addMethod('info', function (para, callback) {
