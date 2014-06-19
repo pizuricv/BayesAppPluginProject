@@ -28,6 +28,8 @@ val twitter4jVersion = "4.0.1"
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
+net.virtualvoid.sbt.graph.Plugin.graphSettings
+
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % slf4jVersion,
   "org.jsoup" % "jsoup" % "1.7.3",
@@ -49,7 +51,6 @@ libraryDependencies ++= Seq(
   // "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
   "junit" % "junit" % "4.11" % "test",
   "org.slf4j" % "slf4j-simple" % slf4jVersion % "test",
-  "org.slf4j" % "jcl-over-slf4j" % slf4jVersion % "test",
   // scala test integration
   "org.specs2" %% "specs2" % "2.3.12" % "test",
   //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
