@@ -100,8 +100,10 @@ function listPlugs(type, callback) {
     data = JSON.parse(dataTemp);
     for(index in data){
       console.log('found plug ' + index);
-      data[index].medatada.name = index;
-      array.push(data[index].medatada);
+      if(data[index].metadata === undefined)
+        data[index].metadata = {};
+      data[index].metadata.name = index;
+      array.push(data[index].metadata);
     }
     callback(null, array);
   } catch(err){
@@ -114,6 +116,7 @@ function registerPlug(type, name, script, metadata, callback) {
   countTotal ++;
   var error, result;
   var dataTemp, data, fileName;
+
   try {
       try{
         if(type === 'sensor')
@@ -125,12 +128,16 @@ function registerPlug(type, name, script, metadata, callback) {
         dataTemp = fs.readFileSync(fileName);
         data = JSON.parse(dataTemp);
       } catch(err){
-        console.log('Error loading configration');
+        console.log('Error loading configuration');
         data = {};
+      }
+      if (typeof metadata === 'string'){
+        console.log("metadata is a string, parse it as JSON");
+        metadata = JSON.parse(metadata);
       }
       data[name] = {
                     script: script,
-                    medatada: metadata
+                    metadata: metadata
                   };
       console.log('saving ...' + data);
       fs.writeFile(fileName, JSON.stringify(data), function (err) {
