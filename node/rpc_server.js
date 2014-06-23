@@ -40,7 +40,8 @@ function runScript (content, options, callback) {
      _script = content;
       if(options){
         console.log('compile options: ' + options);
-        options = JSON.parse(options);
+        if (typeof options === 'string')
+          options = JSON.parse(options);
         var compiled =  dust.compile(_script, 'dust');
         dust.loadSource(compiled);
         dust.render('dust', options, function(err, out) {
