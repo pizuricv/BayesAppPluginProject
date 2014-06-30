@@ -152,10 +152,10 @@ public class RawFormulaSensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType("formulaValue", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("formulaValue", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        return map;
     }
 
     @Override

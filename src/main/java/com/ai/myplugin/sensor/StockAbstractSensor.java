@@ -192,15 +192,15 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType("moving_average", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("high", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("price", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("low", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("percent", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("volume", "double", DataType.DOUBLE, true, CollectedType.INSTANT));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("moving_average", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("high", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("price", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("low", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("percent", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("volume", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return map;
     }
 
     private void parseOutput(String tag, Map<String, Double> parsing, StringTokenizer stringTokenizer) {

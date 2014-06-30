@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
@@ -190,17 +191,17 @@ public class AirQualitySensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType("airQuality", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("O3", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("CO", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("NO2", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("PM10", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("SO2", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("PM25", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("C6H6", "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("airQuality", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("O3", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("CO", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("NO2", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("PM10", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("SO2", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("PM25", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("C6H6", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return map;
     }
 
     private double getDouble(String value) {

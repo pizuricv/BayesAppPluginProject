@@ -13,6 +13,7 @@ import org.json.simple.parser.JSONParser;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -42,25 +43,21 @@ public class PingSensorTest{
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty("ADDRESS", "www.waylay.io");
         SensorResult testResult = pingSensor.execute(new SessionContext(1));
-        List<RawDataType> list = pingSensor.getRawDataTypes();
+        Map<String, RawDataType> map = pingSensor.getRawDataTypes();
         JSONObject obj = (JSONObject) new JSONParser().parse(testResult.getRawData());
-        for(RawDataType rawDataType : list){
-            if(rawDataType.getName().equals("time")){
-                assertEquals(DataType.DOUBLE, rawDataType.getDataType());
-                try{
-                    Double.parseDouble(obj.get("time").toString());
-                } catch (Exception e){
-                    fail("result should be double");
-                }
-            } else if(rawDataType.getName().equals("result")){
-                assertEquals(DataType.STRING, rawDataType.getDataType());
-                try{
-                    Double.parseDouble(obj.get("result").toString());
-                    fail("result should not be double");
-                } catch (Exception e){
+        assertEquals(map.get("time").getDataType(), DataType.DOUBLE);
+        assertEquals(map.get("result").getDataType(), DataType.STRING);
+        try{
+            Double.parseDouble(obj.get("time").toString());
+        } catch (Exception e){
+            fail("result should be double");
+        }
 
-                }
-            }
+        try{
+            Double.parseDouble(obj.get("result").toString());
+            fail("result should not be double");
+        } catch (Exception e){
+
         }
     }
 

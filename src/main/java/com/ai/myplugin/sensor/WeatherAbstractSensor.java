@@ -198,16 +198,16 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
         boolean forecast = !WEEK_FORECAST.equals(getTag());//forecast creates a list with values per day
-        list.add(new RawDataType("moving_average", "double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
-        list.add(new RawDataType("high", "double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
-        list.add(new RawDataType("price", "double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
-        list.add(new RawDataType("low", "double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
-        list.add(new RawDataType("percent", "double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
-        list.add(new RawDataType("volume", "double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
-        return list;
+        map.put("moving_average", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
+        map.put("high", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
+        map.put("price", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
+        map.put("low", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
+        map.put("percent", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
+        map.put("volume", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));
+        return map;
     }
 
     private static List<Map<String, Number>> getCumulativePredictions(ArrayList<Map<String , Number>> predictions) {

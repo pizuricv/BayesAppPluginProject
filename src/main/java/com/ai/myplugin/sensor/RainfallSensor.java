@@ -134,14 +134,14 @@ public class RainfallSensor implements SensorPlugin {
 
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType("min", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
-        list.add(new RawDataType("max", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
-        list.add(new RawDataType("avg", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
-        list.add(new RawDataType("mm_per_hour", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
-        list.add(new RawDataType("forecast_raw", "double", DataType.DOUBLE, true, CollectedType.COMPUTED));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("min", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        map.put("max", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        map.put("avg", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        map.put("mm_per_hour", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        map.put("forecast_raw", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
+        return map;
     }
 
     private JsonObject resultToJson(RainResult result){

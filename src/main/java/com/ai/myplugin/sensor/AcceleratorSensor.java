@@ -122,11 +122,11 @@ public class AcceleratorSensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType(RUNTIME_ACCELERATOR, "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType(ACCELERATOR_THRESHOLD, "value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put(RUNTIME_ACCELERATOR, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put(ACCELERATOR_THRESHOLD, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return map;
     }
 
     @Override

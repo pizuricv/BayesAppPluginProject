@@ -194,11 +194,11 @@ public class PingSensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType("result", "string", DataType.STRING, true, CollectedType.INSTANT));
-        list.add(new RawDataType("time", "seconds", DataType.DOUBLE, true, CollectedType.INSTANT));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("result", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("time", new RawDataType("seconds", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return map;
     }
 
     static class PingResult{

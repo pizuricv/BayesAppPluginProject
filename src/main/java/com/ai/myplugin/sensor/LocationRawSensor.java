@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Location", iconURL = "http://app.waylay.io/icons/location.png")
@@ -118,18 +119,18 @@ public class LocationRawSensor implements SensorPlugin {
     }
 
     @Override
-    public List<RawDataType> getRawDataTypes() {
-        List<RawDataType> list = new ArrayList<>();
-        list.add(new RawDataType("zip", "string", DataType.STRING, true, CollectedType.INSTANT));
-        list.add(new RawDataType("country", "string", DataType.STRING, true, CollectedType.INSTANT));
-        list.add(new RawDataType("city", "string", DataType.STRING, true, CollectedType.INSTANT));
-        list.add(new RawDataType("latitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("latitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("longitude", "location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        list.add(new RawDataType("street_number", "number", DataType.INTEGER, true, CollectedType.INSTANT));
-        list.add(new RawDataType("region", "string", DataType.STRING, true, CollectedType.INSTANT));
-        list.add(new RawDataType("street_name", "string", DataType.STRING, true, CollectedType.INSTANT));
-        return list;
+    public Map<String, RawDataType> getRawDataTypes() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("zip", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("city", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("longitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("street_number", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
+        map.put("region", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("street_name", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        return map;
     }
 
     @Override
