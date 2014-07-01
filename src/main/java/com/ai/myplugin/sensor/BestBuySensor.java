@@ -49,11 +49,6 @@ public class BestBuySensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String string, Object obj) {
         if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);

@@ -44,9 +44,9 @@ public class ForceSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        Map<String, PropertyType> map = new HashMap<>();
-        map.put(RUNTIME_FORCE, new PropertyType(DataType.DOUBLE, true, false));
+    public Map<String, RawDataType> getRequiredRawData() {
+        Map<String, RawDataType> map = new HashMap<>();
+        map.put(RUNTIME_FORCE, new RawDataType("m/s", DataType.DOUBLE));
         return map;
     }
 

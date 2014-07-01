@@ -47,11 +47,6 @@ public class TwitterSentimentSensor implements SensorPlugin {
         return map;
     }
 
-    @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
     public void setProperty(String string, Object obj) {
         if(getRequiredProperties().keySet().contains(string)) {
             if(string.equalsIgnoreCase(WINDOW))

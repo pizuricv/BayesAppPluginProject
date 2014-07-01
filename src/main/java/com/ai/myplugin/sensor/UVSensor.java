@@ -38,11 +38,6 @@ public class UVSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String s, Object o) {
         if(ZIPCODE.equals(s)) {
             zipCode = (String) o;

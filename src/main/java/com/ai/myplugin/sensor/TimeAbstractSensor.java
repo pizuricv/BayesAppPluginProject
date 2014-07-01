@@ -50,11 +50,6 @@ public abstract class TimeAbstractSensor implements SensorPlugin {
         return map;
     }
 
-    @Override
-    public Map<String,PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
     //@TODO implement the time zone
     @Override
     public void setProperty(String s, Object o) {

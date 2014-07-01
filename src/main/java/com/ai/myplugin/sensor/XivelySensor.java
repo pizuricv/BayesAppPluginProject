@@ -67,11 +67,6 @@ public class XivelySensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return null;
-    }
-
-    @Override
     public void setProperty(String property, Object value) {
         switch (property) {
             case PROPERTY_XIVELY_API_KEY:

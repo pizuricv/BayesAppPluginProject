@@ -43,10 +43,10 @@ public class PingSensorTest{
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty("ADDRESS", "www.waylay.io");
         SensorResult testResult = pingSensor.execute(new SessionContext(1));
-        Map<String, RawDataType> map = pingSensor.getRawDataTypes();
+        Map<String, RawDataType> map = pingSensor.getProducedRawData();
         JSONObject obj = (JSONObject) new JSONParser().parse(testResult.getRawData());
-        assertEquals(map.get("time").getDataType(), DataType.DOUBLE);
-        assertEquals(map.get("result").getDataType(), DataType.STRING);
+        assertEquals(map.get("time").getType(), DataType.DOUBLE);
+        assertEquals(map.get("result").getType(), DataType.STRING);
         try{
             Double.parseDouble(obj.get("time").toString());
         } catch (Exception e){

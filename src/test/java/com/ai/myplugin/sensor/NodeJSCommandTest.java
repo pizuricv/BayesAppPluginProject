@@ -88,7 +88,7 @@ public class NodeJSCommandTest{
                 "\n" +
                 "console.log(a);" ;
         nodeJSCommand.setProperty("javaScript", javaScript);
-        assertTrue(nodeJSCommand.getRuntimeProperties().keySet().contains("runtime_hello"));
+        assertTrue(nodeJSCommand.getRequiredRawData().keySet().contains("runtime_hello"));
         assertEquals(1, nodeJSCommand.getRequiredProperties().size());
         SessionContext testSessionContext = new SessionContext(1);
         testSessionContext.setAttribute("runtime_hello", "5");

@@ -40,11 +40,6 @@ public class ShellCmdSensor implements SensorPlugin {
         return map;
     }
 
-    @Override
-    public Map<String,PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
     //comma separated list of thresholds
     @Override
     public void setProperty(String property, Object value) {

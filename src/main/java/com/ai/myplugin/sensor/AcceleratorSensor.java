@@ -43,9 +43,9 @@ public class AcceleratorSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        Map<String, PropertyType> map = new HashMap<>();
-        map.put(RUNTIME_ACCELERATOR, new PropertyType(DataType.DOUBLE, true, false));
+    public Map<String, RawDataType> getRequiredRawData() {
+        Map<String, RawDataType> map = new HashMap<>();
+        map.put(RUNTIME_ACCELERATOR, new RawDataType("m/s^2", DataType.DOUBLE));
         return map;
     }
 
@@ -122,7 +122,7 @@ public class AcceleratorSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put(RUNTIME_ACCELERATOR, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put(ACCELERATOR_THRESHOLD, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));

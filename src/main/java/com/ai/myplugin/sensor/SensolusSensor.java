@@ -163,11 +163,6 @@ public class SensolusSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String,PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String s, Object o) {
         if(ID.equalsIgnoreCase(s)){
             id = o.toString();

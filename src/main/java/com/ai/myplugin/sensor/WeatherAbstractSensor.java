@@ -53,11 +53,6 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String property, Object value) {
         if(property.equalsIgnoreCase(CITY)) {
             city = URLEncoder.encode((String) value);
@@ -198,7 +193,7 @@ public abstract class WeatherAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         boolean forecast = !WEEK_FORECAST.equals(getTag());//forecast creates a list with values per day
         map.put("moving_average", new RawDataType("double", DataType.DOUBLE, forecast, CollectedType.INSTANT));

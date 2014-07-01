@@ -38,11 +38,6 @@ public class LocationRawSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(LOCATION)) {
             location = URLEncoder.encode((String) obj);
@@ -119,7 +114,7 @@ public class LocationRawSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put("zip", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));

@@ -53,11 +53,6 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String,PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String string, Object obj) {
         if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);
@@ -192,7 +187,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put("moving_average", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("high", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));

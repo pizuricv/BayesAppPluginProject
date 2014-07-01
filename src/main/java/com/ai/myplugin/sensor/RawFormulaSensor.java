@@ -45,11 +45,6 @@ public class RawFormulaSensor implements SensorPlugin {
         return map;
     }
 
-    @Override
-    public Map<String,PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
     public void setProperty(String string, Object obj) {
         if(getRequiredProperties().keySet().contains(string)) {
             if(string.equalsIgnoreCase(THRESHOLD)){
@@ -152,7 +147,7 @@ public class RawFormulaSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put("formulaValue", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
         return map;

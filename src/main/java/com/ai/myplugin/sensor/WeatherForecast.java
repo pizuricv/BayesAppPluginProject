@@ -38,11 +38,6 @@ public class WeatherForecast implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(CITY)) {
             city = URLEncoder.encode((String) obj);

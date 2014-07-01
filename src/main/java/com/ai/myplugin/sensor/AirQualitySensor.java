@@ -42,11 +42,6 @@ public class AirQualitySensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
-    @Override
     public void setProperty(String s, Object o) {
         if(LOCATION.equals(s))
             location = o.toString();
@@ -191,7 +186,7 @@ public class AirQualitySensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put("airQuality", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("O3", new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));

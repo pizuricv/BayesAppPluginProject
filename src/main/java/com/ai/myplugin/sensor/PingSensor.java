@@ -42,11 +42,6 @@ public class PingSensor implements SensorPlugin {
         return map;
     }
 
-    @Override
-    public Map<String,PropertyType>  getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
     public void setProperty(String string, Object obj) {
         if(string.equalsIgnoreCase(ADDRESS)) {
             propertiesMap.put(ADDRESS, obj.toString());
@@ -194,7 +189,7 @@ public class PingSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, RawDataType> getRawDataTypes() {
+    public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put("result", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("time", new RawDataType("seconds", DataType.DOUBLE, true, CollectedType.INSTANT));

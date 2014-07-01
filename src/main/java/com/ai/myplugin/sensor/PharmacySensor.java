@@ -71,10 +71,10 @@ public class PharmacySensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType> getRuntimeProperties() {
-        Map<String, PropertyType> map = new HashMap<>();
-        map.put(RUNTIME_LATITUDE, new PropertyType(DataType.STRING, true, false));
-        map.put(RUNTIME_LONGITUDE, new PropertyType(DataType.DOUBLE, true, false));
+    public Map<String, RawDataType> getRequiredRawData() {
+        Map<String, RawDataType> map = new HashMap<>();
+        map.put(RUNTIME_LATITUDE, new RawDataType("deg", DataType.DOUBLE));
+        map.put(RUNTIME_LONGITUDE, new RawDataType("deg", DataType.DOUBLE));
         return map;
     }
 

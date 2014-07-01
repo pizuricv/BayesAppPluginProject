@@ -50,13 +50,13 @@ public class JsSensor implements SensorPlugin {
     }
 
     @Override
-    public Map<String, PropertyType>  getRuntimeProperties() {
+    public Map<String, RawDataType> getRequiredRawData() {
         Set<String> set = RawDataParser.getRuntimePropertiesFromTemplate((String) getProperty("javaScript"), "runtime_");
         if(set.size() == 0)
             return new HashMap<>();
-        Map<String, PropertyType> map = new HashMap<>();
+        Map<String, RawDataType> map = new HashMap<>();
         for(int i=0 ; i< set.size(); i++)
-            map.put((String) set.toArray()[i], new PropertyType());
+            map.put((String) set.toArray()[i], new RawDataType("", DataType.STRING));
         return map;
     }
 
@@ -102,7 +102,7 @@ public class JsSensor implements SensorPlugin {
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
 
-        for(String runtimeProperty : getRuntimeProperties().keySet()){
+        for(String runtimeProperty : getRequiredRawData().keySet()){
             log.info("set property "+ runtimeProperty + ", for sensor " + getName());
             setProperty(runtimeProperty, testSessionContext.getAttribute(runtimeProperty));
         }

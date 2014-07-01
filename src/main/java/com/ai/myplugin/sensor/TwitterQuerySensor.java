@@ -48,11 +48,6 @@ public class TwitterQuerySensor implements SensorPlugin {
         return map;
     }
 
-    @Override
-    public Map<String,PropertyType> getRuntimeProperties() {
-        return new HashMap<>();
-    }
-
     public void setProperty(String string, Object obj) {
         if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);
