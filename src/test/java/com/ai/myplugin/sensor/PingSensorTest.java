@@ -45,8 +45,8 @@ public class PingSensorTest{
         SensorResult testResult = pingSensor.execute(new SessionContext(1));
         Map<String, RawDataType> map = pingSensor.getProducedRawData();
         JSONObject obj = (JSONObject) new JSONParser().parse(testResult.getRawData());
-        assertEquals(map.get("time").getType(), DataType.DOUBLE);
-        assertEquals(map.get("result").getType(), DataType.STRING);
+        assertEquals(map.get("time").getDataType(), DataType.DOUBLE);
+        assertEquals(map.get("result").getDataType(), DataType.STRING);
         try{
             Double.parseDouble(obj.get("time").toString());
         } catch (Exception e){
