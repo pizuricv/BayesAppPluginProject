@@ -113,6 +113,27 @@ function listPlugs(type, callback) {
   }
 }
 
+function getMetadataForPlug(type, plug, callback) {
+  console.log('get metadata for ' +plug);
+  countTotal ++;
+  var error, result;
+  var dataTemp, data;
+  try{
+    if(type === 'sensor')
+      dataTemp = fs.readFileSync('./sensors.json');
+    else if(type === 'action')
+      dataTemp = fs.readFileSync('./actions.json');
+    else
+      throw new Error('Invalid plug type : '  + type);
+    data = JSON.parse(dataTemp);
+    if(data[plug] === undefined)
+      throw new Error('Invalid plug name: '+ plug);
+    callback(null, data[plug].metadata);
+  } catch(err){
+    handleError(err, -32603, callback);
+  }
+}
+
 function registerPlug(type, name, script, metadata, callback) {
   console.log('register plug: ' + type + ", name: " +name);
   countTotal ++;
@@ -192,6 +213,16 @@ serv.addMethod('register_action', function(para, callback){
   console.log('register action');
     if (para.length === 3) {
         registerPlug('action', para[0], para[1], para[2], callback);
+   } else {
+    handleError(new Error('Invalid params'), -32602, callback);
+   }
+});
+
+//para[0]: sensor name, para[1]: script  content, para[2] metadata
+serv.addMethod('getMetadata', function(para, callback){
+  console.log('get metadata');
+    if (para.length === 2) {
+        getMetadataForPlug(para[0], para[1], callback);
    } else {
     handleError(new Error('Invalid params'), -32602, callback);
    }
