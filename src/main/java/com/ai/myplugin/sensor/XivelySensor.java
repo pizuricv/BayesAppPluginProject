@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,8 +64,9 @@ public class XivelySensor implements SensorPlugin {
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
-        return null;
+        return new HashMap<>();
     }
+
 
     @Override
     public void setProperty(String property, Object value) {
