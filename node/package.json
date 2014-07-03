@@ -1,0 +1,11 @@
+{
+  "name": "waylay-node",
+  "version": "0.0.1",
+  "description": "Waylay node sensor and actuator server",
+  "dependencies": {
+  	"node-json-rpc": "0.0.x",
+        "cheerio": "0.17.x",
+        "promise": "5.0.x"
+  },
+  "main": "rpc_server.js"
+}

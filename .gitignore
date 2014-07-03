@@ -13,3 +13,6 @@ bn.properties
 
 #IDE related files
 .idea
+
+#node
+node_modules
