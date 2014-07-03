@@ -1,7 +1,6 @@
 var rpc = require('node-json-rpc');
 var request = require('request');
 var cheerio = require('cheerio');
-var dust = require('dustjs-linkedin');
 var Promise = require('promise');
 var vm = require('vm');
 var fs = require('fs');
@@ -39,15 +38,10 @@ function runScript (content, options, callback) {
      // var _script = new Buffer(content, 'base64').toString('ascii');
      _script = content;
       if(options){
-        console.log('compile options: ' + options);
+        console.log('options: ' + options);
         if (typeof options === 'string')
           options = JSON.parse(options);
-        var compiled =  dust.compile(_script, 'dust');
-        dust.loadSource(compiled);
-        dust.render('dust', options, function(err, out) {
-          console.log(out);
-          _script = out;
-        });
+        sandbox.options = options;
       }
       console.log('executing script: ' + _script);
       var script = vm.createScript(_script,'myfile.vm');
