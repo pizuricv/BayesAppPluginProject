@@ -1,0 +1,19 @@
+{
+  "helloXYZ": {
+    "script" : "var error, value = { observedState: \"hello\", rawData: sandbox.options.requiredProperties.bla}; sandbox.send(null, value);",
+    "metadata" : {
+      "author" : "WWW Pizurica",
+      "description" : "HUYYYYYY",
+      "category" : "Experimental",
+      "supportedStates" : ["hello", "world"],
+      "requiredProperties" : ["hello", "bla"]
+    }
+},
+  "sensorX": {
+    "file" : "./parking_rpc.js",
+    "metadata": {
+      "author":"Veselin",
+      "supportedStates" : ["Found", "Not found"]
+    }
+  }
+}

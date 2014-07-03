@@ -74,6 +74,8 @@ function execute_plug(type, name, options, callback){
     data = JSON.parse(dataTemp);
     if(data[name] === undefined)
       throw new Error('Invalid plug name: '+ name);
+    if(data[name].file !== undefined)
+      data[name].script = fs.readFileSync(data[name].file);
     var content = data[name].script;
     runScript(content, options, callback);
   } catch(err){
