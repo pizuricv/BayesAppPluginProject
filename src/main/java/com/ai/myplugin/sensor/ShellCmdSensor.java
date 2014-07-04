@@ -17,7 +17,7 @@ import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@PluginImplementation
+//@PluginImplementation
 public class ShellCmdSensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(ShellCmdSensor.class);
