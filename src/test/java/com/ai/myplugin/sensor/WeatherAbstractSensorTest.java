@@ -98,6 +98,8 @@ public class WeatherAbstractSensorTest{
         weatherSensor.setProperty("city", "Split");
         testResult = weatherSensor.execute(null);
         System.out.println(testResult.getObserverState());
+        System.out.println(weatherSensor.getProducedRawData().toString());
+        System.out.println(testResult.getRawData());
         testResult.getRawData();
 
     }

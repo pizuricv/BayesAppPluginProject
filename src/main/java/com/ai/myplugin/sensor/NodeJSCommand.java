@@ -20,9 +20,9 @@ import org.stringtemplate.v4.ST;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-// FIXME why does this depend on twitter4j internals?
-@PluginImplementation
-@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
+// Deprecated
+//@PluginImplementation
+//@PluginHeader(version = "1.0.1", author = "Veselin", category = "Java Script", iconURL = "http://app.waylay.io/icons/lab.png")
 public class NodeJSCommand implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(NodeJSCommand.class);
