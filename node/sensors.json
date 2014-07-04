@@ -1,12 +1,17 @@
 {
   "helloXYZ": {
-    "script" : "var error, value = { observedState: \"hello\", rawData: sandbox.options.requiredProperties.bla}; sandbox.send(null, value);",
+    "script" : "var ret = Math.floor((Math.random() * 10) + 1) > 5? \"hello\" : \"world\";var error, value = { observedState: ret, rawData: {message: sandbox.options.requiredProperties.test1}}; sandbox.send(null, value);",
     "metadata" : {
       "author" : "WWW Pizurica",
-      "description" : "HUYYYYYY",
+      "description" : "Test script, pushing back the required properties as the raw result",
       "category" : "Experimental",
       "supportedStates" : ["hello", "world"],
-      "requiredProperties" : ["hello", "bla"]
+      "requiredProperties" : {
+        "test1" : {
+          "dataType" : "string"}
+        },
+      "producedRawData" : { "message" : { "dataType" : "string"} },
+      "requiredRawData" :  {"rawX" : {"dataType" : "string"}}
     }
 },
   "sensorX": {
