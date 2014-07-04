@@ -242,5 +242,5 @@ serv.addMethod('info', function (para, callback) {
 // Start the server
 serv.start(function (error) {
   if (error) throw error;
-  else console.log('Server running ...');
+  else console.log('Wayalay node js server running ...');
 });
