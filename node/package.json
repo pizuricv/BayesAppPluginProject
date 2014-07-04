@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Waylay node sensor and actuator server",
   "dependencies": {
+        "request" : "2.x.x",
   	"node-json-rpc": "0.0.x",
         "cheerio": "0.17.x",
         "promise": "5.0.x"
