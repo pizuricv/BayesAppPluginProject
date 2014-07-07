@@ -234,7 +234,7 @@ public class NodeJSCommand implements SensorPlugin {
                 "         locations: body.Basisscholen\n" +
                 "       }\n" +
                 "    };\n" +
-                "    for(location in locations.rawData.locations){\n" +
+                "    for(location in locations.rawData.location){\n" +
                 "      locations.rawData.locations[location].longitude = locations.rawData.locations[location].long;\n" +
                 "      locations.rawData.locations[location].latitude = locations.rawData.locations[location].lat;\n" +
                 "   }\n" +

@@ -8,7 +8,8 @@
       "supportedStates" : ["hello", "world"],
       "requiredProperties" : {
         "test1" : {
-          "dataType" : "string"}
+          "dataType" : "string",
+           "mandatory" : true}
         },
       "producedRawData" : { "message" : { "dataType" : "string"} , "random" : "double"},
       "requiredRawData" :  {"rawX" : {"dataType" : "string"}}

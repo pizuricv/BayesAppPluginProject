@@ -119,9 +119,8 @@ public class LocationRawSensor implements SensorPlugin {
         map.put("zip", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("city", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put("latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put("longitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("latitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("longitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("street_number", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
         map.put("region", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("street_name", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));

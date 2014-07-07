@@ -57,6 +57,17 @@ public class ParkingSensor implements SensorPlugin {
     }
 
     @Override
+    public Map<String, RawDataType> getProducedRawData() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("runtime_longitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("runtime_latitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("locations", new RawDataType("deg", DataType.DOUBLE, false, CollectedType.INSTANT));
+        map.put("bestLocation", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return map;
+    }
+
+
+    @Override
     public void setProperty(String string, Object obj) {
         if(getRequiredProperties().keySet().contains(string)) {
             propertiesMap.put(string, obj);

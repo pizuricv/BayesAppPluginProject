@@ -27,8 +27,8 @@ public class AcceleratorSensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(AcceleratorSensor.class);
 
-    static final String ACCELERATOR_THRESHOLD = "accelerator_threshold";
-    static final String RUNTIME_ACCELERATOR = "runtime_accelerator";
+    static final String ACCELERATION_THRESHOLD = "acceleration_threshold";
+    static final String RUNTIME_ACCELERATION = "runtime_acceleration";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -38,14 +38,14 @@ public class AcceleratorSensor implements SensorPlugin {
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
         Map<String, PropertyType> map = new HashMap<>();
-        map.put(ACCELERATOR_THRESHOLD, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(ACCELERATION_THRESHOLD, new PropertyType(DataType.DOUBLE, true, false));
         return map;
     }
 
     @Override
     public Map<String, RawDataType> getRequiredRawData() {
         Map<String, RawDataType> map = new HashMap<>();
-        map.put(RUNTIME_ACCELERATOR, new RawDataType("m/s^2", DataType.DOUBLE));
+        map.put(RUNTIME_ACCELERATION, new RawDataType("m/s^2", DataType.DOUBLE));
         return map;
     }
 
@@ -71,10 +71,10 @@ public class AcceleratorSensor implements SensorPlugin {
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        if(getProperty(ACCELERATOR_THRESHOLD) == null)
+        if(getProperty(ACCELERATION_THRESHOLD) == null)
             throw new RuntimeException("acceleration threshold not set");
 
-        Object rt1 = testSessionContext.getAttribute(RUNTIME_ACCELERATOR);
+        Object rt1 = testSessionContext.getAttribute(RUNTIME_ACCELERATION);
         if(rt1 == null){
             log.warn("no runtime acceleration given");
             return SensorResultBuilder.failure().build();
@@ -84,11 +84,11 @@ public class AcceleratorSensor implements SensorPlugin {
 
         JSONObject jsonObject = new JSONObject();
 
-        Double configuredThreshold = Utils.getDouble(getProperty(ACCELERATOR_THRESHOLD));
+        Double configuredThreshold = Utils.getDouble(getProperty(ACCELERATION_THRESHOLD));
 
 
-        jsonObject.put(RUNTIME_ACCELERATOR, runtime_force);
-        jsonObject.put(ACCELERATOR_THRESHOLD, configuredThreshold);
+        jsonObject.put(RUNTIME_ACCELERATION, runtime_force);
+        jsonObject.put(ACCELERATION_THRESHOLD, configuredThreshold);
 
         final String state;
         if(configuredThreshold  > runtime_force)
@@ -124,8 +124,8 @@ public class AcceleratorSensor implements SensorPlugin {
     @Override
     public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
-        map.put(RUNTIME_ACCELERATOR, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put(ACCELERATOR_THRESHOLD, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put(RUNTIME_ACCELERATION, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put(ACCELERATION_THRESHOLD, new RawDataType("value", DataType.DOUBLE, true, CollectedType.INSTANT));
         return map;
     }
 
@@ -151,13 +151,13 @@ public class AcceleratorSensor implements SensorPlugin {
 
     public static void main(String []args) throws ParseException {
         AcceleratorSensor acceleratorSensor = new AcceleratorSensor();
-        acceleratorSensor.setProperty(ACCELERATOR_THRESHOLD, 5);
+        acceleratorSensor.setProperty(ACCELERATION_THRESHOLD, 5);
         SessionContext testSessionContext = new SessionContext(1);
-        testSessionContext.setAttribute(RUNTIME_ACCELERATOR, 19.851858);
+        testSessionContext.setAttribute(RUNTIME_ACCELERATION, 19.851858);
         SensorResult testResult = acceleratorSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
-        testSessionContext.setAttribute(RUNTIME_ACCELERATOR, 1);
+        testSessionContext.setAttribute(RUNTIME_ACCELERATION, 1);
         testResult = acceleratorSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
