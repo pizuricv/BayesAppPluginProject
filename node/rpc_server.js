@@ -4,7 +4,7 @@ var cheerio = require('cheerio');
 var Promise = require('promise');
 var vm = require('vm');
 var fs = require('fs');
-sandbox = {cheerio:cheerio, request:request, console:console};
+var sandbox = {cheerio:cheerio, request:request, console:console};
 var countTotal = 0;
 var errorTotal = 0;
 
@@ -25,7 +25,7 @@ function handleError(err, code, callback) {
   console.log('error ' + err);
   var result;
   errorTotal ++;
-  error = { code: code, message: err.message};
+  var error = { code: code, message: err.message};
   callback(error, result);
 }
 
@@ -42,10 +42,13 @@ function runScript (content, options, callback) {
         if (typeof options === 'string')
           options = JSON.parse(options);
         sandbox.options = options;
+      } else {
+        if(sandbox.options !== undefined)
+          delete sandbox.options;
       }
       console.log('executing script: ' + _script);
-      var script = vm.createScript(_script,'myfile.vm');
-      script.runInThisContext(sandbox);
+      var context = vm.createContext(sandbox);
+      vm.runInContext(_script, context, 'myfile.vm');
       console.log('script executed');
       resolve();
       } catch(err){

@@ -1,6 +1,6 @@
 {
   "helloXYZ": {
-    "script" : "var data = Math.floor((Math.random() * 10) + 1) ; var ret = data > 5? \"hello\" : \"world\";var error, value = { observedState: ret, rawData: {message: sandbox.options.requiredProperties.test1, random: data}}; sandbox.send(null, value);",
+    "script" : "var data = Math.floor((Math.random() * 10) + 1) ; var ret = data > 5? \"hello\" : \"world\";var error, value = { observedState: ret, rawData: {message: options.requiredProperties.test1, random: data}}; send(null, value);",
     "metadata" : {
       "author" : "WWW Pizurica",
       "description" : "Test script, pushing back the required properties as the raw result",
