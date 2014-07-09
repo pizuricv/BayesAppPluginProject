@@ -29,7 +29,7 @@ public class ForceSensor implements SensorPlugin {
     private static final Logger log = LoggerFactory.getLogger(ForceSensor.class);
 
     static final String FORCE_THRESHOLD = "force_threshold";
-    static final String RUNTIME_FORCE = "runtime_force";
+    static final String RUNTIME_FORCE = "force";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
@@ -75,12 +75,12 @@ public class ForceSensor implements SensorPlugin {
         if(getProperty(FORCE_THRESHOLD) == null)
             throw new RuntimeException("distance not set");
 
-        Object rt1 = testSessionContext.getAttribute(RUNTIME_FORCE);
+        RawDataValue rt1 = (RawDataValue) testSessionContext.getAttribute(RUNTIME_FORCE);
         if(rt1 == null){
             log.warn("no runtime force given");
             return SensorResultBuilder.failure().build();
         }
-        Double runtime_force = Utils.getDouble(rt1);
+        Double runtime_force = Utils.getDouble(rt1.getValue());
         log.info("Current force: " + runtime_force);
 
         JSONObject jsonObject = new JSONObject();
@@ -138,7 +138,7 @@ public class ForceSensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     public static void main(String []args) throws ParseException {
