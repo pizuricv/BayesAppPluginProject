@@ -1,1 +1,0 @@
-curl --data '{"jsonrpc": "2.0", "method": "waylay_rpc", "params" : ["MSsz"], "id": 2}'  http://localhost:5080
