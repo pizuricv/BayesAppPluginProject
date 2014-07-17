@@ -25,7 +25,7 @@ import javax.mail.internet.MimeMessage;
 
 @PluginImplementation
 @PluginHeader (version = "1.0.1", author = "Veselin", category = "IOT", iconURL = "http://app.waylay.io/icons/gmail.png")
-public class MailAction implements ActuatorPlugin {
+public class    MailAction implements ActuatorPlugin {
     private static final Logger log = LoggerFactory.getLogger(MailAction.class);
 
     private static final String NAME = "Mail";
@@ -117,9 +117,11 @@ public class MailAction implements ActuatorPlugin {
             message.setSubject((String) getProperty(SUBJECT));
 
 
-            Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
             String messageString = (String) getProperty(MESSAGE);
-            messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
+            if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
+                Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
+                messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
+            }
 
             String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
             message.setText(messageString + explainReason);
