@@ -1,11 +1,12 @@
-var request = require("request"); var url = "http://datatank.gent.be/Onderwijs&Opvoeding/Basisscholen.json";
+var url = "http://datatank.gent.be/Onderwijs&Opvoeding/Basisscholen.json";
+var locations;
 request({
     url: url,
     json: true
 }, function (error, response, body) {
 
  if (!error && response.statusCode === 200) {
-    var locations = {
+    locations = {
        observedState: "Found",
        rawData : {
          locations: body.Basisscholen
@@ -16,6 +17,6 @@ request({
       locations.rawData.locations[location].latitude = locations.rawData.locations[location].lat;
       locations.rawData.locations[location].address = locations.rawData.locations[location].straat;
    }
-    console.log(JSON.stringify(locations));
+   send(null,locations);
   }
 });
