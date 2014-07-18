@@ -25,6 +25,8 @@ public class TwitterConfig {
     }
 
     private static Configuration buildTwitterConfig(){
+        // FIXME if this fails the TwitterConfig class can't be loaded, try to find a non-static singleton version that fails on first access
+        // (something like the scala lazy)
         ConfigurationBuilder cb = new ConfigurationBuilder();
         com.ai.myplugin.util.conf.Configuration config = Config.load();
         cb.setDebugEnabled(true)
