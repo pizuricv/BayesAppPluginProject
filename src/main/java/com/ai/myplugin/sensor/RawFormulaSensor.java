@@ -30,6 +30,7 @@ public class RawFormulaSensor implements SensorPlugin {
 
     private final String THRESHOLD = "threshold";
     private final String FORMULA = "formula";
+    private final String TYPE = "type";
     private final Map<String,Long> deltaMap = new ConcurrentHashMap<>();
     // if threshold is given as a list, then we will create states as the range
     private final List<String> configuredStates  = new ArrayList<>();
@@ -41,6 +42,7 @@ public class RawFormulaSensor implements SensorPlugin {
     public Map<String,PropertyType> getRequiredProperties() {
         Map<String, PropertyType> map = new HashMap<>();
         map.put(THRESHOLD, new PropertyType(DataType.DOUBLE, true, false));
+        map.put(TYPE, new PropertyType(DataType.STRING, true, false));
         map.put(FORMULA, new PropertyType(DataType.STRING, true, false));
         return map;
     }
@@ -87,6 +89,7 @@ public class RawFormulaSensor implements SensorPlugin {
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
         String parseFormula = (String) getProperty(FORMULA);
+        String parseType = getProperty(TYPE) == null? "raw" : (String) getProperty(TYPE);
         log.debug("Formula to parse: "+parseFormula);
 
         double res = 0;

@@ -120,11 +120,11 @@ public class    MailAction implements ActuatorPlugin {
             String messageString = (String) getProperty(MESSAGE);
             if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
                 Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
-                messageString = "message: "  + RawDataParser.parseTemplateFromRawMap(messageString, map);
+                messageString = RawDataParser.parseTemplateFromRawMap(messageString, map);
             }
 
-            String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
-            message.setText(messageString + explainReason);
+            //String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
+            message.setText(messageString);
             Transport.send(message);
 
         } catch (MessagingException e) {

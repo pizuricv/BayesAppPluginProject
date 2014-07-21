@@ -471,12 +471,12 @@ public class RawFormulaSensorTest extends TestCase {
 
 
 
-    public void test(){
+    public void test() throws ParseException {
 
         Long time = System.currentTimeMillis()/1000;
 
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        rawFormulaSensor.setProperty("formula", "<node1.rawData.value1> + <node2.rawData.value2>");
+        rawFormulaSensor.setProperty("formula", "<node1.value1> + <node2.value2>");
 
         rawFormulaSensor.setProperty("threshold", "4");
         SessionContext testSessionContext = new SessionContext(1);
@@ -484,13 +484,11 @@ public class RawFormulaSensorTest extends TestCase {
         JSONObject objRaw = new JSONObject();
         objRaw.put("value1", 1);
         objRaw.put("time", time);
-        objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node1", objRaw);
 
         objRaw = new JSONObject();
         objRaw.put("value2", 1);
         objRaw.put("time", time);
-        objRaw.put("rawData", objRaw.toJSONString());
         mapTestResult.put("node2", objRaw);
 
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
@@ -507,19 +505,18 @@ public class RawFormulaSensorTest extends TestCase {
         System.out.println(testResult.getRawData());
         JSONObject obj = new JSONObject();
         obj.put("time", time);
-        obj.put("rawData", testResult.getRawData());
         mapTestResult = new ConcurrentHashMap<>();
-        mapTestResult.put("GOOG", obj);
+        mapTestResult.put("GOOG", new JSONParser().parse(testResult.getRawData()));
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
-        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price> - <GOOG.rawData.moving_average>");
+        rawFormulaSensor.setProperty("formula", "<GOOG.price> - <GOOG.moving_average>");
         rawFormulaSensor.setProperty("threshold", 100);
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
 
 
-        rawFormulaSensor.setProperty("formula", "<GOOG.rawData.price>");
+        rawFormulaSensor.setProperty("formula", "<GOOG.price>");
         rawFormulaSensor.setProperty("threshold", 100);
         testResult = rawFormulaSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
