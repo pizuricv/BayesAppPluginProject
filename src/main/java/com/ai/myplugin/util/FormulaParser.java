@@ -312,8 +312,8 @@ public class FormulaParser {
                 String node2 = split3[1].trim();
                 JSONObject jsonObject1 = (JSONObject) (sessionMap.get(node1));
                 JSONObject jsonObject2 = (JSONObject) (sessionMap.get(node2));
-                jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
-                jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
+                //jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
+                //jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
                 log.info("parse distance first node=" + jsonObject1.toJSONString());
                 log.info("parse distance second node=" + jsonObject1.toJSONString());
                 Double latitude, longitude, latitude1, longitude1;

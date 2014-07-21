@@ -33,20 +33,15 @@ public class CompositeTest{
 
         SessionContext testSessionContext = new SessionContext(1);
 
-        JSONObject jsonObject1 = new JSONObject();
-
-        jsonObject1.put("rawData", locationRawSensor1.execute(null).getRawData());
         Map<String, Object> mapTestResult = new HashMap<>();
-        mapTestResult.put("node1", jsonObject1);
+        mapTestResult.put("node1", new JSONParser().parse(locationRawSensor1.execute(null).getRawData()));
 
-        JSONObject jsonObject2 = new JSONObject();
-        jsonObject2.put("rawData", locationRawSensor2.execute(null).getRawData());
-        mapTestResult.put("node2", jsonObject2);
+        mapTestResult.put("node2", new JSONParser().parse(locationRawSensor2.execute(null).getRawData()));
 
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "<node1.rawData.latitude> - <node2.rawData.latitude>";
+        String formula = "<node1.latitude> - <node2.latitude>";
         rawFormulaSensor.setProperty("formula", formula);
         rawFormulaSensor.setProperty("threshold", "5");
 
