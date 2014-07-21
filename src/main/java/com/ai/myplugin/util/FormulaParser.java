@@ -24,30 +24,24 @@ public class FormulaParser {
     private static final Logger log = LoggerFactory.getLogger(FormulaParser.class);
 
     private final Map<String, ArrayList> prevValues = new ConcurrentHashMap<>();
-    private Map<String, UtilStats> statisticalSampleValues;
-    private Map<String, SlidingWindowStatsCounter> statisticalWindowValues;
-    private Map<String, UtilStats> counterValues;
-    private Map<String, SlidingWindowStatsCounter> counterWindowValues;
-    private boolean initMaps = false;
+    private Map<String, UtilStats> statisticalSampleValues = new ConcurrentHashMap<>();;
+    private Map<String, SlidingWindowStatsCounter> statisticalWindowValues = new ConcurrentHashMap<>();;
+    private Map<String, UtilStats> counterValues = new ConcurrentHashMap<>();;
+    private Map<String, SlidingWindowStatsCounter> counterWindowValues = new ConcurrentHashMap<>();;
 
-    public synchronized void restStats(){
-        if(initMaps){
-            statisticalSampleValues = null;
-            statisticalWindowValues = null;
-            counterValues = null;
-            counterWindowValues = null;
-            initMaps = false;
-        }
+    public FormulaParser() {
+        log.info("new formula parser");
+    }
+
+    public synchronized void resetStats(){
+        log.info("reset stats");
+        statisticalSampleValues.clear();
+        statisticalWindowValues.clear();
+        counterValues.clear();
+        counterWindowValues.clear();
         prevValues.clear();
     }
 
-    private synchronized void initStats(){
-        statisticalSampleValues = new ConcurrentHashMap<>();
-        statisticalWindowValues = new ConcurrentHashMap<>();
-        counterValues = new ConcurrentHashMap<>();
-        counterWindowValues = new ConcurrentHashMap<>();
-        initMaps = true;
-    }
 
     public static double executeFormula(String formula) throws Exception {
         log.debug("execute formula " + formula);
@@ -82,7 +76,7 @@ public class FormulaParser {
         JSONObject jsonObject = new JSONObject(sessionMap);
         Set<String> addedToSampleCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
         Set<String> addedToCounter = new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
-        Set<String> addedToSampleWindowCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
+        Set<String> addedToSampleWindowCounter = new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
         Set<String> addedToCounterWindowCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
@@ -90,8 +84,6 @@ public class FormulaParser {
             if (key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") ||
                     key.startsWith("std") || key.startsWith("count")) {
                 log.info("applying stats calculation on " + key);
-                if(!initMaps)
-                    initStats();
                 String OPERATOR = key.substring(0, key.indexOf("("));
                 String stringReplacement = "";
                 int startIndex = !key.contains(",") ? key.indexOf("(") + 1 : key.lastIndexOf(",") + 1;

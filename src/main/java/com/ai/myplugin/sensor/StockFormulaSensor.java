@@ -69,7 +69,7 @@ public class StockFormulaSensor extends StockAbstractSensor {
     @Override
     public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
-        formulaParser.restStats();
+        formulaParser.resetStats();
     }
 
     @Override

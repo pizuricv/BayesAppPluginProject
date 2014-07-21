@@ -23,6 +23,7 @@ public class UtilStats {
     public double stdev = 0;
 
     public UtilStats() {
+        log.info("init stats calculation with cumulative values");
     }
 
     public UtilStats(int bufferLength) {
@@ -33,9 +34,10 @@ public class UtilStats {
 
     public synchronized void addSample(double sample){
         log.info("add sample "+sample);
+        log.info("current values are: "+toString());
         if(samples == null){
             double prevAvg = n * avg;
-            n +=1;
+            n++;
             avg = (prevAvg + sample) / n;
             if(min > sample)
                 min = sample;
@@ -47,6 +49,7 @@ public class UtilStats {
             n++;
             calculateStats(sample);
         }
+        log.info("new values are: "+toString());
     }
 
     private void calculateStats(double sample) {

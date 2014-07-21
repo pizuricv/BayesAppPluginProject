@@ -199,7 +199,7 @@ public class RawThresholdSensor implements SensorPlugin {
     @Override
     public void shutdown(SessionContext testSessionContext) {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
-        formulaParser.restStats();
+        formulaParser.resetStats();
     }
 
     public static void main(String []args){
