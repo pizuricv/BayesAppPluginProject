@@ -22,7 +22,7 @@ request({
            }
        });
        //console.log(JSON.stringify(movies));
-       var value :{
+       var value ={
         observedState: "Found",
         rawData :{
           movies: movies,
