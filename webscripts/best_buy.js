@@ -15,8 +15,8 @@ request({
             var temp = {
                shop: ($(tds.eq(0)).find('a').text().trim()),
                score: ($(tds.eq(1)).find('a').text().trim()),
-               bare_price: parseInt(b_p.substring(0, b_p.indexOf(',')).replace('€',"").replace('.',"").trim()),
-               shop_price: parseInt(s_p.substring(0, s_p.indexOf(',')).replace('€',"").replace('.',"").trim())
+               bare_price: parseInt(b_p.substring(0, b_p.indexOf(',')).replace("\u20ac","").replace('.',"").trim()),
+               shop_price: parseInt(s_p.substring(0, s_p.indexOf(',')).replace("\u20ac","").replace('.',"").trim())
              };
              if(temp.shop !== "" && temp.bare_price  && temp.shop_price)
              items.push(temp);
