@@ -192,7 +192,7 @@ public class PingSensor implements SensorPlugin {
     public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
         map.put("result", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("time", new RawDataType("seconds", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("time", new RawDataType("milliseconds", DataType.DOUBLE, true, CollectedType.INSTANT));
         return map;
     }
 
