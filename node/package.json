@@ -1,17 +1,25 @@
 {
-    "name": "waylay-node",
-    "version": "0.0.1",
-    "description": "Waylay node sensor and actuator server",
-    "private": true,
-    "dependencies": {
-        "request": "2.x.x",
-        "node-json-rpc": "0.0.x",
-        "cheerio": "0.17.x",
-        "promise": "5.0.x"
-    },
-    "main": "rpc_server.js",
-    "scripts": {
-        "prestart": "npm install",
-        "start": "node rpc_server.js"
-    }
+  "name": "waylay-node",
+  "version": "0.0.1",
+  "description": "Waylay node sensor and actuator server",
+  "private": true,
+  "dependencies": {
+    "request": "2.x.x",
+    "node-json-rpc": "0.0.x",
+    "cheerio": "0.17.x",
+    "promise": "5.0.x",
+    "winston": "0.7.3"
+  },
+  "devDependencies": {
+    "mocha": "1.21.3",
+    "chai": "1.9.1"
+  },
+  "main": "rpc_server.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node rpc_server.js",
+    "pretest": "npm install",
+    "test": "./node_modules/mocha/bin/mocha -w",
+    "testci": "mkdir test-reports;./node_modules/mocha/bin/mocha --reporter xunit > test-reports/mocha.xml"
+  }
 }
