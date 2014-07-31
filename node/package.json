@@ -21,6 +21,6 @@
     "start": "node rpc_server.js",
     "pretest": "npm install",
     "test": "./node_modules/mocha/bin/mocha -w",
-    "testci": "npm install; mkdir test-reports; ./node_modules/mocha/bin/mocha --reporter xunit > test-reports/mocha.xml"
+    "testci": "npm install; mkdir -p test-reports; ./node_modules/mocha/bin/mocha --reporter xunit > test-reports/mocha.xml"
   }
 }
