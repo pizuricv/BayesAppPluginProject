@@ -218,7 +218,7 @@ describe("server", function() {
         .then(callf("execute_sensor", ["sensorX"]))
         .then(callf("info", []))
         .then(callf("sensors", []))
-        .then(callf("register_action", ["actionX", "var error; var value;console.log('test actuator executing');send(error, value);", {author: "Veselin" } ]))
+        .then(callf("register_action", ["actionX", "var error; var value;/*console.log('test actuator executing');*/ send(error, value);", {author: "Veselin" } ]))
         .then(callf("action", ["actionX"]))
         .then(callf("info", []))
         .then(callf("actions", []))
