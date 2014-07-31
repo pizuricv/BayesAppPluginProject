@@ -5,13 +5,16 @@ var cheerio = require('cheerio');
 var Promise = require('promise');
 var vm = require('vm');
 var fs = require('fs');
+
+const ERROR_CODE_NOT_FOUND = 404;
+
 var sandbox = {cheerio:cheerio, request:request, console:console};
 var countTotal = 0;
 var errorTotal = 0;
 
 var logger = new (winston.Logger)({
   transports: [
-    new (winston.transports.Console)({ level: 'warn', colorize: 'true' }),
+    new (winston.transports.Console)({ level: 'info', colorize: 'true' }),
     new (winston.transports.File)({ filename: 'server.log' })
   ]
 });
@@ -27,10 +30,8 @@ var options = {
   strict: true
 };
 
-var serv = new rpc.Server(options);
-
 function handleError(err, code, callback) {
-  logger.error('error ' + err);
+  logger.error('error ' + JSON.stringify(err));
   var result;
   errorTotal ++;
   var error = { code: code, message: err.message};
@@ -64,7 +65,7 @@ function runScript (content, options, callback) {
     }
   });
   promise.then(function(result) {
-    console.log('Total number of requests: ' +countTotal + ', total number of errors ' + errorTotal);
+    logger.info('Total number of requests: ' + countTotal + ', total number of errors ' + errorTotal);
   }, function(err) {
     handleError(err, -32603, callback);
   });
@@ -72,20 +73,21 @@ function runScript (content, options, callback) {
 
 function fileForType(type) {
   if (type === 'sensor') {
-      return './sensors.json';
-  }else if (type === 'action') {
-      return './actions.json';
-  }else {
-      throw new Error('Invalid plug type : ' + type);
+    return './sensors.json';
+  } else if (type === 'action') {
+    return './actions.json';
+  } else {
+    throw new Error('Invalid plug type : ' + type);
   }
 }
 
-function readSyncOrEmpty(path){
-    if(fs.existsSync(path)){
-        return JSON.parse(fs.readFileSync(path));
-    }else{
-        return {};
-    }
+function readSyncOrEmpty(path) {
+  if (fs.existsSync(path)) {
+    return JSON.parse(fs.readFileSync(path));
+  } else {
+    logger.warn("Path does not exist: " + path);
+    return {};
+  }
 }
 
 function readPlugs(type) {
@@ -95,18 +97,19 @@ function readPlugs(type) {
 
 
 function execute_plug(type, name, options, callback){
-  logger.info('execute plug: ' + name);
+  logger.info('execute ' + type + ' ' + name);
   countTotal ++;
   var data;
-  try{
+  try {
     data = readPlugs(type);
-    if(data[name] === undefined) {
-      throw new Error('Invalid plug name: ' + name);
+    if (data[name] === undefined) {
+      handleError(new Error('No ' + type + ' with name: ' + name), ERROR_CODE_NOT_FOUND, callback);
+    } else {
+      if (data[name].file !== undefined)
+        data[name].script = fs.readFileSync(data[name].file);
+      var content = data[name].script;
+      runScript(content, options, callback);
     }
-    if(data[name].file !== undefined)
-      data[name].script = fs.readFileSync(data[name].file);
-    var content = data[name].script;
-    runScript(content, options, callback);
   } catch(err){
     handleError(err, -32602, callback);
   }
@@ -132,15 +135,34 @@ function listPlugs(type, callback) {
   }
 }
 
-function getMetadataForPlug(type, plug, callback) {
-  logger.info('get metadata for ' +plug);
+function getMetadataForPlug(type, name, callback) {
+  logger.info('get metadata for ' + type + ' ' + name);
   countTotal ++;
   var data;
   try{
     data = readPlugs(type);
-    if(data[plug] === undefined)
-      throw new Error('Invalid plug name: '+ plug);
-    callback(null, data[plug].metadata);
+    if(data[name] === undefined){
+      handleError(new Error('No ' + type + ' with name: '+ name), ERROR_CODE_NOT_FOUND, callback);
+    }else {
+      callback(null, data[name].metadata);
+    }
+  } catch(err){
+    handleError(err, -32603, callback);
+  }
+}
+
+function getPlug(type, name, callback) {
+  logger.info('get ' + type + ' ' + name);
+  countTotal ++;
+  var data;
+  try{
+    data = readPlugs(type);
+    if(data[name] === undefined){
+      handleError(new Error('No ' + type + ' with name: '+ name), ERROR_CODE_NOT_FOUND, callback);
+    }else {
+      // TODO handle the case where the plug is defined in a file?
+      callback(null, data[name]);
+    }
   } catch(err){
     handleError(err, -32603, callback);
   }
@@ -150,16 +172,11 @@ function getMetadataForPlug(type, plug, callback) {
 function registerPlug(type, name, script, metadata, callback) {
   logger.info('register plug: ' + type + ", name: " +name);
   var error;
-  var dataTemp, data;
+  var dataTemp;
+  var data = {};
   try {
     var fileName = fileForType(type);
-    try{
-      dataTemp = fs.readFileSync(fileName);
-      data = JSON.parse(dataTemp);
-    } catch(err){
-      logger.error('Error loading configuration');
-      data = {};
-    }
+    var data = readSyncOrEmpty(fileName);
     if (typeof metadata === 'string'){
       logger.info("metadata is a string, parse it as JSON");
       metadata = JSON.parse(metadata);
@@ -183,6 +200,8 @@ function registerPlug(type, name, script, metadata, callback) {
     handleError(err, -32000, callback);
   }
 }
+
+var serv = new rpc.Server(options);
 
 serv.addMethod('waylay_rpc', function (para, callback) {
   logger.info('recieved RPC call');
@@ -209,37 +228,57 @@ serv.addMethod('execute_action', function(para, callback){
 
 //para[0]: sensor name, para[1]: script  content, para[2] metadata
 serv.addMethod('register_sensor', function(para, callback){
-  console.log('register sensor');
-    if (para.length === 3) {
-        registerPlug('sensor', para[0], para[1], para[2], callback);
-   } else {
+  logger.info('register sensor');
+  if (para.length === 3) {
+    registerPlug('sensor', para[0], para[1], para[2], callback);
+  } else {
     handleError(new Error('Invalid params'), -32602, callback);
-   }
+  }
 });
 
 //para[0]: sensor name, para[1]: script  content, para[2] metadata
 serv.addMethod('register_action', function(para, callback){
   logger.info('register action');
-    if (para.length === 3) {
-        registerPlug('action', para[0], para[1], para[2], callback);
-   } else {
+  if (para.length === 3) {
+    registerPlug('action', para[0], para[1], para[2], callback);
+  } else {
     handleError(new Error('Invalid params'), -32602, callback);
-   }
+  }
 });
 
-//para[0]: sensor name, para[1]: script  content, para[2] metadata
+//para[0]: type, para[1] name
 serv.addMethod('getMetadata', function(para, callback){
   logger.info('get metadata');
-    if (para.length === 2) {
-        getMetadataForPlug(para[0], para[1], callback);
-   } else {
+  if (para.length === 2) {
+    getMetadataForPlug(para[0], para[1], callback);
+  } else {
     handleError(new Error('Invalid params'), -32602, callback);
-   }
+  }
+});
+
+//para[0]: name
+serv.addMethod('sensor', function(para, callback){
+  logger.info('get sensor');
+  if (para.length === 1) {
+    getPlug("sensor", para[0], callback);
+  } else {
+    handleError(new Error('Invalid params'), -32602, callback);
+  }
 });
 
 serv.addMethod('sensors', function (para, callback) {
   logger.info('get list of all sensors');
   listPlugs('sensor', callback);
+});
+
+//para[0]: name
+serv.addMethod('action', function(para, callback){
+  logger.info('get action');
+  if (para.length === 1) {
+    getPlug("action", para[0], callback);
+  } else {
+    handleError(new Error('Invalid params'), -32602, callback);
+  }
 });
 
 serv.addMethod('actions', function (para, callback) {
@@ -252,10 +291,15 @@ serv.addMethod('info', function (para, callback) {
   callback(null, {total: countTotal, errors: errorTotal});
 });
 
-// Start the server
-serv.start(function (error) {
-  if (error) throw error;
-  else logger.info('Waylay node js server running ...');
-});
+// Start the server, but only if we are the main script
+if(!module.parent){
+  serv.start(function (error) {
+    if (error) {
+      throw error;
+    } else{
+      logger.info('Waylay node js server running ...');
+    }
+  });
+}
 
-module.exports = {server: serv};
+module.exports = {server: serv, logger:logger};

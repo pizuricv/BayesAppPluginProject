@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "mocha": "1.21.3",
-    "chai": "1.9.1"
+    "chai": "1.9.1",
+    "q": "1.0.1"
   },
   "main": "rpc_server.js",
   "scripts": {
