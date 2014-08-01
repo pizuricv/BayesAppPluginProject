@@ -187,6 +187,7 @@ describe("server", function() {
           done(new Error("Should have failed"));
         })
         .catch(function (error) {
+          error.message.should.contain("Unexpected token ILLEGAL");
           done();
         })
         .done();
