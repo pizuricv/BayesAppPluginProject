@@ -179,6 +179,19 @@ describe("server", function() {
         .done();
     });
 
+    it("return the error message if execution fails", function(done){
+      var registerSensor = callf("register_sensor", ["sensorX", "send(null, 'brokenString);", {author: "Veselin"} ]);
+      registerSensor()
+        .then(callf("execute_sensor", ["sensorX"]))
+        .then(function (res) {
+          done(new Error("Should have failed"));
+        })
+        .catch(function (error) {
+          done();
+        })
+        .done();
+    });
+
     it("should not share context between invocations", function(done){
       var registerSensor = callf("register_sensor", ["sensorX", "if(typeof variable === 'undefined'){ i = 0; send(null,'defined i');}else{send('shared context!',null);}", {author: "Veselin"} ]);
       registerSensor()
