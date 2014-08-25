@@ -24,7 +24,7 @@ public class Utils {
         if(obj instanceof RawDataValue){
             RawDataType type = ((RawDataValue) obj).getType();
             //fix for issue with injection...
-            if(type.getDataType() == null){
+            if(type == null || type.getDataType() == null){
                 log.warn("type not set for parameter "+((RawDataValue) obj).getParameterName());
                 return Double.parseDouble(((RawDataValue) obj).getValue());
             }
