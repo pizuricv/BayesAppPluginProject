@@ -128,6 +128,13 @@ public class TwitterQuerySensor implements SensorPlugin {
     }
 
     @Override
+    public Map<String, RawDataType> getProducedRawData() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("tweets", new RawDataType("string", DataType.STRING, false, CollectedType.INSTANT));
+        return map;
+    }
+
+    @Override
     public String getName() {
         return NAME;
     }

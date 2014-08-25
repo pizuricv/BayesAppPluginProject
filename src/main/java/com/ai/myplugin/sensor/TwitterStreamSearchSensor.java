@@ -110,6 +110,15 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
         };
     }
 
+    @Override
+    public Map<String, RawDataType> getProducedRawData() {
+        Map<String, RawDataType> map = new ConcurrentHashMap<>();
+        map.put("positiveCounter", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
+        map.put("negativeCounter", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
+        map.put("mentions", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
+        return map;
+    }
+
     private void startCleanUpThread() {
         cleanUpService.submit(new Runnable() {
             @Override
