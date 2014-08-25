@@ -47,8 +47,8 @@ public class PharmacySensor implements SensorPlugin {
 
     static final String DISTANCE = "distance";
     static final String CITY = "city";
-    static final String RUNTIME_LATITUDE = "runtime_latitude";
-    static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    static final String RUNTIME_LATITUDE = "latitude";
+    static final String RUNTIME_LONGITUDE = "longitude";
     static final String LOCATION = "location";
     static final String LATITUDE = "latitude";
     static final String LONGITUDE = "longitude";
@@ -81,8 +81,8 @@ public class PharmacySensor implements SensorPlugin {
     @Override
     public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
-        map.put("runtime_longitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put("runtime_latitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("longitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("latitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("locations", new RawDataType("deg", DataType.DOUBLE, false, CollectedType.INSTANT));
         map.put("bestLocation", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
         return map;

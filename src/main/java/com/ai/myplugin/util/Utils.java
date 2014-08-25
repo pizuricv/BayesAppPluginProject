@@ -13,8 +13,8 @@ import java.util.Optional;
 public class Utils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
-    private static final String RUNTIME_LATITUDE = "runtime_latitude";
-    private static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    private static final String RUNTIME_LATITUDE = "latitude";
+    private static final String RUNTIME_LONGITUDE = "longitude";
 
     public static Double getDouble(Object obj){
         if(obj == null){

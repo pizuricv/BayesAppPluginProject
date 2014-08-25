@@ -29,8 +29,8 @@ public class LocationSensor implements SensorPlugin {
     static final String LONGITUDE = "longitude";
     static final String DISTANCE = "distance";
 
-    static final String RUNTIME_LATITUDE = "runtime_latitude";
-    static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    static final String RUNTIME_LATITUDE = "latitude";
+    static final String RUNTIME_LONGITUDE = "longitude";
 
     private static final String NAME = "LocationWithinDistance";
 

@@ -26,8 +26,8 @@ public class TreeSensor implements SensorPlugin {
     static final String DISTANCE = "distance";
     static final String CITY = "city";
     static final String SHOW_ALL = "showAll";
-    static final String RUNTIME_LATITUDE = "runtime_latitude";
-    static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    static final String RUNTIME_LATITUDE = "latitude";
+    static final String RUNTIME_LONGITUDE = "longitude";
     static final String LOCATION = "location";
     static final String LATITUDE = "latitude";
     static final String LONGITUDE = "longitude";

@@ -33,8 +33,8 @@ public class RainfallSensor implements SensorPlugin {
     static final String LOCATION = "location";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
-    private static final String RUNTIME_LATITUDE = "runtime_latitude";
-    private static final String RUNTIME_LONGITUDE = "runtime_longitude";
+    private static final String RUNTIME_LATITUDE = "latitude";
+    private static final String RUNTIME_LONGITUDE = "longitude";
 
     static final String STATE_CLEAR = "Clear";
     static final String STATE_RAIN = "Rain";
