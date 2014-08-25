@@ -1,5 +1,8 @@
 package com.ai.myplugin.util;
 
+import com.ai.api.DataType;
+import com.ai.api.RawDataType;
+import com.ai.api.RawDataValue;
 import com.ai.api.SessionContext;
 
 import org.slf4j.Logger;
@@ -16,6 +19,15 @@ public class Utils {
     public static Double getDouble(Object obj){
         if(obj == null){
             return null;
+        }
+
+        if(obj instanceof RawDataValue){
+            RawDataType type = ((RawDataValue) obj).getType();
+            if(type.getDataType().equals(DataType.DOUBLE) ||  type.getDataType().equals(DataType.LONG)  ||
+            type.getDataType().equals(DataType.FLOAT) || type.getDataType().equals(DataType.INTEGER)){
+                return Double.parseDouble(((RawDataValue) obj).getValue());
+            } else
+                throw new NumberFormatException("raw data not in correct format: " + ((RawDataValue) obj).getParameterName() + ", "+((RawDataValue) obj).getType());
         }
 
         Number number;
