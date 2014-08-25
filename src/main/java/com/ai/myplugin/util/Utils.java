@@ -23,7 +23,12 @@ public class Utils {
 
         if(obj instanceof RawDataValue){
             RawDataType type = ((RawDataValue) obj).getType();
-            if(type.getDataType().equals(DataType.DOUBLE) ||  type.getDataType().equals(DataType.LONG)  ||
+            //fix for issue with injection...
+            if(type.getDataType() == null){
+                log.warn("type not set for parameter "+((RawDataValue) obj).getParameterName());
+                return Double.parseDouble(((RawDataValue) obj).getValue());
+            }
+            else if(type.getDataType().equals(DataType.DOUBLE) ||  type.getDataType().equals(DataType.LONG)  ||
             type.getDataType().equals(DataType.FLOAT) || type.getDataType().equals(DataType.INTEGER)){
                 return Double.parseDouble(((RawDataValue) obj).getValue());
             } else
