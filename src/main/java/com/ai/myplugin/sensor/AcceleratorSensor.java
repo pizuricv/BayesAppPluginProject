@@ -28,7 +28,7 @@ public class AcceleratorSensor implements SensorPlugin {
     private static final Logger log = LoggerFactory.getLogger(AcceleratorSensor.class);
 
     static final String ACCELERATION_THRESHOLD = "acceleration_threshold";
-    static final String RUNTIME_ACCELERATION = "runtime_acceleration";
+    static final String RUNTIME_ACCELERATION = "acceleration";
 
     Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
 
