@@ -119,7 +119,7 @@ public class PingSensor implements SensorPlugin {
         // TODO we probably want a properly typed json object, not all strings
         JSONObject root = new JSONObject();
         root.put("result", String.valueOf(result.reachable));
-        result.time.ifPresent(time -> root.put("time", String.valueOf(time)));
+        result.time.ifPresent(time -> root.put("time", time));
         return root;
     }
 
