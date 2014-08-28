@@ -6,10 +6,12 @@ var Promise = require('promise');
 var vm = require('vm');
 var fs = require('fs');
 var unirest = require('unirest');
+var gcm = require('node-gcm');
+
 
 const ERROR_CODE_NOT_FOUND = 404;
 
-var sandbox = {cheerio:cheerio, request:request, unirest:unirest, console:console};
+var sandbox = {cheerio:cheerio, request:request, gcm: gcm, unirest:unirest, console:console};
 var countTotal = 0;
 var errorTotal = 0;
 
