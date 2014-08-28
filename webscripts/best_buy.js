@@ -2,6 +2,8 @@ var request = require('request');
 var cheerio = require('cheerio');
 var url ="http://tweakers.net/pricewatch/330271/samsung-ue46f7000-zilver.html"
 var threshold = 1000;
+//var url = options.requiredProperties.url;
+//var threshold = options.requiredProperties.threshold;
 
 request({
         "uri": url
