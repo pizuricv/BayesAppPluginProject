@@ -9,7 +9,8 @@
     "cheerio": "0.17.x",
     "promise": "5.0.x",
     "winston": "0.7.3",
-    "unirest": "~0.2.7"
+    "unirest": "~0.2.7",
+    "node-gcm": "~0.9.12"
   },
   "devDependencies": {
     "mocha": "1.21.3",
