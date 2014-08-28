@@ -17,6 +17,9 @@ function callback(error, response, body) {
         });
         var collectedTime = new Date(data.at).getTime();
         data.collectedTime = collectedTime;
+        data.current_value = parseFloat(data.current_value);
+        data.min_value = parseFloat(data.min_value);
+        data.max_value = parseFloat(data.max_value);
         value = {  
             observedState:  data.current_value > threshold ? "Above": "Bellow", 
             rawData : data  
