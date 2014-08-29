@@ -19,7 +19,7 @@ function callback(error, response, body) {
         data.max_value = parseFloat(data.max_value);
         data.threshold = threshold;
         value = {  
-            observedState:  data.current_value > threshold ? "Above": "Bellow", 
+            observedState:  data.current_value > threshold ? "Above": "Below", 
             rawData : data  
         }; 
         send(null, value);
