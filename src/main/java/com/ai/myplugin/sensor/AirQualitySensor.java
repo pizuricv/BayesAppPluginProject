@@ -133,8 +133,8 @@ public class AirQualitySensor implements SensorPlugin {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
+            // FIXME ugly, should propagate
+            log.error(e.getLocalizedMessage(), e);
         }
 
         final int finalValue = value;

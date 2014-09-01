@@ -80,7 +80,7 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
     }
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
@@ -94,15 +94,15 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
         if(server == null) {
             String errorMessage = "error in the configuration of the sensor " + getDescription();
             log.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            return new ActuatorFailedResult(errorMessage);
         }
 
         URL url;
         try {
             url = new URL(server);
         } catch (MalformedURLException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
 
         //"name=test1&target=CONNECTION&resource=FRODO&network=internet.bif&start=false&condition=0.99,0,OK&frequency=10&type=diagnosis"
@@ -135,15 +135,17 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
         try {
             query = String.format("request=%s", URLEncoder.encode(jsonObject.toJSONString(), charset));
         } catch (UnsupportedEncodingException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
+
+        // FIXME clean up this mess and use the Rest class
 
         try {
             connection = url.openConnection();
         } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
         connection.setDoOutput(true); // Triggers POST.
         connection.setRequestProperty("Accept-Charset", charset);
@@ -156,14 +158,15 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
             log.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         } finally {
-            if (output != null)
+            if (output != null) {
                 try {
                     output.flush();
                     output.close();
                 } catch (IOException e) {
-                    log.error(e.getLocalizedMessage());
-                    throw new RuntimeException(e);
+                    log.error(e.getLocalizedMessage(), e);
+                    return new ActuatorFailedResult(e.getMessage());
                 }
+            }
         }
 
         //Get Response
@@ -173,7 +176,6 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
                 is = connection.getInputStream();
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage(), e);
-                e.printStackTrace();
             }
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String line;
@@ -184,16 +186,18 @@ public class ScenarioFactoryAction implements ActuatorPlugin{
                     response.append('\r');
                 }
             } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
+                log.error(e.getLocalizedMessage(), e);
+                return new ActuatorFailedResult(e.getMessage());
             }
             try {
                 rd.close();
             } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
-                throw new RuntimeException(e);
+                log.error(e.getLocalizedMessage(), e);
+                return new ActuatorFailedResult(e.getMessage());
             }
             log.debug("response from the server: " + response.toString());
         }
+        return ActuatorSuccessResult.INSTANCE;
     }
 
     @Override

@@ -22,7 +22,7 @@ public class ActionPrintScreen implements ActuatorPlugin{
 
     private static final String DUMMY_PROPERTY = "dummy property that will be print out";
     private static final String NAME = "PrintOnStdoutXX";
-    Map<String, Object> propertiesMap = new HashMap<String, Object>();
+    Map<String, Object> propertiesMap = new HashMap<>();
 
     @Override
     public Map<String,PropertyType> getRequiredProperties() {
@@ -49,12 +49,13 @@ public class ActionPrintScreen implements ActuatorPlugin{
     }
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         if(propertiesMap.containsKey(DUMMY_PROPERTY)){
             log.debug("###########DUMMY ACTION#######" + propertiesMap.get(DUMMY_PROPERTY));
         }  else{
             log.debug("###########DUMMY ACTION#######");
         }
+        return ActuatorSuccessResult.INSTANCE;
     }
 
     @Override

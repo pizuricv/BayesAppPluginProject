@@ -115,7 +115,6 @@ public class RawThresholdSensor implements SensorPlugin {
         try {
             value = ((JSONObject) new JSONParser().parse((String) jsonObject.get("rawData"))).get(rawData);
         } catch (ParseException e) {
-            e.printStackTrace();
             log.error(e.getLocalizedMessage());
             return new EmptyTestResult();
         }

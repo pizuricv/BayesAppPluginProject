@@ -43,7 +43,7 @@ public class ScriptAction implements ActuatorPlugin {
     }
 
     @Override
-    public void action(SessionContext sessionContext) {
+    public ActuatorResult action(SessionContext sessionContext) {
         ScriptEngine scriptEngine = manager.getEngineByName(engine);
         if(scriptEngine == null){
             throw new RuntimeException("No engine available for name: " + engine);
@@ -52,8 +52,10 @@ public class ScriptAction implements ActuatorPlugin {
             Object result = scriptEngine.eval(script);
             log.info("Script result = " + result);
         } catch (ScriptException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
+        return ActuatorSuccessResult.INSTANCE;
     }
 
     @Override

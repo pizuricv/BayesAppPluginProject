@@ -111,8 +111,7 @@ public class LocationSensor implements SensorPlugin {
             currentData.put("current_street", streetName);
             currentData.put("current_street_number", number);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.warn(e.getMessage());
+            log.warn(e.getMessage(), e);
         }
 
 
@@ -123,8 +122,7 @@ public class LocationSensor implements SensorPlugin {
             try {
                 rawData = Geocoder.reverseLookupAddress(configuredLongitude, configuredLatitude);
             } catch (Exception e) {
-                e.printStackTrace();
-                log.warn(e.getMessage());
+                log.warn(e.getMessage(), e);
             }
         } else {
             try {

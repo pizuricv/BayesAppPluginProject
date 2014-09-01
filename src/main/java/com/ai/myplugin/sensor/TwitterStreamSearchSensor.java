@@ -182,8 +182,7 @@ public class TwitterStreamSearchSensor implements SensorPlugin {
             }
 
             public void onException(Exception ex) {
-                log.error(ex.getLocalizedMessage());
-                ex.printStackTrace();
+                log.error(ex.getLocalizedMessage(), ex);
             }
         };
         twitterStream.addListener(listener);

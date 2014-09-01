@@ -86,7 +86,7 @@ public class UVSensor implements SensorPlugin {
                     list.add(new UVObject((String) o.get("DATE_TIME"), (Long)o.get("ORDER"),
                             (Long) o.get("UV_VALUE")));
                 } catch (java.text.ParseException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                     return new SensorResult() {
                         @Override
                         public boolean isSuccess() {

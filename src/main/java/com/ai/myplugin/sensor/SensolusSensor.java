@@ -120,8 +120,8 @@ public class SensolusSensor implements SensorPlugin {
 
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
-                            log.error(e.getMessage());
+                            // FIXME ugly
+                            log.error(e.getMessage(), e);
                         }
 
                     }

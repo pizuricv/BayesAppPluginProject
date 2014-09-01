@@ -74,7 +74,7 @@ public class TwitterDMAction implements ActuatorPlugin {
     }
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
 
         fetchTwitterPropertiesFromFile();
@@ -99,8 +99,9 @@ public class TwitterDMAction implements ActuatorPlugin {
             log.info("Direct message successfully sent to " + message.getRecipientScreenName());
         } catch (TwitterException te) {
             log.error("Failed to send a direct message: " + te.getMessage(), te);
-            throw new RuntimeException(te);
+            return new ActuatorFailedResult(te.getMessage());
         }
+        return ActuatorSuccessResult.INSTANCE;
     }
 
     @Override
@@ -133,7 +134,6 @@ public class TwitterDMAction implements ActuatorPlugin {
             System.out.println("Direct message successfully sent to " + message.getRecipientScreenName());
             System.exit(0);
         } catch (TwitterException te) {
-            te.printStackTrace();
             System.out.println("Failed to send a direct message: " + te.getMessage());
             System.exit(-1);
         }*/

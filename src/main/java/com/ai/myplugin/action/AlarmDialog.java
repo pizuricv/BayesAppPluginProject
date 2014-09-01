@@ -41,8 +41,9 @@ public class AlarmDialog implements ActuatorPlugin {
         return alarmMessage == null || alarmMessage.startsWith("No Value")? "Alarm message": alarmMessage;
     }
 
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         JOptionPane.showMessageDialog(null, getAlarmMessage(), "Action dialog", JOptionPane.ERROR_MESSAGE);
+        return ActuatorSuccessResult.INSTANCE;
     }
 
     @Override

@@ -84,8 +84,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
             stringToParse = Rest.httpGet(urlPath).body();
             log.debug("Response for " + getProperty(STOCK) + " >>" + stringToParse);
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(), e);
             testSuccess = false;
         }
 
@@ -108,7 +107,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
                 Date parsed = format.parse(dateString);
                 log.debug("Date is " + parsed.toString());
             } catch (ParseException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
 
@@ -152,7 +151,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
                         if(res < threshold)
                             return "Below";
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage(), e);
                         return "InvalidResult";
                     }
                     return "Above";

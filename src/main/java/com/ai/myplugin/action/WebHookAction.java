@@ -63,7 +63,7 @@ public class WebHookAction implements ActuatorPlugin{
     }
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         if(hook == null){
             throw new RuntimeException("URL post hook not defined");
         }
@@ -85,13 +85,14 @@ public class WebHookAction implements ActuatorPlugin{
         jsonObject.put("resource", resource);
         jsonObject.put("id", id);
 
+        // FIXME use the Rest class instead of this connection mess
+
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) hook.openConnection();
         } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
         connection.setDoOutput(true);
         connection.setDoInput(true);
@@ -99,9 +100,8 @@ public class WebHookAction implements ActuatorPlugin{
         try {
             connection.setRequestMethod("POST");
         } catch (ProtocolException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
 
         // FIXME this is wrong, putting json in form-urlencoded
@@ -118,10 +118,10 @@ public class WebHookAction implements ActuatorPlugin{
             wr.close();
             connection.disconnect();
         } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
+        return ActuatorSuccessResult.INSTANCE;
     }
 
     @Override

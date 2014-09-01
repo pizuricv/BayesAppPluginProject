@@ -64,9 +64,10 @@ public class WeatherForecast implements SensorPlugin {
             String str = Rest.httpGet(server + city, map).body();
             log.debug(str);
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
+            // FIXME propagate
+            log.error(e.getLocalizedMessage(), e);
         }
+        // FIXME always fails???
         return SensorResultBuilder.failure().build();
     }
 

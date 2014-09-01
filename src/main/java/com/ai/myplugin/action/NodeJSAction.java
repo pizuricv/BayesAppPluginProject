@@ -32,7 +32,7 @@ public class NodeJSAction implements ActuatorPlugin{
 
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
@@ -45,7 +45,11 @@ public class NodeJSAction implements ActuatorPlugin{
 
         Node node = new Node(nodePath, workingDir);
         ExecResult result = node.executeScript(javaScriptCommand);
-        // TODO do we want to fail on non-0 exit code?
+        if(result.exitVal == 0) {
+            return ActuatorSuccessResult.INSTANCE;
+        }else{
+            return new ActuatorFailedResult("Node returned a non-zero exit code: " + result.exitVal);
+        }
     }
 
     @Override

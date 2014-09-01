@@ -232,8 +232,7 @@ public class TreeSensor implements SensorPlugin {
                 else
                     height = Utils.getDouble(obj.get("boomhoogte").toString().replace(">","").replace("m","").trim()).longValue();
             } catch (Exception e){
-                log.warn(e.getMessage());
-                e.printStackTrace();
+                log.warn(e.getMessage(), e);
             }
 
             distance = FormulaParser.calculateDistance(runtime_latitude, runtime_longitude,

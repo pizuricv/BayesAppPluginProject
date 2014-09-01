@@ -67,7 +67,7 @@ public class ScenarioControlAction implements ActuatorPlugin{
     }
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
         //if you add HTTP authentication on the BN server you need to pass these credentials
@@ -79,11 +79,11 @@ public class ScenarioControlAction implements ActuatorPlugin{
         try {
             scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
         } catch (NumberFormatException e){
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
         if(server == null || scenarioID == null) {
-            throw new RuntimeException("error in the configuration of the sensor " + getDescription());
+            return new ActuatorFailedResult("error in the configuration of the sensor " + getDescription());
         }
 
         String charset = "UTF-8";
@@ -91,7 +91,8 @@ public class ScenarioControlAction implements ActuatorPlugin{
         try {
             query = String.format("action=%s", URLEncoder.encode((String) getProperty(COMMAND), charset));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
 
         if(server.endsWith("/")){
@@ -100,9 +101,10 @@ public class ScenarioControlAction implements ActuatorPlugin{
         String url = server + "/scenarios/" + scenarioID;
         try {
             Rest.RestReponse response = Rest.httpPost(url, query, charset);
+            return ActuatorSuccessResult.INSTANCE;
         } catch (IOException e) {
-            log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage(), e);
+            return new ActuatorFailedResult(e.getMessage());
         }
     }
 

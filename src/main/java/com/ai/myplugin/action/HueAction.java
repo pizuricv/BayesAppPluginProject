@@ -1,8 +1,6 @@
 package com.ai.myplugin.action;
 
-import com.ai.api.ActuatorPlugin;
-import com.ai.api.PropertyType;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.philips.lighting.hue.sdk.*;
 import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHLight;
@@ -76,10 +74,10 @@ public class HueAction implements ActuatorPlugin {
     }
 
     @Override
-    public void action(SessionContext sessionContext) {
+    public ActuatorResult action(SessionContext sessionContext) {
         // in ace we are not connected here we might want to retry a connection?
         if(listener.isWaitingForAuthenticatonButton()){
-            throw new RuntimeException("Please click the button on the bridge to let waylay connect to it");
+            return new ActuatorFailedResult("Please click the button on the bridge to let waylay connect to it");
         }
 
         PHBridge bridge = phHueSDK.getSelectedBridge();
@@ -106,9 +104,9 @@ public class HueAction implements ActuatorPlugin {
                 //state.setOn(true);
                 bridge.updateLightState(light, state);
             });
+            return ActuatorSuccessResult.INSTANCE;
         }else{
-            // maybe we should fail with an exception here?
-            log.warn("No bridge selected");
+            return new ActuatorFailedResult("No bridge selected");
         }
     }
 

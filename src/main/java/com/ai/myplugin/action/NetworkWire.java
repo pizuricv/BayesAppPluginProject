@@ -62,7 +62,7 @@ public class NetworkWire implements ActuatorPlugin{
     }
 
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
 
 
@@ -75,12 +75,12 @@ public class NetworkWire implements ActuatorPlugin{
         try {
             scenarioID = Integer.parseInt((String) getProperty(SCENARIO_ID));
         } catch (NumberFormatException e){
-            throw new RuntimeException(e);
+            return new ActuatorFailedResult("Could not parse the " + SCENARIO_ID + " to int: " + e.getMessage());
         }
         if(server == null || scenarioID == null) {
             String errorMessage = "error in the configuration of the sensor " + getDescription();
             log.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            return new ActuatorFailedResult(errorMessage);
         }
 
         ///scenarios/{scenario}/{node}
@@ -93,7 +93,7 @@ public class NetworkWire implements ActuatorPlugin{
             query = String.format("state=%s", URLEncoder.encode(state, charset));
         } catch (UnsupportedEncodingException e) {
             log.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            return new ActuatorFailedResult(e.getMessage());
         }
         if(server.endsWith("/")){
             server = server.substring(0, server.lastIndexOf("/"));
@@ -101,8 +101,9 @@ public class NetworkWire implements ActuatorPlugin{
         String url = server+ "/scenarios/" + scenarioID + "/"+ node;
         try {
             Rest.RestReponse response = Rest.httpPost(url, query, charset);
+            return ActuatorSuccessResult.INSTANCE;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new ActuatorFailedResult(e.getMessage());
         }
     }
 

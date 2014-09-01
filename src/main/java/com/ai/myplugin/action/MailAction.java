@@ -88,12 +88,12 @@ public class    MailAction implements ActuatorPlugin {
      * @param testSessionContext context for the action
      */
     @Override
-    public void action(SessionContext testSessionContext) {
+    public ActuatorResult action(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", action type:" +this.getClass().getName());
         try {
             fetchMailPropertiesFromFile();
         } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+            return new ActuatorFailedResult(e.getMessage());
         }
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -126,9 +126,9 @@ public class    MailAction implements ActuatorPlugin {
             //String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
             message.setText(messageString);
             Transport.send(message);
-
+            return ActuatorSuccessResult.INSTANCE;
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            return new ActuatorFailedResult(e.getMessage());
         }
     }
 

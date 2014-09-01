@@ -96,8 +96,7 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
                 }
             };
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage(),e );
             return new SensorResult() {
                 @Override
                 public boolean isSuccess() {
