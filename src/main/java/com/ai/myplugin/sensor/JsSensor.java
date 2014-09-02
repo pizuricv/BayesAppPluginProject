@@ -155,7 +155,7 @@ public class JsSensor implements SensorPlugin {
             // FIXME catching throwable is a bad idea
         } catch (Throwable t) {
             log.error(t.getLocalizedMessage(), t);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(t.getMessage()).build();
         }
     }
 
@@ -181,6 +181,7 @@ public class JsSensor implements SensorPlugin {
     }
 
     public static void main(String [] args) {
+        // TODO convert to test
         JsSensor nodeJSCommand = new JsSensor();
         nodeJSCommand.getRequiredProperties();
         String javaScript =  "value = { observedState: \"hello\", rawData: \"hello2\"};sandbox.send(null, value)";
