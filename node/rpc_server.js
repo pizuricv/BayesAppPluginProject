@@ -35,33 +35,45 @@ var options = {
 };
 
 function handleError(err, code, callback) {
-  logger.error('error ' + JSON.stringify(err));
+  logger.error(err.message);
   var result;
   errorTotal ++;
   var error = { code: code, message: err.message};
+  logger.warn("error: " + JSON.stringify(error));
   callback(error, result);
 }
 
 function runScript (content, options, callback) {
   countTotal ++;
-  logger.info('runScript script: ' + content);
-  sandbox.send = callback;
+  logger.debug('runScript script: ' + content);
+  sandbox.send = function(err, returned){
+    if(err){
+      handleError(err, -32000, callback);
+    }
+    // make sure there always is a response object, otherwise the rpc server sends an empty response
+    // which does not adhere to the json-rpc specification
+    if(!returned){
+      callback(err, {});
+    }else{
+      callback(err, returned);
+    }
+  };
   var promise = new Promise(function(resolve, reject) {
     try {
-      // var _script = new Buffer(content, 'base64').toString('ascii');
-      _script = content;
+      var script = content;
       if(options){
         logger.info('options: ' + options);
-        if (typeof options === 'string')
+        if (typeof options === 'string') {
           options = JSON.parse(options);
+        }
         sandbox.options = options;
       } else {
         if(sandbox.options !== undefined)
           delete sandbox.options;
       }
-      logger.info('executing script: ' + _script);
+      logger.debug('executing script: ' + script);
       var context = vm.createContext(sandbox);
-      vm.runInContext(_script, context, 'myfile.vm');
+      vm.runInContext(script, context, 'myfile.vm');
       logger.info('script executed');
       resolve();
     } catch(err){
@@ -103,15 +115,14 @@ function readPlugs(type) {
 function execute_plug(type, name, options, callback){
   logger.info('execute ' + type + ' ' + name);
   countTotal ++;
-  var data;
   try {
-    data = readPlugs(type);
-    if (data[name] === undefined) {
+    var plugs = readPlugs(type);
+    if (plugs[name] === undefined) {
       handleError(new Error('No ' + type + ' with name: ' + name), ERROR_CODE_NOT_FOUND, callback);
     } else {
-      if (data[name].file !== undefined)
-        data[name].script = fs.readFileSync(data[name].file);
-      var content = data[name].script;
+      if (plugs[name].file !== undefined)
+        plugs[name].script = fs.readFileSync(plugs[name].file);
+      var content = plugs[name].script;
       runScript(content, options, callback);
     }
   } catch(err){
@@ -123,15 +134,14 @@ function listPlugs(type, callback) {
   logger.info('list plugs: ' + type);
   countTotal ++;
   var array = [];
-  var data;
   try{
-    data = readPlugs(type);
-    for(index in data){
+    var plugs = readPlugs(type);
+    for(index in plugs){
       logger.info('found plug ' + index);
-      if(data[index].metadata === undefined)
-        data[index].metadata = {};
-      data[index].metadata.name = index;
-      array.push(data[index].metadata);
+      if(plugs[index].metadata === undefined)
+        plugs[index].metadata = {};
+      plugs[index].metadata.name = index;
+      array.push(plugs[index].metadata);
     }
     callback(null, array);
   } catch(err){

@@ -162,7 +162,7 @@ describe("server", function() {
 
   });
 
-  describe("execute sensors", function() {
+  describe("execute_sensor should", function() {
 
     it("return the correct result", function(done){
       var registerSensor = callf("register_sensor", ["sensorX", "var value = { observedState: \"teststate\", rawData: \"testdata\"};send(null, value);", {author: "Veselin"} ]);
@@ -179,7 +179,7 @@ describe("server", function() {
         .done();
     });
 
-    it("return the error message if execution fails", function(done){
+    it("return the error message if the script has syntax errors", function(done){
       var registerSensor = callf("register_sensor", ["sensorX", "send(null, 'brokenString);", {author: "Veselin"} ]);
       registerSensor()
         .then(callf("execute_sensor", ["sensorX"]))
@@ -219,6 +219,22 @@ describe("server", function() {
       });
     });
 
+  });
+
+  describe("execute_action should", function() {
+    it("return the error message if the script sent an error back", function(done){
+      var registerSensor = callf("register_action", ["actuatorX", "send(new Error('Oops got error'));", {author: "JamesBond"} ]);
+      registerSensor()
+        .then(callf("execute_action", ["actuatorX"]))
+        .then(function (res) {
+          done(new Error("Should have failed"));
+        })
+        .catch(function (error) {
+          error.message.should.contain("Oops got error");
+          done();
+        })
+        .done();
+    });
   });
 
   describe("chain", function() {
