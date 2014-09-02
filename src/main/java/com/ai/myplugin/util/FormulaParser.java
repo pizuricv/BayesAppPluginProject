@@ -354,12 +354,26 @@ public class FormulaParser {
             else
                 return 0;
         } catch (Exception e) {
-            if (obj.equals(searchTerm))
+            //change exact match to, you can;t search any more on composite words
+            /*if (obj.equals(searchTerm))
                 return 1;
             else if(searchTerm.endsWith("%") && obj.startsWith(searchTerm.substring(0, searchTerm.lastIndexOf("%"))))
                 return 1;
             else
-                return 0;
+                return 0;  */
+            // searching for a string count
+            int count = 0;
+            String[] words = obj.split("[ \n\t\r.,;:!?(){}]");
+            for (int wordCounter = 0; wordCounter < words.length; wordCounter++) {
+                String key = words[wordCounter];
+                if (key.length() > 0) {
+                    if(searchTerm.equals(key) || (searchTerm.endsWith("%") &&
+                            key.startsWith(searchTerm.substring(0, searchTerm.lastIndexOf("%")))))
+                        count++;
+                }
+            }
+            return count;
+
         }
     }
 

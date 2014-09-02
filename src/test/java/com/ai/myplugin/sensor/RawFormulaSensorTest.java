@@ -522,4 +522,50 @@ public class RawFormulaSensorTest extends TestCase {
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }
+
+    public void testCountFormula() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "<count(hello, node1.rawData.value1)> + <node2.rawData.value2>";
+        System.out.println("formula "+formula);
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "4");
+        SessionContext SessionContext = new SessionContext(1);
+        Map<String, Object> mapSensorResult = new HashMap<>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        jsonRaw.put("value1", "hello hello world");
+        jsonRaw.put("value2", 3);
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapSensorResult.put("node1", jsonObject);
+        mapSensorResult.put("node2", jsonObject);
+        SessionContext.setAttribute(SessionParams.RAW_DATA, mapSensorResult);
+        SensorResult SensorResult = rawFormulaSensor.execute(SessionContext);
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(SensorResult.getRawData()))).get("formulaValue"));
+        System.out.println("formula = " + formula);
+        System.out.println("value = " + value);
+        assertEquals(value, 2+3.0);
+    }
+
+    public void testCountStateChangeFormula() throws ParseException {
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "<count(OK, node1.rawData.state)>";
+        System.out.println("formula "+formula);
+        rawFormulaSensor.setProperty("formula", formula);
+
+        rawFormulaSensor.setProperty("threshold", "4");
+        SessionContext SessionContext = new SessionContext(1);
+        Map<String, Object> mapSensorResult = new HashMap<>();
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonRaw = new JSONObject();
+        jsonRaw.put("state", "OK");
+        jsonObject.put("rawData", jsonRaw.toJSONString());
+        mapSensorResult.put("node1", jsonObject);
+        SessionContext.setAttribute(SessionParams.RAW_DATA, mapSensorResult);
+        SensorResult SensorResult = rawFormulaSensor.execute(SessionContext);
+        double value = Utils.getDouble(((JSONObject) (new JSONParser().parse(SensorResult.getRawData()))).get("formulaValue"));
+        System.out.println("formula = " + formula);
+        System.out.println("value = " + value);
+        assertEquals(value, 1.0);
+    }
 }

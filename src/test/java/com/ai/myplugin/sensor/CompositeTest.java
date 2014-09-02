@@ -99,7 +99,7 @@ public class CompositeTest{
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        rawFormulaSensor.setProperty("formula", "<count(Novi Sad,3,samples, node1.rawData.current_city)>");
+        rawFormulaSensor.setProperty("formula", "<count(Novi,3,samples, node1.rawData.current_city)>");
         rawFormulaSensor.setProperty("threshold", 1);
         SensorResult testResult = rawFormulaSensor.execute(testSessionContext);
         assertEquals("Equal", testResult.getObserverState());
@@ -196,7 +196,7 @@ public class CompositeTest{
         testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
 
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        rawFormulaSensor.setProperty("formula", "<count(Novi Sad,3,minutes, node3.rawData.current_city)>");
+        rawFormulaSensor.setProperty("formula", "<count(Novi,3,minutes, node3.rawData.current_city)>");
         rawFormulaSensor.setProperty("threshold", 1);
         SensorResult testResult = rawFormulaSensor.execute(testSessionContext);
         assertEquals("Equal", testResult.getObserverState());
