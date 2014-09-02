@@ -131,7 +131,7 @@ public class SensolusSensor implements SensorPlugin {
             };
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
     }
 
@@ -152,7 +152,7 @@ public class SensolusSensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     @Override

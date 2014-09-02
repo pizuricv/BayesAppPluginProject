@@ -1,8 +1,3 @@
-/**
- * Created by User: veselin
- * On Date: 20/03/14
- */
-
 package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
@@ -12,7 +7,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
-import java.util.Optional;
 
 public class RainfallSensorTest{
 
@@ -20,7 +14,10 @@ public class RainfallSensorTest{
     public void testRainfallSensorWithCity(){
         RainfallSensor rainfallSensor = new RainfallSensor();
         rainfallSensor.setProperty(RainfallSensor.LOCATION, "Gent");
+
         SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
+
+        assertTrue(testResult.errorMessage(), testResult.isSuccess());
         assertNotNull("state is null", testResult.getObserverState());
         assertNotNull("raw data is null" , testResult.getRawData());
     }
@@ -30,7 +27,10 @@ public class RainfallSensorTest{
         RainfallSensor rainfallSensor = new RainfallSensor();
         rainfallSensor.setProperty("longitude", 3.7174243);
         rainfallSensor.setProperty("latitude", 51.0543422);
+
         SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
+
+        assertTrue(testResult.errorMessage(), testResult.isSuccess());
         assertNotNull("state is null" , testResult.getObserverState());
         assertNotNull("raw data is null" , testResult.getRawData());
     }
@@ -38,8 +38,11 @@ public class RainfallSensorTest{
     @Test
     public void testRainfallSensorForException(){
         RainfallSensor rainfallSensor = new RainfallSensor();
+
         SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
+
         assertFalse(testResult.isSuccess());
+        assertEquals("error in getting the location: latitude, longitude and/or location not configured", testResult.errorMessage());
     }
 
     @Test

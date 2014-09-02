@@ -1,8 +1,3 @@
-/**
- * Created by User: veselin
- * On Date: 20/03/14
- */
-
 package com.ai.myplugin.sensor;
 
 import com.ai.api.*;
@@ -47,13 +42,13 @@ public class RainfallSensor implements SensorPlugin {
 
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
-        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
+        log.info("execute "+ getName() + ", sensor type: " + this.getClass().getName());
         LatLng latLng;
         try {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (RuntimeException e) {
-            log.error("error in getting the location: " + e.getMessage(), e);
-            return SensorResultBuilder.failure().build();
+            log.warn("error in getting the location: " + e.getMessage());
+            return SensorResultBuilder.failure("error in getting the location: " + e.getMessage()).build();
         }
 
         BuienradarService service = new BuienradarService();
@@ -62,13 +57,13 @@ public class RainfallSensor implements SensorPlugin {
             result = service.fetch(latLng);
         } catch (IOException e) {
             log.error("error in getting the rainfall data: " + e.getMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure("error in getting the rainfall data: " + e.getMessage()).build();
         }
         Optional<RainResult> finalResult = result;
         Gson gson = new GsonBuilder().create();
         return SensorResultBuilder
                 .success()
-                .withObserverState(finalResult.map(r -> evaluate(r)).orElse(null))
+                .withObserverState(finalResult.map(RainfallSensor::evaluate).orElse(null))
                 .withRawData(finalResult.map(r -> gson.toJson(resultToJson(r))).orElse(null))
                 .build();
 

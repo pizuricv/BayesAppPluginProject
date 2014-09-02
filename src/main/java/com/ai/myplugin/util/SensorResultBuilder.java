@@ -20,8 +20,8 @@ public class SensorResultBuilder {
         return new SensorResultBuildImpl(true);
     }
 
-    public static SensorResultBuild failure(){
-        return new SensorResultBuildImpl(false);
+    public static SensorResultBuild failure(String message){
+        return new SensorResultBuildImpl(false).withErrorMessage(message);
     }
 
     public static interface SensorResultBuild{
@@ -41,12 +41,18 @@ public class SensorResultBuilder {
     private static class SensorResultBuildImpl implements SensorResultBuild{
 
         private final boolean success;
+        private String errorMessage;
         private String observerState = null;
         private List<Map<String, Number>> observerStates = new ArrayList<>();
         private String rawData = null;
 
         private SensorResultBuildImpl(final boolean success){
             this.success = success;
+        }
+
+        public SensorResultBuild withErrorMessage(final String message){
+            this.errorMessage = message;
+            return this;
         }
 
         public SensorResultBuild withRawData(final String rawData){
@@ -76,27 +82,38 @@ public class SensorResultBuilder {
         }
 
         public SensorResult build(){
-            return new ImmutableSensorResult(success, observerState, Collections.unmodifiableList(observerStates), rawData);
+            return new ImmutableSensorResult(success, observerState, Collections.unmodifiableList(observerStates), rawData, errorMessage);
         }
     }
 
     private static class ImmutableSensorResult implements SensorResult{
 
         private final boolean success;
+        private final String errorMessage;
         private final String observerState;
         private final List<Map<String, Number>> observerStates;
         private final String rawData;
 
-        private ImmutableSensorResult(final boolean success, final String observerState, List<Map<String, Number>> observerStates, String rawData) {
+        private ImmutableSensorResult(
+                final boolean success,
+                final String observerState,
+                List<Map<String, Number>> observerStates,
+                String rawData,
+                final String errorMessage) {
             this.success = success;
             this.observerState = observerState;
             this.observerStates = observerStates;
             this.rawData = rawData;
+            this.errorMessage = errorMessage;
         }
 
         @Override
         public boolean isSuccess() {
             return success;
+        }
+
+        public String errorMessage() {
+            return errorMessage;
         }
 
         @Override

@@ -69,7 +69,7 @@ public class TwitterQuerySensor implements SensorPlugin {
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute " + getName() + ", sensor type:" + this.getClass().getName());
         if(getProperty(SEARCH_TERMS) == null && getProperty(FROM) == null){
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure("Need at lease " + SEARCH_TERMS + " or " + FROM + " configured").build();
         }
         String from = getProperty(FROM) == null? "" : "from:"+getProperty(FROM);
         String searchTerm = getProperty(SEARCH_TERMS) == null? "" : " "+ getProperty(SEARCH_TERMS);
@@ -93,7 +93,7 @@ public class TwitterQuerySensor implements SensorPlugin {
             result = twitter.search(query);
         } catch (TwitterException e) {
             log.error(e.getLocalizedMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
         for (Status status : result.getTweets()) {
             log.debug("@" + status.getUser().getScreenName() + ":" + status.getText());

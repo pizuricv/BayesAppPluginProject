@@ -97,56 +97,52 @@ public class RawFormulaSensor implements SensorPlugin {
             Long prev = deltaMap.get("prevTime");
             if(prev == null)   {
                 deltaMap.put("prevTime", System.currentTimeMillis()/1000);
-                return SensorResultBuilder.failure().build();
+                return SensorResultBuilder.failure("No prevTime").build();
             }
             Long currentTime = System.currentTimeMillis()/1000;
             deltaMap.put("prevTime", currentTime);
             parseFormula = parseFormula.replaceAll("dt", Long.toString(currentTime - prev));
         }
 
-        boolean success = false;
         try {
             parseFormula = formulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)) ;
             log.info("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
-            success = true;
         } catch (Exception e) {
             log.error(e.getLocalizedMessage() + ", for formula: "+ parseFormula);
+            return SensorResultBuilder.failure(e.getLocalizedMessage() + ", for formula: "+ parseFormula).build();
         }
-        if(!success) {
-            return SensorResultBuilder.failure().build();
-        }else {
-            final JSONObject jsonObject = new JSONObject();
-            jsonObject.put("formulaValue", res);
-            final double finalRes = res;
+
+        final JSONObject jsonObject = new JSONObject();
+        jsonObject.put("formulaValue", res);
+        final double finalRes = res;
 //            return SensorResultBuilder
 //                    .success()
 //                    .withObserverState(mapResult(finalRes))
 //                    .withRawData(jsonObject)
 //                    .build();
-            // FIXME mapResult(finalRes) changes over time + tests fail when changed to above code
-            return new SensorResult() {
-                @Override
-                public boolean isSuccess() {
-                    return true;
-                }
+        // FIXME mapResult(finalRes) changes over time + tests fail when changed to above code
+        return new SensorResult() {
+            @Override
+            public boolean isSuccess() {
+                return true;
+            }
 
-                @Override
-                public String getObserverState() {
-                    return mapResult(finalRes);
-                }
+            @Override
+            public String getObserverState() {
+                return mapResult(finalRes);
+            }
 
-                @Override
-                public List<Map<String, Number>> getObserverStates() {
-                    return Collections.emptyList();
-                }
+            @Override
+            public List<Map<String, Number>> getObserverStates() {
+                return Collections.emptyList();
+            }
 
-                @Override
-                public String getRawData() {
-                    return jsonObject.toJSONString();
-                }
-            };
-        }
+            @Override
+            public String getRawData() {
+                return jsonObject.toJSONString();
+            }
+        };
     }
 
     @Override

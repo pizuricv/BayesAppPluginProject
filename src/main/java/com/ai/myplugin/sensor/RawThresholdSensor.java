@@ -104,12 +104,12 @@ public class RawThresholdSensor implements SensorPlugin {
         Map<String, Object> mapTestResult = (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA);
         if(mapTestResult == null){
             log.debug("no map found");
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure("no map found").build();
         }
 
         JSONObject jsonObject = (JSONObject) (mapTestResult.get(node));
         if(jsonObject == null)
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure("object " + node + " is null").build();
         /*
         final Object value;
         try {
@@ -126,7 +126,7 @@ public class RawThresholdSensor implements SensorPlugin {
             dataD =  FormulaParser.executeFormula(parseFormula);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
 
         return new SensorResult() {
@@ -163,9 +163,9 @@ public class RawThresholdSensor implements SensorPlugin {
     @Override
     public Set<String> getSupportedStates() {
         if(definedStates.size() == 0)
-            return new HashSet(states);
+            return new HashSet<>(states);
         else
-            return new HashSet(definedStates);
+            return new HashSet<>(definedStates);
     }
 
     private String mapResult(Double result) {

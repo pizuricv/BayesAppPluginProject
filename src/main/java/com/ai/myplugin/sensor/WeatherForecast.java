@@ -58,17 +58,16 @@ public class WeatherForecast implements SensorPlugin {
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
         log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        Map<String, String> map = new ConcurrentHashMap<String, String>();
+        Map<String, String> map = new ConcurrentHashMap<>();
         map.put("X-Mashape-Authorization", APIKeys.getMashapeKey());
         try {
             String str = Rest.httpGet(server + city, map).body();
             log.debug(str);
         } catch (Exception e) {
-            // FIXME propagate
-            log.error(e.getLocalizedMessage(), e);
+            log.error(e.getMessage(), e);
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
-        // FIXME always fails???
-        return SensorResultBuilder.failure().build();
+        return SensorResultBuilder.failure("Not implemented").build();
     }
 
     @Override
@@ -78,7 +77,7 @@ public class WeatherForecast implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     @Override
@@ -93,7 +92,7 @@ public class WeatherForecast implements SensorPlugin {
 
     public static void main(String []args){
         WeatherForecast weatherForecast = new WeatherForecast();
-        weatherForecast.setProperty("city","London");
+        weatherForecast.setProperty(CITY, "London");
         weatherForecast.execute(null);
     }
 }

@@ -114,7 +114,7 @@ public class BestBuySensor implements SensorPlugin {
             }
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
         Collections.sort(products);
 
@@ -173,7 +173,7 @@ public class BestBuySensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     public static void main(String []args)  {

@@ -124,7 +124,7 @@ public class PharmacySensor implements SensorPlugin {
             latLng = Utils.getLocation(testSessionContext, getProperty(LOCATION), getProperty(LONGITUDE), getProperty(LATITUDE));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
 
         log.info("Current location: " + latLng);
@@ -144,7 +144,7 @@ public class PharmacySensor implements SensorPlugin {
             Collections.sort(myPharmacyDatas);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
 
         pathURL = "http://www.coopapotheken.be/wachtdienst_regio.php?regio="+getProperty(CITY);
@@ -183,7 +183,7 @@ public class PharmacySensor implements SensorPlugin {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
         log.info("Best spot is "+myPharmacyDatas.get(0));
         JSONArray jsonArray = new JSONArray();

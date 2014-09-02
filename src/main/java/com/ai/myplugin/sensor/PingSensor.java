@@ -90,7 +90,7 @@ public class PingSensor implements SensorPlugin {
                     return toJson(pingResult).toJSONString();
                 }
             }
-        ).orElse(SensorResultBuilder.failure().build());
+        ).orElse(SensorResultBuilder.failure("Ping failed").build());
     }
 
     /*
@@ -102,7 +102,7 @@ public class PingSensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     @Override

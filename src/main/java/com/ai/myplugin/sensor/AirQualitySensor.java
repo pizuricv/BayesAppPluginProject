@@ -99,11 +99,11 @@ public class AirQualitySensor implements SensorPlugin {
             }
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
         if(value == -1){
             log.error("location not found");
-            return SensorResultBuilder.failure().build();
+            return SensorResultBuilder.failure("location not found").build();
         }
         //try to get more detail information, don't fail if there is nothing
         try{
@@ -133,8 +133,8 @@ public class AirQualitySensor implements SensorPlugin {
                 }
             }
         } catch (Exception e) {
-            // FIXME ugly, should propagate
             log.error(e.getLocalizedMessage(), e);
+            return SensorResultBuilder.failure(e.getMessage()).build();
         }
 
         final int finalValue = value;
