@@ -571,7 +571,7 @@ public class RawFormulaSensorTest extends TestCase {
 
     public void testStateChangeFormula() throws ParseException {
         RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
-        String formula = "<sequence([OK,NOK],node1.rawData.state)>";
+        String formula = "<sequence([OK,NOK], node1.rawData.state)>";
         System.out.println("formula "+formula);
         rawFormulaSensor.setProperty("formula", formula);
 

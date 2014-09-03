@@ -99,7 +99,11 @@ public class FormulaParser {
                 int count = sequenceValues.get(realKey).isMatching() ? 1:0;
                 String OPERATOR = key.substring(0, key.indexOf("("));
                 formula = formula.replaceAll(OPERATOR + "\\(\\[", OPERATOR);
-                formula = formula.replaceAll("<" + OPERATOR + sequence + "]," +realKey + "\\)>", Integer.toString(count));
+                String del= "";
+                for(int k =0; k < 3; k++){
+                    formula = formula.replaceAll("<" + OPERATOR + sequence + "]," +del+realKey + "\\)>", Integer.toString(count));
+                    del += " ";
+                }
                 log.info("formula after replacement for the key: " + key + " = " + formula);
             }
             else if (key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") ||
@@ -234,8 +238,11 @@ public class FormulaParser {
                     log.info("added for the line " + key + ", with param " + realKey + ", stats:" + tempStats.toString());
                     //this is regexp need to get rid of ( chars
                     formula = formula.replaceAll(OPERATOR + "\\(", OPERATOR);
-                    formula = formula.replaceAll("<" + OPERATOR + stringReplacement + realKey + "\\)>", String.valueOf(tempStats.getValueForOperator(OPERATOR)));
-                    formula = formula.replaceAll("<" + OPERATOR + stringReplacement + " " + realKey + "\\)>", String.valueOf(tempStats.getValueForOperator(OPERATOR)));
+                    String del= "";
+                    for(int k =0; k < 3; k++){
+                        formula = formula.replaceAll("<" + OPERATOR + stringReplacement + del + realKey + "\\)>", String.valueOf(tempStats.getValueForOperator(OPERATOR)));
+                        del += " ";
+                    }
                     log.info("formula after replacement for the key: " + key + " = " + formula);
                 } else {
                     log.warn("stats for " + realKey + " not found");
