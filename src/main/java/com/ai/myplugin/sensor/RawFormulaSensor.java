@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @PluginImplementation
-@PluginHeader(version = "1.0.1", author = "Veselin", category = "Event Processing", iconURL = "http://app.waylay.io/icons/formula.png")
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Event Processing", iconURL = "http://app.waylay.io/icons/formula.png", documentationURL = "https://github.com/waylayio/WaylayPlugins/wiki/Plugin-API#complex-formula-computation")
 public class RawFormulaSensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(RawFormulaSensor.class);
@@ -82,7 +82,7 @@ public class RawFormulaSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Parse raw data from the context";
+        return "Parse raw data from the context using complex event processing, for more information, check the documentation";
     }
 
     @Override

@@ -95,7 +95,7 @@ public class RawThresholdSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Parse raw data from the scenario context";
+        return "Parse raw data from the context, you need to provide a parameter name and threshold";
     }
 
     @Override
