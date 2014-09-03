@@ -24,10 +24,11 @@ public class FormulaParser {
     private static final Logger log = LoggerFactory.getLogger(FormulaParser.class);
 
     private final Map<String, ArrayList> prevValues = new ConcurrentHashMap<>();
-    private Map<String, UtilStats> statisticalSampleValues = new ConcurrentHashMap<>();;
-    private Map<String, SlidingWindowStatsCounter> statisticalWindowValues = new ConcurrentHashMap<>();;
-    private Map<String, UtilStats> counterValues = new ConcurrentHashMap<>();;
-    private Map<String, SlidingWindowStatsCounter> counterWindowValues = new ConcurrentHashMap<>();;
+    private Map<String, UtilStats> statisticalSampleValues = new ConcurrentHashMap<>();
+    private Map<String, SlidingWindowStatsCounter> statisticalWindowValues = new ConcurrentHashMap<>();
+    private Map<String, UtilStats> counterValues = new ConcurrentHashMap<>();
+    private Map<String, SequenceStats> sequenceValues = new ConcurrentHashMap<>();
+    private Map<String, SlidingWindowStatsCounter> counterWindowValues = new ConcurrentHashMap<>();
 
     public FormulaParser() {
         log.info("new formula parser");
@@ -38,6 +39,7 @@ public class FormulaParser {
         statisticalSampleValues.clear();
         statisticalWindowValues.clear();
         counterValues.clear();
+        sequenceValues.clear();
         counterWindowValues.clear();
         prevValues.clear();
     }
@@ -80,8 +82,27 @@ public class FormulaParser {
         Set<String> addedToCounterWindowCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
 
         //first search for stats arguments like avg(node1.param1)
-        for(String key : keySet)
-            if (key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") ||
+        for(String key : keySet) {
+            if(key.startsWith("sequence")){
+                log.info("applying sequence calculation on " + key);
+                int startIndex = !key.contains(",") ? key.indexOf("(") + 1 : key.lastIndexOf(",") + 1;
+                String realKey = key.substring(startIndex, key.indexOf(")")).trim();
+                log.info("stats is on param " + realKey);
+                StatsType statsType = StatsType.STATS_SEQUENCE;
+                String sequence = key.substring(key.indexOf("[") +1, key.indexOf("]"));
+                log.info("sequence " + sequence);
+                if (sequenceValues.get(realKey) == null)
+                    sequenceValues.put(realKey, new SequenceStats(sequence));
+
+                Object obj = RawDataParser.findObjForKey(realKey, jsonObject);
+                sequenceValues.get(realKey).addSample(obj.toString());
+                int count = sequenceValues.get(realKey).isMatching() ? 1:0;
+                String OPERATOR = key.substring(0, key.indexOf("("));
+                formula = formula.replaceAll(OPERATOR + "\\(\\[", OPERATOR);
+                formula = formula.replaceAll("<" + OPERATOR + sequence + "]," +realKey + "\\)>", Integer.toString(count));
+                log.info("formula after replacement for the key: " + key + " = " + formula);
+            }
+            else if (key.startsWith("avg") || key.startsWith("min") || key.startsWith("max") ||
                     key.startsWith("std") || key.startsWith("count")) {
                 log.info("applying stats calculation on " + key);
                 String OPERATOR = key.substring(0, key.indexOf("("));
@@ -101,12 +122,11 @@ public class FormulaParser {
                         if (statisticalSampleValues.get(realKey) == null)
                             statisticalSampleValues.put(realKey, new UtilStats());
                     }
-                }
-                else {
+                } else {
                     //to be replace in formula template
                     stringReplacement = key.substring(key.indexOf("(") + 1, key.lastIndexOf(",") + 1);
                     String[] splits = key.split(",");
-                    if(OPERATOR.equalsIgnoreCase("count")){
+                    if (OPERATOR.equalsIgnoreCase("count")) {
                         //<count(key,node.param>
                         if (splits.length == 2) {
                             searchTerm = splits[0].substring(splits[0].indexOf("(") + 1).trim();
@@ -131,7 +151,7 @@ public class FormulaParser {
                                     counterWindowValues.put(realKey, new SlidingWindowStatsCounter(index, realKey));
                             }
                         } else
-                            throw new RuntimeException("formula for operator "+OPERATOR + " not correct");
+                            throw new RuntimeException("formula for operator " + OPERATOR + " not correct");
                     } else {
                         int index = Utils.getDouble(splits[0].substring(splits[0].indexOf("(") + 1).trim()).intValue();
                         //<avg(5, samples, node1.param1)>, <avg(5, min, node1.param1)>
@@ -160,16 +180,15 @@ public class FormulaParser {
                 if (obj != null) {
                     if (statsType.equals(StatsType.STATS_REGULAR)) {
                         if (!addedToSampleCounter.contains(realKey)) {
-                            if(obj instanceof JSONArray){
-                                log.info("parse json array for the key "+realKey);
-                                try{
-                                    for(Object o :(JSONArray)obj)
+                            if (obj instanceof JSONArray) {
+                                log.info("parse json array for the key " + realKey);
+                                try {
+                                    for (Object o : (JSONArray) obj)
                                         statisticalSampleValues.get(realKey).addSample(Utils.getDouble(o.toString()));
-                                } catch (Exception e){
-                                    log.error("couldn't parse the array for the key"+realKey);
+                                } catch (Exception e) {
+                                    log.error("couldn't parse the array for the key" + realKey);
                                 }
-                            }
-                            else
+                            } else
                                 statisticalSampleValues.get(realKey).addSample(Utils.getDouble(obj.toString()));
                             addedToSampleCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
@@ -177,26 +196,25 @@ public class FormulaParser {
                         tempStats = statisticalSampleValues.get(realKey);
                     } else if (statsType.equals(StatsType.STATS_REGULAR_WINDOW)) {
                         if (!addedToSampleWindowCounter.contains(realKey)) {
-                            if(time == -1)
+                            if (time == -1)
                                 statisticalWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(Utils.getDouble(obj.toString()));
                             else
-                                statisticalWindowValues.get(realKey).incrementAndGetStatsForMinute(time/60, Utils.getDouble(obj.toString()));
+                                statisticalWindowValues.get(realKey).incrementAndGetStatsForMinute(time / 60, Utils.getDouble(obj.toString()));
                             addedToSampleWindowCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
                         tempStats = statisticalWindowValues.get(realKey).getCurrentStats();
                     } else if (statsType.equals(StatsType.STATS_COUNTER)) {
                         if (!addedToCounter.contains(realKey)) {
-                            if(obj instanceof JSONArray){
-                                log.info("parse json array for the key "+realKey);
-                                try{
-                                    for(Object o :(JSONArray)obj)
+                            if (obj instanceof JSONArray) {
+                                log.info("parse json array for the key " + realKey);
+                                try {
+                                    for (Object o : (JSONArray) obj)
                                         counterValues.get(realKey).addSample(Utils.getDouble(o.toString()));
-                                } catch (Exception e){
-                                    log.error("couldn't parse the array for the key"+realKey);
+                                } catch (Exception e) {
+                                    log.error("couldn't parse the array for the key" + realKey);
                                 }
-                            }
-                            else
+                            } else
                                 counterValues.get(realKey).addSample(computeCounterValue(obj.toString(), searchTerm));
                             addedToSampleCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
@@ -204,10 +222,10 @@ public class FormulaParser {
                         tempStats = counterValues.get(realKey);
                     } else if (statsType.equals(StatsType.STATS_COUNTER_WINDOW)) {
                         if (!addedToCounterWindowCounter.contains(realKey)) {
-                            if(time == -1)
+                            if (time == -1)
                                 counterWindowValues.get(realKey).incrementAndGetStatsForCurrentMinute(computeCounterValue(obj.toString(), searchTerm));
                             else
-                                counterWindowValues.get(realKey).incrementAndGetStatsForMinute(time/60, computeCounterValue(obj.toString(), searchTerm));
+                                counterWindowValues.get(realKey).incrementAndGetStatsForMinute(time / 60, computeCounterValue(obj.toString(), searchTerm));
                             addedToCounterWindowCounter.add(realKey);
                             log.info("added for the line " + key + ", real key=" + realKey);
                         }
@@ -223,6 +241,7 @@ public class FormulaParser {
                     log.warn("stats for " + realKey + " not found");
                 }
             }
+        }
 
         for(String key: keySet){
             Object obj = RawDataParser.findObjForKey(key, jsonObject);
@@ -416,7 +435,7 @@ public class FormulaParser {
     }
 
     private enum StatsType {
-        STATS_COUNTER, STATS_COUNTER_WINDOW, STATS_REGULAR, STATS_REGULAR_WINDOW
+        STATS_COUNTER, STATS_COUNTER_WINDOW, STATS_REGULAR, STATS_REGULAR_WINDOW, STATS_SEQUENCE
     }
 
 }
