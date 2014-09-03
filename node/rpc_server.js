@@ -12,16 +12,16 @@ var und = require('underscore');
 
 const ERROR_CODE_NOT_FOUND = 404;
 
-var sandbox = {cheerio:cheerio, request:request, gcm: gcm, __: und, unirest:unirest, log: winston, console:console};
-var countTotal = 0;
-var errorTotal = 0;
-
 var logger = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({ level: 'info', colorize: 'true' }),
     new (winston.transports.File)({ filename: 'server.log' })
   ]
 });
+
+var sandbox = {cheerio:cheerio, request:request, gcm: gcm, __: und, unirest:unirest, logger: logger, console:console};
+var countTotal = 0;
+var errorTotal = 0;
 
 var options = {
   // int port of rpc server, default 5080 for http or 5433 for https
