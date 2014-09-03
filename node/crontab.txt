@@ -1,0 +1,1 @@
+*/1 * * * * cd /home/bnserver/node && /home/bnserver/node/watchdog.sh   >> /home/bnserver/node/watchdog.log 2>&1
