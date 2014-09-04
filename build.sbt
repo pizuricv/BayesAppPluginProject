@@ -52,10 +52,10 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % "test",
   "com.typesafe.play" %% "play-json" % "2.4.0-M1" % "test",
   // scala test integration
-  "org.specs2" %% "specs2" % "2.3.12" % "test",
+  "org.specs2" %% "specs2" % "2.4.2" % "test",
   //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
   //  "org.scalatest" %% "scalatest" % "2.1.5" % "test",
-  "com.novocode" % "junit-interface" % "0.11-RC1" % "test",
+  "com.novocode" % "junit-interface" % "0.11" % "test",
   "ch.qos.logback" % "logback-classic" % "1.1.2" % "test"
 )
 

@@ -26,6 +26,9 @@ public class StockVolumeSensor extends StockAbstractSensor {
 
     @Override
     protected String getObserverState(Map<String, Double> results, Double threshold) {
+        if(!results.containsKey(VOLUME)){
+            return null;
+        }
         if(results.get(VOLUME) < threshold)
             return STATE_BELOW;
         return STATE_ABOVE;

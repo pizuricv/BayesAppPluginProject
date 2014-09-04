@@ -7,6 +7,8 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,18 +61,19 @@ public class StockFormulaSensor extends StockAbstractSensor {
     }
 
     @Override
-    protected String getObserverState(Map<String, Double> results, Double threshold) {
+    protected String getObserverState(Map<String, Double> results, Double threshold) throws IllegalStateException{
         try {
             double res = getFormulaResult(results);
             results.put(RAW_DATA_FORMULA_VALUE, res);
             if(res < threshold) {
                 return STATE_BELOW;
+            }else{
+                return STATE_ABOVE;
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return "InvalidResult";
+            throw new IllegalStateException(e.getMessage(), e);
         }
-        return STATE_ABOVE;
+
     }
 
     private double getFormulaResult(Map<String, Double> hashMap) throws Exception{

@@ -26,6 +26,9 @@ public class StockPercentageSensor extends StockAbstractSensor {
 
     @Override
     protected String getObserverState(Map<String, Double> results, Double threshold) {
+        if(results.get(PERCENT) == null){
+            return null;
+        }
         if(results.get(PERCENT) < threshold)
             return STATE_BELOW;
         return STATE_ABOVE;

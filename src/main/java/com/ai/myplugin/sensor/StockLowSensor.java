@@ -21,6 +21,9 @@ public class StockLowSensor extends StockAbstractSensor {
 
     @Override
     protected String getObserverState(Map<String, Double> results, Double threshold) {
+        if(results.get(LOW) == null){
+            return null;
+        }
         if(results.get(LOW) < threshold)
             return STATE_BELOW;
         return STATE_ABOVE;

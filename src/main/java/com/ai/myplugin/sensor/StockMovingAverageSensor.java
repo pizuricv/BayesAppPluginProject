@@ -26,6 +26,9 @@ public class StockMovingAverageSensor extends StockAbstractSensor {
 
     @Override
     protected String getObserverState(Map<String, Double> results, Double threshold) {
+        if(results.get(MOVING_AVERAGE) == null){
+            return null;
+        }
         if(results.get(MOVING_AVERAGE) < threshold) {
             return STATE_BELOW;
         }else {

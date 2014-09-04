@@ -146,6 +146,10 @@ public class Rest {
             return body;
         }
 
+        public int status() {
+            return status;
+        }
+
         public JSONObject json() throws ParseException {
             return (JSONObject) new JSONParser().parse(body);
         }

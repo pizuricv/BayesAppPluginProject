@@ -28,7 +28,7 @@ class StockSensorsSpec extends Specification{
 
       // validate that all said to be produced raw data values are there
       val expected = stockSensor.getProducedRawData.asScala.keys.toSeq
-      raw.as[Map[String, Double]] must haveKeys(expected:_*)
+      raw.as[Map[String, Option[Double]]] must haveKeys(expected:_*)
     }
 
     "return an error result on stock property missing" in {
@@ -45,6 +45,15 @@ class StockSensorsSpec extends Specification{
       val result = stockSensor.execute(null)
       result.isSuccess must beFalse
       result.errorMessage must be equalTo """Could not parse threshold as number: For input string: "i do not parse""""
+    }
+
+    "return an error if the stock symbol is not found" in {
+      val stockSensor = dummyStockSensor()
+      stockSensor.setProperty(StockAbstractSensor.STOCK, "IDONOTEXIST")
+      stockSensor.setProperty(StockAbstractSensor.THRESHOLD, "100")
+      val result = stockSensor.execute(null)
+      result.isSuccess must beFalse
+      result.errorMessage must be equalTo "No stock with symbol IDONOTEXIST found"
     }
   }
 
@@ -87,7 +96,7 @@ class StockSensorsSpec extends Specification{
 //      println(result.getObserverState)
 //      println(result.getRawData)
 
-      Json.parse(result.getRawData).as[Map[String,Double]] must haveKey("formulaValue")
+      Json.parse(result.getRawData).as[Map[String, Option[Double]]] must haveKey("formulaValue")
     }
 
     "execute an advanced formula correctly" in {
@@ -101,9 +110,10 @@ class StockSensorsSpec extends Specification{
 //      println(result.getObserverState)
 //      println(result.getRawData)
 
-      Json.parse(result.getRawData).as[Map[String,Double]] must haveKey("formulaValue")
+      Json.parse(result.getRawData).as[Map[String, Option[Double]]] must haveKey("formulaValue")
     }
   }
+
   "The stock moving average sensor" should {
     "return a correct state" in {
       val stockSensor = new StockMovingAverageSensor
@@ -113,6 +123,23 @@ class StockSensorsSpec extends Specification{
 
       val result = stockSensor.execute(null)
       result.getObserverState must be oneOf(StockAbstractSensor.STATE_ABOVE, StockAbstractSensor.STATE_BELOW)
+    }
+  }
+
+  "The stock low sensor" should {
+
+    "be able to handle null values" in {
+      val stockSensor = new StockLowSensor
+
+      stockSensor.setProperty(StockAbstractSensor.STOCK, "MSFT")
+      stockSensor.setProperty(StockAbstractSensor.THRESHOLD, "36")
+
+      val result = stockSensor.execute(null)
+      result.isSuccess must beTrue
+
+      // might be null when there is no trading
+      // this case happens when the us stock exchange is closed and there is no low/high value
+      Option(result.getObserverState) must be oneOf(None, Some(StockAbstractSensor.STATE_ABOVE), Some(StockAbstractSensor.STATE_BELOW))
     }
   }
 }

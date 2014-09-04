@@ -28,12 +28,13 @@ public abstract class StockAbstractSensor implements SensorPlugin {
 
     static final String STATE_BELOW = "Below";
     static final String STATE_ABOVE = "Above";
+    static final String STATE_UNDEFINED = "";
 
     private static final String server = "http://finance.yahoo.com/d/quotes.csv?s=";
     private static final String [] states = {STATE_BELOW, STATE_ABOVE};
     private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
 
-    private static final Gson gson = new GsonBuilder().create();
+    private static final Gson gson = new GsonBuilder().serializeNulls().create();
 
 
     public static final String STOCK = "stock";
@@ -110,9 +111,15 @@ public abstract class StockAbstractSensor implements SensorPlugin {
 //                .collect(Collectors.toMap(e -> e.getKey().toLowerCase(), Map.Entry::getValue));
 
         //this might update the result map so needs to be called before creating the final raw data
-        String state = getObserverState(resultMap, threshold);
+        String state;
+        try {
+            state = getObserverState(resultMap, threshold);
+        }catch(IllegalStateException e){
+            log.error(e.getMessage(), e);
+            return new SensorErrorMessage(e.getMessage());
+        }
 
-        JsonObject rawData = gson.toJsonTree(resultMap).getAsJsonObject();
+        String rawData = gson.toJson(gson.toJsonTree(resultMap));
 
         return SensorResultBuilder
                 .success()
@@ -160,19 +167,19 @@ public abstract class StockAbstractSensor implements SensorPlugin {
      *
      * @param rawData
      * @param threshold
-     * @return the state
+     * @return the state or null if the sensor was not able to calculate it
      */
-    protected abstract String getObserverState(Map<String, Double> rawData, Double threshold);
+    protected abstract String getObserverState(Map<String, Double> rawData, Double threshold) throws IllegalStateException;
 
     private Map<String, Double> loadStock(String symbol) throws IOException{
 
         String urlPath = server + symbol + FORMAT_QUERY;
 
-        String responseBody = Rest.httpGet(urlPath).body();
-        log.debug("Response for " + symbol + " >>" + responseBody);
+        Rest.RestReponse response = Rest.httpGet(urlPath);
+        String responseBody = response.body();
+        log.debug("Response " + response.status() + " for " + urlPath + " >>" + responseBody);
 
-
-        final Map<String, Double> resultMap = new ConcurrentHashMap<>();
+        final Map<String, Double> resultMap = new HashMap<>();
 
         StringTokenizer stringTokenizer = new StringTokenizer(responseBody, ",");
         parseOutput(PRICE, resultMap, stringTokenizer);
@@ -181,6 +188,11 @@ public abstract class StockAbstractSensor implements SensorPlugin {
         parseOutput(LOW, resultMap, stringTokenizer);
         parseOutput(MOVING_AVERAGE, resultMap, stringTokenizer);
         parseOutput(PERCENT, resultMap, stringTokenizer);
+
+        // yahoo returns status OK with body 0.00,N/A,N/A,N/A,N/A,"N/A","N/A","12:11am"
+        if(resultMap.get(PRICE) == 0.00){
+            throw new IOException("No stock with symbol " + symbol + " found");
+        }
 
         //date:time
         SimpleDateFormat format = new SimpleDateFormat("\"MM/dd/yyyy\" \"HH:mma\"");
@@ -198,7 +210,11 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     private void parseOutput(String key, Map<String, Double> parsing, StringTokenizer stringTokenizer) throws IOException {
         try{
             String string = stringTokenizer.nextToken();
-            Double value = Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", ""));
+            String clean = string.replaceAll("%", "").replaceAll("\"", "").trim();
+            Double value = null;
+            if(!"N/A".equals(clean)){
+                value = Double.parseDouble(clean);
+            }
             log.debug(key + " = " + value);
             parsing.put(key, value);
         } catch (NumberFormatException e){
