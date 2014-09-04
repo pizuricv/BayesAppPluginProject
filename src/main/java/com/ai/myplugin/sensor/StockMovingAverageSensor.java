@@ -14,12 +14,6 @@ import java.util.*;
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Stock", iconURL = "http://app.waylay.io/icons/maverage.png")
 public class StockMovingAverageSensor extends StockAbstractSensor {
 
-
-    @Override
-    protected String getTag() {
-        return StockAbstractSensor.MOVING_AVERAGE;
-    }
-
     @Override
     protected String getSensorName() {
         return "StockMovingAverage";
@@ -30,4 +24,12 @@ public class StockMovingAverageSensor extends StockAbstractSensor {
         return "Stock exchange sensor, moving average price value";
     }
 
+    @Override
+    protected String getObserverState(Map<String, Double> results, Double threshold) {
+        if(results.get(MOVING_AVERAGE) < threshold) {
+            return STATE_BELOW;
+        }else {
+            return STATE_ABOVE;
+        }
+    }
 }

@@ -16,11 +16,6 @@ import java.util.*;
 public class StockPriceSensor extends StockAbstractSensor {
 
     @Override
-    protected String getTag() {
-        return StockAbstractSensor.PRICE;
-    }
-
-    @Override
     protected String getSensorName() {
         return "StockPrice";
     }
@@ -30,18 +25,12 @@ public class StockPriceSensor extends StockAbstractSensor {
         return "Stock exchange sensor, stock price value";
     }
 
-//    public static void main(String[] args){
-//        StockPriceSensor stockSensor = new StockPriceSensor();
-//        stockSensor.setProperty(STOCK, "MSFT");
-//        stockSensor.setProperty(THRESHOLD, "36");
-//        log.debug(Arrays.toString(stockSensor.getSupportedStates()));
-//        log.debug(stockSensor.execute(null).getObserverState());
-//
-//
-//        stockSensor.setProperty(STOCK, "GOOG");
-//        stockSensor.setProperty(THRESHOLD, "800.0");
-//        SensorResult testResult = stockSensor.execute(null);
-//        log.debug(testResult.getObserverState());
-//        log.debug(testResult.getRawData());
-//    }
+    @Override
+    protected String getObserverState(Map<String, Double> results, Double threshold) {
+        if(results.get(PRICE) < threshold) {
+            return STATE_BELOW;
+        }else {
+            return STATE_ABOVE;
+        }
+    }
 }

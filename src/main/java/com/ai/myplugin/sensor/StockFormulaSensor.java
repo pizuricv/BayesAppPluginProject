@@ -1,9 +1,6 @@
 package com.ai.myplugin.sensor;
 
-import com.ai.api.DataType;
-import com.ai.api.PluginHeader;
-import com.ai.api.PropertyType;
-import com.ai.api.SessionContext;
+import com.ai.api.*;
 import com.ai.myplugin.util.FormulaParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
@@ -24,6 +21,8 @@ public class StockFormulaSensor extends StockAbstractSensor {
 
     private static final Logger log = LoggerFactory.getLogger(StockAbstractSensor.class);
 
+    private static final String RAW_DATA_FORMULA_VALUE = "formulaValue";
+
     private final FormulaParser formulaParser = new FormulaParser();
 
     @Override
@@ -36,34 +35,10 @@ public class StockFormulaSensor extends StockAbstractSensor {
     }
 
     @Override
-    protected String getTag() {
-        return StockAbstractSensor.FORMULA;
-    }
-
-    @Override
     protected String getSensorName() {
         return "StockFormula";
     }
 
-    @Override
-    //only used by StockFormulaSensor
-    protected double getFormulaResult(ConcurrentHashMap<String, Double> hashMap) throws Exception{
-        log.debug("getFormulaResult()");
-        JSONObject object = new JSONObject();
-        JSONObject raw = new JSONObject();
-        for(Map.Entry<String, Double> entry : hashMap.entrySet())  {
-            raw.put(entry.getKey().toLowerCase(), entry.getValue());
-        }
-        object.put("rawData", raw.toJSONString());
-        Map<String, Object> map = new ConcurrentHashMap<String, Object>();
-        map.put("this", object);
-        try {
-            return FormulaParser.executeFormula(formulaParser.parseFormula((String) getProperty(FORMULA_DEFINITION), map));
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage(), e);
-            throw new Exception("Error getting Stock result " + e.getLocalizedMessage());
-        }
-    }
 
     @Override
     public void shutdown(SessionContext testSessionContext) {
@@ -76,5 +51,43 @@ public class StockFormulaSensor extends StockAbstractSensor {
         return "Stock exchange sensor, formula computation on the raw data";
     }
 
+    @Override
+    public Map<String, RawDataType> getProducedRawData() {
+        Map<String, RawDataType> produced = super.getProducedRawData();
+        produced.put(RAW_DATA_FORMULA_VALUE, new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        return produced;
+    }
 
+    @Override
+    protected String getObserverState(Map<String, Double> results, Double threshold) {
+        try {
+            double res = getFormulaResult(results);
+            results.put(RAW_DATA_FORMULA_VALUE, res);
+            if(res < threshold) {
+                return STATE_BELOW;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return "InvalidResult";
+        }
+        return STATE_ABOVE;
+    }
+
+    private double getFormulaResult(Map<String, Double> hashMap) throws Exception{
+        log.debug("getFormulaResult()");
+        JSONObject object = new JSONObject();
+        JSONObject raw = new JSONObject();
+        for(Map.Entry<String, Double> entry : hashMap.entrySet())  {
+            raw.put(entry.getKey().toLowerCase(), entry.getValue());
+        }
+        object.put("rawData", raw.toJSONString());
+        Map<String, Object> map = new HashMap<>();
+        map.put("this", object);
+        try {
+            return FormulaParser.executeFormula(formulaParser.parseFormula((String) getProperty(FORMULA_DEFINITION), map));
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage(), e);
+            throw new Exception("Error getting Stock result " + e.getLocalizedMessage());
+        }
+    }
 }

@@ -50,6 +50,7 @@ libraryDependencies ++= Seq(
   // decide if they want to enable scala scripting
   // "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
   "junit" % "junit" % "4.11" % "test",
+  "com.typesafe.play" %% "play-json" % "2.4.0-M1" % "test",
   // scala test integration
   "org.specs2" %% "specs2" % "2.3.12" % "test",
   //  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",

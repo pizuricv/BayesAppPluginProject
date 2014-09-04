@@ -8,41 +8,48 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 
 import com.ai.myplugin.util.Rest;
+import com.ai.myplugin.util.SensorResultBuilder;
 import com.ai.myplugin.util.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public abstract class StockAbstractSensor implements SensorPlugin {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    static final String STATE_BELOW = "Below";
+    static final String STATE_ABOVE = "Above";
+
+    private static final String server = "http://finance.yahoo.com/d/quotes.csv?s=";
+    private static final String [] states = {STATE_BELOW, STATE_ABOVE};
+    private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
+
+    private static final Gson gson = new GsonBuilder().create();
+
 
     public static final String STOCK = "stock";
     public static final String THRESHOLD = "threshold";
-    static final String server = "http://finance.yahoo.com/d/quotes.csv?s=";
-    Map<String, Object> propertiesMap = new ConcurrentHashMap<String, Object>();
-    String [] states = {"Below", "Above"};
-    private static final String FORMAT_QUERY = "&f=l1vhgm4p2d1t1";
-    public static final String MOVING_AVERAGE = "MOVING_AVERAGE";
-    public static final String PRICE = "PRICE";
-    public static final String VOLUME = "VOLUME";
-    public static final String PERCENT = "PERCENT";
-    public static final String HIGH = "HIGH";
-    public static final String LOW = "LOW";
-    public static final String FORMULA = "FORMULA";
+    public static final String MOVING_AVERAGE = "moving_average";
+    public static final String PRICE = "price";
+    public static final String VOLUME = "volume";
+    public static final String PERCENT = "percent";
+    public static final String HIGH = "high";
+    public static final String LOW = "low";
     public static final String FORMULA_DEFINITION = "formula";
 
-    protected abstract String getTag();
-    protected abstract String getSensorName();
 
-    //only used by StockFormulaSensor
-    protected double getFormulaResult(ConcurrentHashMap<String, Double> hashMap) throws Exception {
-        return 1;
-    }
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final Map<String, Object> propertiesMap = new ConcurrentHashMap<>();
 
     @Override
     public Map<String, PropertyType> getRequiredProperties() {
@@ -65,6 +72,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     public Object getProperty(String string) {
         return propertiesMap.get(string);
     }
+
     @Override
     public String getDescription() {
         return "Stock exchange sensor";
@@ -72,117 +80,45 @@ public abstract class StockAbstractSensor implements SensorPlugin {
 
     @Override
     public SensorResult execute(SessionContext testSessionContext) {
-        log.info("execute "+ getName() + ", sensor type:" +this.getClass().getName());
-        boolean testSuccess = true;
-        final Double threshold = Utils.getDouble(getProperty(THRESHOLD));
-        final String tag = getTag();
-        log.debug("Properties are " + getProperty(STOCK) + ", " + tag + ", "+threshold);
-        String urlPath = server+ getProperty(STOCK) + FORMAT_QUERY;
+        Object stockObject = getProperty(STOCK);
+        if(stockObject == null || stockObject.equals("")){
+            return new SensorErrorMessage(STOCK + " property missing");
+        }
 
-        String stringToParse = null;
+        Object thresholdObject = getProperty(THRESHOLD);
+        if(thresholdObject == null || thresholdObject.equals("")){
+            return new SensorErrorMessage(THRESHOLD + " property missing");
+        }
+
+        Double threshold;
         try {
-            stringToParse = Rest.httpGet(urlPath).body();
-            log.debug("Response for " + getProperty(STOCK) + " >>" + stringToParse);
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage(), e);
-            testSuccess = false;
+            threshold = Utils.getDouble(thresholdObject);
+            log.debug("Properties are " + getProperty(STOCK) + ", " + threshold);
+        }catch(NumberFormatException e){
+            return new SensorErrorMessage("Could not parse " + THRESHOLD + " as number: " + e.getMessage());
         }
 
-        final ConcurrentHashMap<String, Double> hashMap = new ConcurrentHashMap<String, Double>();
-
-        if(testSuccess){
-            StringTokenizer stringTokenizer = new StringTokenizer(stringToParse,",");
-            parseOutput(PRICE, hashMap, stringTokenizer);
-            parseOutput(VOLUME, hashMap, stringTokenizer);
-            parseOutput(HIGH, hashMap, stringTokenizer);
-            parseOutput(LOW, hashMap, stringTokenizer);
-            parseOutput(MOVING_AVERAGE, hashMap, stringTokenizer);
-            parseOutput(PERCENT, hashMap, stringTokenizer);
-
-            //date:time
-            SimpleDateFormat format =
-                    new SimpleDateFormat("\"MM/dd/yyyy\" \"HH:mma\"");
-            String dateString = stringTokenizer.nextToken() + " " + stringTokenizer.nextToken();
-            try {
-                Date parsed = format.parse(dateString);
-                log.debug("Date is " + parsed.toString());
-            } catch (ParseException e) {
-                log.error(e.getMessage(), e);
-            }
+        final Map<String, Double> resultMap;
+        try {
+            resultMap = loadStock(stockObject.toString());
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return new SensorErrorMessage(e.getMessage());
         }
 
-        final boolean finalTestSuccess = testSuccess;
-        return new SensorResult(){
-            @Override
-            public boolean isSuccess() {
-                return finalTestSuccess;
-            }
+//        Map<String, Double> withLowercasedKeys = resultMap.entrySet().stream()
+//                .collect(Collectors.toMap(e -> e.getKey().toLowerCase(), Map.Entry::getValue));
 
-            @Override
-            public String getObserverState() {
-                if("PRICE".equalsIgnoreCase(tag))  {
-                    if(hashMap.get(PRICE) < threshold)
-                        return "Below";
-                    return "Above";
-                } else if(HIGH.equalsIgnoreCase(tag))  {
-                    if(hashMap.get(HIGH) < threshold)
-                        return "Below";
-                    return "Above";
-                }  else if(LOW.equalsIgnoreCase(tag))  {
-                    if(hashMap.get(LOW) < threshold)
-                        return "Below";
-                    return "Above";
-                }  else if(VOLUME.equalsIgnoreCase(tag))  {
-                    if(hashMap.get(VOLUME) < threshold)
-                        return "Below";
-                    return "Above";
-                }  else if(MOVING_AVERAGE.equalsIgnoreCase(tag))  {
-                    if(hashMap.get(MOVING_AVERAGE) < threshold)
-                        return "Below";
-                    return "Above";
-                } else if(PERCENT.equalsIgnoreCase(tag))  {
-                    if(hashMap.get(PERCENT) < threshold)
-                        return "Below";
-                    return "Above";
-                } else if(FORMULA.equalsIgnoreCase(tag))  {
-                    try {
-                        double res = getFormulaResult(hashMap);
-                        hashMap.put("formulaValue", res);
-                        if(res < threshold)
-                            return "Below";
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        return "InvalidResult";
-                    }
-                    return "Above";
-                } else {
-                    throw new RuntimeException("Error getting Stock result");
-                }
-            }
+        //this might update the result map so needs to be called before creating the final raw data
+        String state = getObserverState(resultMap, threshold);
 
-            @Override
-            public List<Map<String, Number>> getObserverStates() {
-                return null;
-            }
+        JsonObject rawData = gson.toJsonTree(resultMap).getAsJsonObject();
 
-            @Override
-            public String getRawData() {
-                String res = "";
-                String sep = ",\r\n";
-                int i = 0;
-                int len = hashMap.size();
-                for(Map.Entry<String, Double> key : hashMap.entrySet()){
-                    if(i == len-1){
-                        sep = "\r\n";
-                    }
-                    i++;
-                    res += "\""+ key.getKey().toLowerCase() + "\" : " + key.getValue() + sep;
-                }
-                return "{" +
-                        res +
-                        "}";
-            }
-        } ;
+        return SensorResultBuilder
+                .success()
+                .withRawData(rawData)
+                .withObserverState(state)
+                .build();
     }
 
     @Override
@@ -197,17 +133,6 @@ public abstract class StockAbstractSensor implements SensorPlugin {
         return map;
     }
 
-    private void parseOutput(String tag, Map<String, Double> parsing, StringTokenizer stringTokenizer) {
-        try{
-            String string = stringTokenizer.nextToken();
-            Double value = Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", ""));
-            log.debug(tag + " = " + value);
-            parsing.put(tag, value);
-        } catch (Exception e){
-            log.error("Error parsing [" + tag + "] " + e.getMessage());
-        }
-    }
-
     @Override
     public String getName() {
         return getSensorName();
@@ -215,7 +140,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     @Override
@@ -228,4 +153,56 @@ public abstract class StockAbstractSensor implements SensorPlugin {
         log.debug("Shutdown : " + getName() + ", sensor : "+this.getClass().getName());
     }
 
+    protected abstract String getSensorName();
+
+    /**
+     * Calculates the state and can if needed add values to the raw data
+     *
+     * @param rawData
+     * @param threshold
+     * @return the state
+     */
+    protected abstract String getObserverState(Map<String, Double> rawData, Double threshold);
+
+    private Map<String, Double> loadStock(String symbol) throws IOException{
+
+        String urlPath = server + symbol + FORMAT_QUERY;
+
+        String responseBody = Rest.httpGet(urlPath).body();
+        log.debug("Response for " + symbol + " >>" + responseBody);
+
+
+        final Map<String, Double> resultMap = new ConcurrentHashMap<>();
+
+        StringTokenizer stringTokenizer = new StringTokenizer(responseBody, ",");
+        parseOutput(PRICE, resultMap, stringTokenizer);
+        parseOutput(VOLUME, resultMap, stringTokenizer);
+        parseOutput(HIGH, resultMap, stringTokenizer);
+        parseOutput(LOW, resultMap, stringTokenizer);
+        parseOutput(MOVING_AVERAGE, resultMap, stringTokenizer);
+        parseOutput(PERCENT, resultMap, stringTokenizer);
+
+        //date:time
+        SimpleDateFormat format = new SimpleDateFormat("\"MM/dd/yyyy\" \"HH:mma\"");
+        String dateString = stringTokenizer.nextToken() + " " + stringTokenizer.nextToken();
+        try {
+            Date parsed = format.parse(dateString);
+            log.debug("Date is " + parsed.toString());
+        } catch (ParseException e) {
+            throw new IOException(e);
+        }
+
+        return resultMap;
+    }
+
+    private void parseOutput(String key, Map<String, Double> parsing, StringTokenizer stringTokenizer) throws IOException {
+        try{
+            String string = stringTokenizer.nextToken();
+            Double value = Double.parseDouble(string.replaceAll("%", "").replaceAll("\"", ""));
+            log.debug(key + " = " + value);
+            parsing.put(key, value);
+        } catch (NumberFormatException e){
+            throw new IOException("Error parsing [" + key + "] " + e.getMessage(), e);
+        }
+    }
 }
