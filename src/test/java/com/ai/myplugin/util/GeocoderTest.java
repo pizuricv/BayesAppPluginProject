@@ -11,7 +11,8 @@ public class GeocoderTest {
     @Test
     public void testGetLongitudeLatitudeForAddress() throws Exception {
         LatLng gent = Geocoder.getLongitudeLatitudeForAddress("Krekelstraat 60, 9052 Gent, Belgium");
-        assertEquals(new LatLng(50.9968091, 3.6862785), gent);
+        assertEquals(50.9968091, gent.latitude, 0.01);
+        assertEquals(3.6862785, gent.longitude, 0.01);
     }
 
     @Test
