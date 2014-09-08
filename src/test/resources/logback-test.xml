@@ -16,7 +16,7 @@
     <!--<logger name="com.ai" level="INFO"/>-->
     <!--<logger name="org.eclipse.jetty" level="INFO"/>-->
     <!--<logger name="org.glassfish.jersey" level="DEBUG"/>-->
-    <logger name="com.ai" level="DEBUG" />
+    <logger name="com.ai" level="WARN" />
     <!--<logger name="com.ai.bayes.server.resources.listeners.LoggingRequestEventListener" level="INFO"/>-->
     <!--<logger name="com.ai.bayes.server.resources.listeners.WaylayApplicationEventListener" level="INFO"/>-->
 </configuration>
