@@ -118,16 +118,25 @@ public class SensorResultBuilder {
 
         @Override
         public String getObserverState() {
+            if(!success){
+                throw new UnsupportedOperationException("Observed state undefined as the sensor failed: " + errorMessage);
+            }
             return observerState;
         }
 
         @Override
         public List<Map<String, Number>> getObserverStates() {
+            if(!success){
+                throw new UnsupportedOperationException("Observed states undefined as the sensor failed: " + errorMessage);
+            }
             return observerStates;
         }
 
         @Override
         public String getRawData() {
+            if(!success){
+                throw new UnsupportedOperationException("Raw data undefined as the sensor failed: " + errorMessage);
+            }
             return rawData;
         }
     }
