@@ -1,4 +1,3 @@
-//var twilio = require('twilio');
 var TWILIO_ACCOUNT_SID = options.requiredProperties.TWILIO_ACCOUNT_SID;
 var TWILIO_AUTH_TOKEN = options.requiredProperties.TWILIO_AUTH_TOKEN;
 var message = options.requiredProperties.message;
@@ -19,7 +18,9 @@ client.sms.messages.create({
         logger.info(message.sid);
         logger.info('Message sent on:');
         logger.info(message.dateCreated);
+        send();
     } else {
         logger.error('Oops! There was an error.');
+        send(new Error("Oops! There was an error."));
     }
 });
