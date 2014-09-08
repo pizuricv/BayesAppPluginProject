@@ -11,7 +11,8 @@
     "winston": "0.7.3",
     "unirest": "~0.2.7",
     "node-gcm": "~0.9.12",
-    "underscore": "~1.7.0"
+    "underscore": "~1.7.0",
+    "twilio": "~1.7.0"
   },
   "devDependencies": {
     "mocha": "1.21.3",

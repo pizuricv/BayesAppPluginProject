@@ -8,6 +8,7 @@ var fs = require('fs');
 var unirest = require('unirest');
 var gcm = require('node-gcm');
 var und = require('underscore');
+var twilio = require('twilio');
 
 
 const ERROR_CODE_NOT_FOUND = 404;
@@ -19,7 +20,7 @@ var logger = new (winston.Logger)({
   ]
 });
 
-var sandbox = {cheerio:cheerio, request:request, gcm: gcm, __: und, unirest:unirest, logger: logger, console:console};
+var sandbox = {cheerio:cheerio, request:request, gcm: gcm, __: und, unirest:unirest, logger: logger, twilio:twilio, console:console};
 var countTotal = 0;
 var errorTotal = 0;
 
