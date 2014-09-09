@@ -17,7 +17,7 @@ import org.stringtemplate.v4.ST;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+// TODO add support for gson or even better remove the simple json
 public class RawDataParser {
     private static final Logger log = LoggerFactory.getLogger(RawDataParser.class);
 

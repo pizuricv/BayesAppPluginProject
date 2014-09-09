@@ -8,9 +8,12 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.Geocoder;
 import com.ai.myplugin.util.LatLng;
+import com.ai.myplugin.util.SensorResultBuilder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LocationRawSensor implements SensorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(LocationRawSensor.class);
+
+    private static final Gson gson = new GsonBuilder().create();
 
 
     static final String LOCATION = "location";
@@ -63,67 +68,30 @@ public class LocationRawSensor implements SensorPlugin {
 
         try {
             LatLng latLng = Geocoder.getLongitudeLatitudeForAddress(location);
-            final JSONObject jsonObject = new JSONObject();
-            jsonObject.put("latitude", latLng.latitude);
-            jsonObject.put("longitude", latLng.longitude);
-            return new SensorResult() {
-                @Override
-                public boolean isSuccess() {
-                    return true;
-                }
-
-                @Override
-                public String getObserverState() {
-                    return states[0];
-                }
-
-                @Override
-                public List<Map<String, Number>> getObserverStates() {
-                    return null;
-                }
-
-                @Override
-                public String getRawData() {
-                    return jsonObject.toJSONString();
-                }
-            };
+            final JsonObject rawData = new JsonObject();
+            rawData.addProperty("latitude", latLng.latitude);
+            rawData.addProperty("longitude", latLng.longitude);
+            return SensorResultBuilder.success()
+                    .withObserverState(states[0])
+                    .withRawData(rawData)
+                    .build();
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-            return new SensorResult() {
-                @Override
-                public boolean isSuccess() {
-                    return true; //TODO need better way to provide BN with RAW SENSORS!!
-                }
-
-                @Override
-                public String getObserverState() {
-                    return states[1];
-                }
-
-                @Override
-                public List<Map<String, Number>> getObserverStates() {
-                    return null;
-                }
-
-                @Override
-                public String getRawData() {
-                    return null;
-                }
-            };
+            return new SensorErrorMessage("Geocoding address for [" + location + "] failed: " + e.getMessage());
         }
     }
 
     @Override
     public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
-        map.put("zip", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("city", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+//        map.put("zip", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+//        map.put("country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+//        map.put("city", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("latitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("longitude", new RawDataType("deg", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put("street_number", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
-        map.put("region", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("street_name", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+//        map.put("street_number", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
+//        map.put("region", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+//        map.put("street_name", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         return map;
     }
 

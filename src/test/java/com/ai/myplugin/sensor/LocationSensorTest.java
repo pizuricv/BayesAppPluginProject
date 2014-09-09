@@ -1,20 +1,18 @@
-/**
- * Created by User: veselin
- * On Date: 26/12/13
- */
-
 package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
 import com.ai.myplugin.util.LatLng;
-import junit.framework.TestCase;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 
-public class LocationSensorTest extends TestCase{
+public class LocationSensorTest{
+
+    @Test
     public void testSensorExecute() throws Exception {
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
@@ -31,6 +29,7 @@ public class LocationSensorTest extends TestCase{
         assertEquals(0.0, (Double) res.get("distance"), 0.1);
     }
 
+    @Test
     public void testDistanceCalculation() throws ParseException {
         //Geocoder.LatLng gent = Geocoder.getLongitudeLatitudeForAddress("Krekelstraat 60, 9052 Gent, Belgium");
         LatLng gent = new LatLng(50.9968091, 3.6862785);
