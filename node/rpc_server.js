@@ -9,6 +9,9 @@ var unirest = require('unirest');
 var gcm = require('node-gcm');
 var und = require('underscore');
 var twilio = require('twilio');
+var memwatch = require('memwatch');
+var MEMORY_DIFF_PERIOD=60000;
+var FORCE_GC_THRESHOLD_BYTES=1024*1024*512;
 
 
 const ERROR_CODE_NOT_FOUND = 404;
@@ -19,6 +22,32 @@ var logger = new (winston.Logger)({
     new (winston.transports.File)({ filename: 'server.log' })
   ]
 });
+
+memwatch.on('leak', function(info) { 
+  logger.warn("MEM leak: " + JSON.stringify(info));
+});
+
+memwatch.on('stats', function(info) {
+  logger.info("MEM stats: " + JSON.stringify(info));
+});
+
+var memCount = 0;
+setInterval(function(){
+  memCount ++;
+  logger.info("UPTIME " + memCount*MEMORY_DIFF_PERIOD/1000/60 + " [min]");
+  var hd = new memwatch.HeapDiff();
+  var diff = hd.end();
+  logger.info("MEM diff: " + JSON.stringify(diff));
+  if(diff && diff.after.size_bytes > FORCE_GC_THRESHOLD_BYTES){
+    logger.warn("Force GC");
+    hd = new memwatch.HeapDiff();
+    memwatch.gc();
+    diff = hd.end();
+    logger.info("MEM diff: " + JSON.stringify(diff));
+  }
+}
+,MEMORY_DIFF_PERIOD);
+
 
 var sandbox = {cheerio:cheerio, request:request, gcm: gcm, __: und, unirest:unirest, logger: logger, twilio:twilio, console:console};
 var countTotal = 0;
