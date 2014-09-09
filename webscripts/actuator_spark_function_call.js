@@ -8,7 +8,7 @@
 
 var props = options.requiredProperties;
 
-if(props.access_token !== undefined && props.functionName !== undefined && props.param !== undefined && props.device !== undefined){
+if(props.access_token && props.functionName && props.param && props.device){
 
   var options = {
     url: 'https://api.spark.io/v1/devices/' + props.device + "/" + props.functionName,
