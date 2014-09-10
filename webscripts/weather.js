@@ -8,8 +8,7 @@ request({
         var value = {
         observedState: state,
         rawData :{
-          data: {
-              temperature: data.main.temp,
+           temperature: data.main.temp,
               pressure: data.main.pressure,
               humidity: data.main.humidity,
               temp_min: data.main.temp_min,
@@ -20,8 +19,6 @@ request({
               sunset: data.sys.sunset,
               longitude: data.coord.lon,
               latitude:data.coord.lat 
-              
-          }
         }
        };
        //console.log(JSON.stringify(value));
