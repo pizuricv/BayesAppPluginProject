@@ -193,15 +193,29 @@ describe("server", function() {
         .done();
     });
 
-    it("return the error message if the script accesses a property of undefined, see #120", function(done){
-      var registerSensor = callf("register_sensor", ["sensorX", "console.log(options.requiredProperties.idonotexist.message); send(null, {observedState: 'OK'});", {author: "Veselin"} ]);
+    it("return the error message if the script throws an error", function(done){
+      var registerSensor = callf("register_sensor", ["sensorX", "throw new Error('oops');", {author: "Veselin"} ]);
+      registerSensor()
+        .then(callf("execute_sensor", ["sensorX"]))
+        .then(function (res) {
+          done(new Error("Should have failed"));
+        })
+        .catch(function (error) {
+          error.message.should.contain("oops");
+          done();
+        })
+        .done();
+    });
+
+    it("return the error message if the script throws a uncought exception, see #120", function(done){
+      var registerSensor = callf("register_sensor", ["sensorX", "request('brokenurl', function (error, response, body) {error.idonotexist.foo});", {author: "Veselin"} ]);
       registerSensor()
         .then(callf("execute_sensor", ["sensorX", '{"requiredProperties":{}}']))
         .then(function (res) {
           done(new Error("Should have failed"));
         })
         .catch(function (error) {
-          error.message.should.contain("Cannot read property");
+          error.message.should.contain("Cannot read property 'foo' of undefined");
           done();
         })
         .done();
