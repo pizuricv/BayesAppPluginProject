@@ -9,6 +9,7 @@ var unirest = require('unirest');
 var gcm = require('node-gcm');
 var und = require('underscore');
 var twilio = require('twilio');
+var domain = require('domain');
 var memwatch = require('memwatch');
 var MEMORY_DIFF_PERIOD=60000;
 var FORCE_GC_THRESHOLD_BYTES=1024*1024*512;
@@ -90,42 +91,53 @@ function handleError(err, code, callback) {
 function runScript (content, options, callback) {
   countTotal ++;
   logger.debug('runScript script: ' + content);
-  var sandbox = createSandbox();
-  sandbox.send = function(err, returned){
-    if(err){
-      handleError(err, -32000, callback);
-    }
-    // make sure there always is a response object, otherwise the rpc server sends an empty response
-    // which does not adhere to the json-rpc specification
-    if(!returned){
-      callback(err, {});
-    }else{
-      callback(err, returned);
-    }
-  };
-  var promise = new Promise(function(resolve, reject) {
-    try {
-      var script = content;
-      if(options){
-        logger.info('options: ' + options);
-        if (typeof options === 'string') {
-          options = JSON.parse(options);
-        }
-        sandbox.options = options;
-      }
-      logger.debug('executing script: ' + script);
-      var context = vm.createContext(sandbox);
-      vm.runInContext(script, context, 'myfile.vm');
-      logger.info('script executed');
-      resolve();
-    } catch(err){
-      reject(err);
-    }
+
+  // FIXME according to the docs we should still kill/restart the server process as these exceptions might cause leaks,
+  // but first allowing all running requests to finish
+  // http://nodejs.org/api/domain.html#domain_warning_don_t_ignore_errors
+  // https://www.joyent.com/developers/node/design/errors
+  var d = domain.create();
+  d.on('error', function(err) {
+    handleError(err, -32000, callback);
   });
-  promise.then(function(result) {
-    logger.info('Total number of requests: ' + countTotal + ', total number of errors ' + errorTotal);
-  }, function(err) {
-    handleError(err, -32603, callback);
+  d.run(function() {
+    var sandbox = createSandbox();
+    sandbox.send = function(err, returned){
+      if(err){
+        handleError(err, -32000, callback);
+      }
+      // make sure there always is a response object, otherwise the rpc server sends an empty response
+      // which does not adhere to the json-rpc specification
+      if(!returned){
+        callback(err, {});
+      }else{
+        callback(err, returned);
+      }
+    };
+    var promise = new Promise(function(resolve, reject) {
+      try {
+        var script = content;
+        if(options){
+          logger.info('options: ' + options);
+          if (typeof options === 'string') {
+            options = JSON.parse(options);
+          }
+          sandbox.options = options;
+        }
+        logger.debug('executing script: ' + script);
+        var context = vm.createContext(sandbox);
+        vm.runInContext(script, context, 'myfile.vm');
+        logger.info('script execution returned but might still be running');
+        resolve();
+      } catch(err){
+        reject(err);
+      }
+    });
+    promise.then(function(result) {
+      logger.info('Total number of requests: ' + countTotal + ', total number of errors ' + errorTotal);
+    }, function(err) {
+      handleError(err, -32603, callback);
+    });
   });
 }
 
