@@ -193,6 +193,20 @@ describe("server", function() {
         .done();
     });
 
+    it("return the error message if the script accesses a property of undefined, see #120", function(done){
+      var registerSensor = callf("register_sensor", ["sensorX", "console.log(options.requiredProperties.idonotexist.message); send(null, {observedState: 'OK'});", {author: "Veselin"} ]);
+      registerSensor()
+        .then(callf("execute_sensor", ["sensorX", '{"requiredProperties":{}}']))
+        .then(function (res) {
+          done(new Error("Should have failed"));
+        })
+        .catch(function (error) {
+          error.message.should.contain("Cannot read property");
+          done();
+        })
+        .done();
+    });
+
     it("should not share context between invocations", function(done){
       var registerSensor = callf("register_sensor", ["sensorX", "if(typeof variable === 'undefined'){ i = 0; send(null,'defined i');}else{send('shared context!',null);}", {author: "Veselin"} ]);
       registerSensor()

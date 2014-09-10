@@ -48,8 +48,6 @@ setInterval(function(){
 }
 ,MEMORY_DIFF_PERIOD);
 
-
-var sandbox = {cheerio:cheerio, request:request, gcm: gcm, __: und, unirest:unirest, logger: logger, twilio:twilio, console:console};
 var countTotal = 0;
 var errorTotal = 0;
 
@@ -64,6 +62,22 @@ var options = {
   strict: true
 };
 
+function createSandbox(){
+  // this could be dynamic depending on the requirements of the script
+  // all these should be made read-only so they can not be used to share data between requests
+  // what if a script breaks one of these by overwriting methods?
+  return {
+    cheerio:cheerio,
+    request:request,
+    gcm: gcm,
+    __: und,
+    unirest:unirest,
+    logger: logger,
+    twilio:twilio,
+    console:console
+  };
+}
+
 function handleError(err, code, callback) {
   logger.error(err.message);
   var result;
@@ -76,6 +90,7 @@ function handleError(err, code, callback) {
 function runScript (content, options, callback) {
   countTotal ++;
   logger.debug('runScript script: ' + content);
+  var sandbox = createSandbox();
   sandbox.send = function(err, returned){
     if(err){
       handleError(err, -32000, callback);
@@ -97,9 +112,6 @@ function runScript (content, options, callback) {
           options = JSON.parse(options);
         }
         sandbox.options = options;
-      } else {
-        if(sandbox.options !== undefined)
-          delete sandbox.options;
       }
       logger.debug('executing script: ' + script);
       var context = vm.createContext(sandbox);
