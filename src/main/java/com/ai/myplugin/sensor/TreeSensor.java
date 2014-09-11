@@ -78,7 +78,7 @@ public class TreeSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Check for parking space is within a distance from a given location";
+        return "Gives location of all trees in Gent";
     }
 
     @Override
