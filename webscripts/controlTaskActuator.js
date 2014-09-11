@@ -1,4 +1,4 @@
-var taskID = options.requiredProperties.taskID;
+var taskID = options.task.SCENARIO_ID;
 var command = options.requiredProperties.command;
 
 request.post(
