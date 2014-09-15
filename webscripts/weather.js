@@ -8,17 +8,18 @@ request({
         var value = {
         observedState: state,
         rawData :{
-           temperature: data.main.temp,
-              pressure: data.main.pressure,
-              humidity: data.main.humidity,
-              temp_min: data.main.temp_min,
-              temp_max: data.main.temp_max,
-              wind_speed: data.wind.speed,
-              clouds_coverage: data.clouds.all,
-              sunrise: data.sys.sunrise,
-              sunset: data.sys.sunset,
-              longitude: data.coord.lon,
-              latitude:data.coord.lat 
+          temperature: data.main.temp,
+          pressure: data.main.pressure,
+          humidity: data.main.humidity,
+          temp_min: data.main.temp_min,
+          temp_max: data.main.temp_max,
+          wind_speed: data.wind.speed,
+          clouds_coverage: data.clouds.all,
+          sunrise: data.sys.sunrise,
+          sunset: data.sys.sunset,
+          longitude: data.coord.lon,
+          latitude:data.coord.lat,
+          name: data.name
         }
        };
        //console.log(JSON.stringify(value));
