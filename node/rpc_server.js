@@ -108,6 +108,8 @@ function runScript (content, options, callback) {
       }
       // make sure there always is a response object, otherwise the rpc server sends an empty response
       // which does not adhere to the json-rpc specification
+      // TODO remove wheb below issue is fixed
+      // see https://github.com/NemoPersona/node-json-rpc/issues/9
       if(!returned){
         callback(err, {});
       }else{
@@ -238,10 +240,8 @@ function getPlug(type, name, callback) {
 
 
 function registerPlug(type, name, script, metadata, callback) {
-  logger.info('register plug: ' + type + ", name: " +name);
+  logger.info('register plug: ' + type + ", name: " + name);
   var error;
-  var dataTemp;
-  var data = {};
   try {
     var fileName = fileForType(type);
     var data = readSyncOrEmpty(fileName);
@@ -263,7 +263,32 @@ function registerPlug(type, name, script, metadata, callback) {
         callback(error, data);
       }
     });
+  } catch(err){
+    handleError(err, -32000, callback);
+  }
+}
 
+function deletePlug(type, name, callback){
+  logger.info('delete plug: ' + type + ", name: " + name);
+  var error;
+  try{
+    var fileName = fileForType(type);
+    var data = readSyncOrEmpty(fileName);
+    if(data[name] !== undefined){
+      delete data[name];
+      fs.writeFile(fileName, JSON.stringify(data), function (err) {
+        if (err) {
+          handleError(err, -32000, callback);
+        } else{
+          logger.info('Configuration saved successfully.');
+          countTotal ++;
+          callback(error, true);
+        }
+      });
+    }else{
+      // TODO this currently is broken because of https://github.com/NemoPersona/node-json-rpc/issues/9
+      callback(error, false);
+    }
   } catch(err){
     handleError(err, -32000, callback);
   }
@@ -304,7 +329,7 @@ serv.addMethod('register_sensor', function(para, callback){
   }
 });
 
-//para[0]: sensor name, para[1]: script  content, para[2] metadata
+//para[0]: actuator name, para[1]: script  content, para[2] metadata
 serv.addMethod('register_action', function(para, callback){
   logger.info('register action');
   if (para.length === 3) {
@@ -313,6 +338,27 @@ serv.addMethod('register_action', function(para, callback){
     handleError(new Error('Invalid params'), -32602, callback);
   }
 });
+
+//para[0]: sensor name
+serv.addMethod('delete_sensor', function(para, callback){
+  logger.info('delete sensor');
+  if (para.length === 1) {
+    deletePlug('sensor', para[0], callback);
+  } else {
+    handleError(new Error('Invalid params'), -32602, callback);
+  }
+});
+
+//para[0]: actuator name
+serv.addMethod('delete_action', function(para, callback){
+  logger.info('delete actuator');
+  if (para.length === 1) {
+    deletePlug('action', para[0], callback);
+  } else {
+    handleError(new Error('Invalid params'), -32602, callback);
+  }
+});
+
 
 //para[0]: type, para[1] name
 serv.addMethod('getMetadata', function(para, callback){

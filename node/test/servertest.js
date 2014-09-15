@@ -162,6 +162,24 @@ describe("server", function() {
 
   });
 
+  describe("delete sensor", function() {
+
+    // TODO enable when this is fixed https://github.com/NemoPersona/node-json-rpc/issues/9
+    it.skip("should return false if there is no such sensor", function(done){
+      var name = "idonotexist";
+      call ("delete_sensor", [name], function (err, res){
+        if (err) {
+          done(err)
+        } else {
+          console.log(res);
+          res.result.should.equal(false);
+          done();
+        }
+      });
+    });
+
+  });
+
   describe("execute_sensor should", function() {
 
     it("return the correct result", function(done){
