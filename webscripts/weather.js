@@ -19,7 +19,8 @@ request({
           sunset: data.sys.sunset,
           longitude: data.coord.lon,
           latitude:data.coord.lat,
-          name: data.name
+          name: data.name,
+          condition: state
         }
        };
        //console.log(JSON.stringify(value));
