@@ -21,7 +21,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-@PluginImplementation
+// TODO transform to JavaScript
+// @PluginImplementation
 @PluginHeader (version = "1.0.1", author = "Veselin", category = "Environment", iconURL = "http://app.waylay.io/icons/air_quality.png")
 public class AirQualitySensor implements SensorPlugin {
 

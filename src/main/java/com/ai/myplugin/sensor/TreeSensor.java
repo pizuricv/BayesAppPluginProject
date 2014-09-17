@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@PluginImplementation
+// TODO Keep? Convert to JavaScript
+//@PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/tree.png")
 public class TreeSensor implements SensorPlugin {
 

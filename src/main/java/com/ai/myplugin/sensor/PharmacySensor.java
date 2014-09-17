@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+// TODO convert to JavaScript
 /*
 http://www.coopapotheken.be/wachtdienst_regio.php?regio=Gent
 http://datatank.gent.be/Gezondheid/Apotheken.json

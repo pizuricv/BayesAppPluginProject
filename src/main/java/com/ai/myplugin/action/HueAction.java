@@ -32,7 +32,7 @@ import static com.philips.lighting.hue.sdk.PHMessageType.*;
  * TODO let user select the effect / color / brightness / ...
  *
  */
-@PluginImplementation
+//@PluginImplementation
 public class HueAction implements ActuatorPlugin {
 
     private static final Logger log = LoggerFactory.getLogger(HueAction.class);

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+// TODO convert to JavaScript
 @PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Smart City", iconURL = "http://app.waylay.io/icons/parking.png")
 public class ParkingSensor implements SensorPlugin {

@@ -19,7 +19,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-@PluginImplementation
+// TODO convert to JavaScript
+//@PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Weather", iconURL = "http://app.waylay.io/icons/radar_weather.png")
 public class RainfallSensor implements SensorPlugin {
 
