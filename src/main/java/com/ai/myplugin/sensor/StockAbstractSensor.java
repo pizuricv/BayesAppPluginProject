@@ -131,7 +131,7 @@ public abstract class StockAbstractSensor implements SensorPlugin {
     @Override
     public Map<String, RawDataType> getProducedRawData() {
         Map<String, RawDataType> map = new ConcurrentHashMap<>();
-        map.put("moving_average", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("moving_average", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
         map.put("high", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("price", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("low", new RawDataType("double", DataType.DOUBLE, true, CollectedType.INSTANT));
