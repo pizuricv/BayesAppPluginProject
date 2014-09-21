@@ -192,14 +192,17 @@ public class LocationSensor implements SensorPlugin {
         map.put(RUNTIME_LONGITUDE, new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("distance", new RawDataType("double", DataType.DOUBLE, true, CollectedType.COMPUTED));
         map.put("zip", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("city", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("current_country", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("current_city", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         map.put("latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
         map.put("longitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put("street_number", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
+        map.put("current_street_number", new RawDataType("number", DataType.INTEGER, true, CollectedType.INSTANT));
         map.put("region", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
-        map.put("street_name", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        map.put("current_street", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
+        //if location given and not configured latitude, longitude
+        map.put("configured_latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
+        map.put("configured_longitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT))
         return map;
     }
 
@@ -232,6 +235,17 @@ public class LocationSensor implements SensorPlugin {
         testSessionContext.setAttribute(RUNTIME_LONGITUDE, 19.851858);
         testSessionContext.setAttribute(RUNTIME_LATITUDE, 45.262231);
         SensorResult testResult = locationSensor.execute(testSessionContext);
+        System.out.println(testResult.getObserverState());
+        System.out.println(testResult.getRawData());
+
+
+        locationSensor = new LocationSensor();
+        locationSensor.setProperty(LOCATION, "Krekelstraat 60, 9052 Gent");
+        locationSensor.setProperty(DISTANCE, 100);
+        testSessionContext = new SessionContext(1);
+        testSessionContext.setAttribute(RUNTIME_LONGITUDE, 19.851858);
+        testSessionContext.setAttribute(RUNTIME_LATITUDE, 45.262231);
+        testResult = locationSensor.execute(testSessionContext);
         System.out.println(testResult.getObserverState());
         System.out.println(testResult.getRawData());
     }
