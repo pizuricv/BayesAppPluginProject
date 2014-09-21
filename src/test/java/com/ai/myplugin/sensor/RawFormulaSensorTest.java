@@ -763,6 +763,36 @@ public class RawFormulaSensorTest {
     }
 
     @Test
+    public void testMinLocationsAndFormula() throws ParseException {
+
+        SessionContext testSessionContext = new SessionContext(1);
+        testSessionContext.setAttribute("latitude", 51);
+        testSessionContext.setAttribute("longitude", 3.7);
+        Map<String, Object> mapTestResult = new HashMap<>();
+        mapTestResult.put("node1", new JSONParser().parse("{\"latitude\":51.0543422,\"longitude\":3.7174243}"));
+
+        ParkingSensor locationSensor = new ParkingSensor();
+        locationSensor.setProperty("distance", 10);
+        locationSensor.setProperty("city", "Gent");
+        testSessionContext.setAttribute("longitude", 3.68);
+        testSessionContext.setAttribute("latitude", 50.99);
+        SensorResult testResult = locationSensor.execute(testSessionContext);
+        JSONObject obj = (JSONObject) new JSONParser().parse(testResult.getRawData());
+        mapTestResult.put("node2", obj);
+
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+
+        RawFormulaSensor rawFormulaSensor = new RawFormulaSensor();
+        String formula = "shortest_distance(node1, node2)";
+        rawFormulaSensor.setProperty("formula", formula);
+        rawFormulaSensor.setProperty("threshold", "5");
+
+        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+        testResult = rawFormulaSensor.execute(testSessionContext);
+        assertEquals("Below", testResult.getObserverState());
+    }
+
+    @Test
     public void testSensorTemplateAndCount() throws Exception {
 //        LocationSensor locationSensor = new LocationSensor();
 //        locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);

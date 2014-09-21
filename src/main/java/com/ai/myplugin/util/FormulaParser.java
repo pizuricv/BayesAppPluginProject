@@ -328,13 +328,13 @@ public class FormulaParser {
         String returnString =  hello.render();
 
 
-        //location based formula min_distance(node1,node2), second node has an array of locations
-        if(returnString.contains("min_distance")){
+        //location based formula shortest_distance(node1,node2), second node has an array of locations
+        if(returnString.contains("shortest_distance")){
             log.info("parse distance " + formula);
             try{
-                String toReplace = returnString.substring(returnString.indexOf("min_distance"));
+                String toReplace = returnString.substring(returnString.indexOf("shortest_distance"));
                 toReplace = toReplace.substring(0, toReplace.indexOf(")")+1);
-                String sub1 = toReplace.substring(toReplace.indexOf("min_distance")+12);
+                String sub1 = toReplace.substring(toReplace.indexOf("shortest_distance")+17);
                 sub1 = sub1.replaceAll("\\(","").replaceAll("\\)","");
                 String [] split3 = sub1.split(",");
                 String node1 = split3[0].trim();
