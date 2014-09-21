@@ -122,7 +122,7 @@ public class RawThresholdSensor implements SensorPlugin {
         final Double dataD;
         try {
             String parseFormula = formulaParser.parseFormula("<"+node+".rawData."+rawData+">",
-                    (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)) ;
+                    (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)).getFirst() ;
             dataD =  FormulaParser.executeFormula(parseFormula);
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);

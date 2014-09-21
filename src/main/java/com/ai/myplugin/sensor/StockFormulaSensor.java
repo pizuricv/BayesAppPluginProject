@@ -87,7 +87,7 @@ public class StockFormulaSensor extends StockAbstractSensor {
         Map<String, Object> map = new HashMap<>();
         map.put("this", object);
         try {
-            return FormulaParser.executeFormula(formulaParser.parseFormula((String) getProperty(FORMULA_DEFINITION), map));
+            return FormulaParser.executeFormula(formulaParser.parseFormula((String) getProperty(FORMULA_DEFINITION), map).getFirst());
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
             throw new Exception("Error getting Stock result " + e.getLocalizedMessage());

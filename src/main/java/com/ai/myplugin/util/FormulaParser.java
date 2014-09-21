@@ -2,10 +2,8 @@ package com.ai.myplugin.util;
 
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +68,7 @@ public class FormulaParser {
      * @return
      * @throws org.json.simple.parser.ParseException
      */
-    public String parseFormula(String formula, Map<String, Object>  sessionMap) throws ParseException {
+    public Tuple<String, JSONObject> parseFormula(String formula, Map<String, Object>  sessionMap) throws ParseException {
         log.info("parsing formula " + formula);
         Set<String> keySet = RawDataParser.parseKeyArgs(formula);
         Map<String, String> map = new ConcurrentHashMap<>();
@@ -80,6 +78,10 @@ public class FormulaParser {
         Set<String> addedToCounter = new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
         Set<String> addedToSampleWindowCounter = new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
         Set<String> addedToCounterWindowCounter= new HashSet<>(); //adding only once per formula pass, to avoid double adding for the same key
+
+        // you can return an JSON object that is given back to formula in case you want to add more than a formula value
+        JSONObject retObj = null;
+
 
         //first search for stats arguments like avg(node1.param1)
         for(String key : keySet) {
@@ -325,8 +327,46 @@ public class FormulaParser {
         }
         String returnString =  hello.render();
 
+
+        //location based formula min_distance(node1,node2), second node has an array of locations
+        if(returnString.contains("min_distance")){
+            log.info("parse distance " + formula);
+            try{
+                String toReplace = returnString.substring(returnString.indexOf("min_distance"));
+                toReplace = toReplace.substring(0, toReplace.indexOf(")")+1);
+                String sub1 = toReplace.substring(toReplace.indexOf("min_distance")+12);
+                sub1 = sub1.replaceAll("\\(","").replaceAll("\\)","");
+                String [] split3 = sub1.split(",");
+                String node1 = split3[0].trim();
+                String node2 = split3[1].trim();
+                JSONObject jsonObject1 = (JSONObject) (sessionMap.get(node1));
+                JSONObject jsonObject2 = (JSONObject) (sessionMap.get(node2));
+                log.info("parse distance first node=" + jsonObject1.toJSONString());
+                log.info("parse distance second node=" + jsonObject1.toJSONString());
+                JSONArray arrayLocations = (JSONArray) jsonObject2.get("locations");
+                log.info("parse locations second node=" + arrayLocations.toJSONString());
+                double distance_max = Double.MAX_VALUE, distance = -1;
+                Double latitude, longitude, latitude1, longitude1;
+                latitude = Utils.getDouble(jsonObject1.get("latitude"));
+                longitude = Utils.getDouble(jsonObject1.get("longitude"));
+                for(int i =0; i< arrayLocations.size(); i ++){
+                    JSONObject locationObj = (JSONObject) arrayLocations.get(i);
+                    latitude1 = Utils.getDouble(locationObj.get("latitude"));
+                    longitude1 = Utils.getDouble(locationObj.get("longitude"));
+                    distance = FormulaParser.calculateDistance(latitude,longitude, latitude1, longitude1);
+                    log.info("Distance: " + distance);
+                    if(distance < distance_max){
+                        distance_max = distance;
+                        retObj = locationObj;
+                    }
+                }
+                returnString = returnString.replace(toReplace, Double.toString(distance));
+            } catch (Exception e){
+                log.error(e.getLocalizedMessage());
+            }
+        }
         //location based formula distance(node1,node2)
-        if(returnString.contains("distance")){
+        else if(returnString.contains("distance")){
             log.info("parse distance " + formula);
             try{
                 String toReplace = returnString.substring(returnString.indexOf("distance"));
@@ -338,19 +378,13 @@ public class FormulaParser {
                 String node2 = split3[1].trim();
                 JSONObject jsonObject1 = (JSONObject) (sessionMap.get(node1));
                 JSONObject jsonObject2 = (JSONObject) (sessionMap.get(node2));
-                //jsonObject1 = (JSONObject) new JSONParser().parse(jsonObject1.get("rawData").toString());
-                //jsonObject2 = (JSONObject) new JSONParser().parse(jsonObject2.get("rawData").toString());
                 log.info("parse distance first node=" + jsonObject1.toJSONString());
                 log.info("parse distance second node=" + jsonObject1.toJSONString());
                 Double latitude, longitude, latitude1, longitude1;
-                latitude = jsonObject1.get("runtime_latitude") != null ? Utils.getDouble(jsonObject1.get("runtime_latitude")) :
-                        Utils.getDouble(jsonObject1.get("latitude"));
-                longitude = jsonObject1.get("runtime_longitude") != null ? Utils.getDouble(jsonObject1.get("runtime_longitude")) :
-                        Utils.getDouble(jsonObject1.get("longitude"));
-                latitude1 = jsonObject2.get("runtime_latitude") != null ? Utils.getDouble(jsonObject2.get("runtime_latitude")) :
-                        Utils.getDouble(jsonObject2.get("latitude"));
-                longitude1 = jsonObject2.get("runtime_longitude") != null ? Utils.getDouble(jsonObject2.get("runtime_longitude")) :
-                        Utils.getDouble(jsonObject2.get("longitude"));
+                latitude = Utils.getDouble(jsonObject1.get("latitude"));
+                longitude = Utils.getDouble(jsonObject1.get("longitude"));
+                latitude1 = Utils.getDouble(jsonObject2.get("latitude"));
+                longitude1 = Utils.getDouble(jsonObject2.get("longitude"));
                 double distance = FormulaParser.calculateDistance(latitude,longitude, latitude1, longitude1);
                 log.info("Distance: " + distance);
                 returnString = returnString.replace(toReplace, Double.toString(distance));
@@ -359,7 +393,7 @@ public class FormulaParser {
             }
         }
         log.info("parsed formula = " + returnString);
-        return returnString;
+        return new Tuple(returnString, retObj);
     }
 
     private long getTimeForKey(String realKey, JSONObject jsonObject) {

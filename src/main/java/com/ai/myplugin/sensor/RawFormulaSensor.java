@@ -8,6 +8,7 @@ package com.ai.myplugin.sensor;
 import com.ai.api.*;
 import com.ai.myplugin.util.FormulaParser;
 import com.ai.myplugin.util.SensorResultBuilder;
+import com.ai.myplugin.util.Tuple;
 import com.ai.myplugin.util.Utils;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
@@ -93,6 +94,7 @@ public class RawFormulaSensor implements SensorPlugin {
         log.debug("Formula to parse: "+parseFormula);
 
         double res = 0;
+        JSONObject resObj = null;
         if(parseFormula.contains("dt")) {
             Long prev = deltaMap.get("prevTime");
             if(prev == null)   {
@@ -105,7 +107,9 @@ public class RawFormulaSensor implements SensorPlugin {
         }
 
         try {
-            parseFormula = formulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA)) ;
+            Tuple<String, JSONObject> tuple = formulaParser.parseFormula(parseFormula, (Map<String, Object>) testSessionContext.getAttribute(SessionParams.RAW_DATA));
+            parseFormula = tuple.getFirst();
+            resObj = tuple.getSecond();
             log.info("Formula to parse after processing: "+parseFormula);
             res = executeFormula(parseFormula);
         } catch (Exception e) {
@@ -115,6 +119,12 @@ public class RawFormulaSensor implements SensorPlugin {
 
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("formulaValue", res);
+        if(resObj!= null){
+            for(Object s: resObj.keySet()) {
+                if(!"formulaValue".equals(s.toString()))
+                    jsonObject.put(s.toString(), resObj.get(s.toString()));
+            }
+        }
         final double finalRes = res;
 //            return SensorResultBuilder
 //                    .success()
