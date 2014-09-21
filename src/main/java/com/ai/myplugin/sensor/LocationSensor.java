@@ -202,7 +202,7 @@ public class LocationSensor implements SensorPlugin {
         map.put("current_street", new RawDataType("string", DataType.STRING, true, CollectedType.INSTANT));
         //if location given and not configured latitude, longitude
         map.put("configured_latitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
-        map.put("configured_longitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT))
+        map.put("configured_longitude", new RawDataType("location", DataType.DOUBLE, true, CollectedType.INSTANT));
         return map;
     }
 
