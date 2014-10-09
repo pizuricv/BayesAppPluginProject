@@ -9,7 +9,7 @@ import com.ai.api.SensorResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 @PluginImplementation
-@PluginHeader(version = "1.0.1", author = "Veselin", category = "Environment", iconURL = "http://app.waylay.io/icons/humidity.png")
+@PluginHeader(version = "1.0.1", author = "Veselin", category = "Weather", iconURL = "http://app.waylay.io/icons/humidity.png")
 public class HumiditySensor extends WeatherAbstractSensor{
 
     @Override
@@ -20,6 +20,11 @@ public class HumiditySensor extends WeatherAbstractSensor{
     @Override
     protected String getSensorName() {
         return "Humidity";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Humidity sensor";
     }
 
 }

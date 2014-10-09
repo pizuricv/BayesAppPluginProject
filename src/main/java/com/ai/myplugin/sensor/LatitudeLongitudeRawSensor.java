@@ -64,7 +64,7 @@ public class LatitudeLongitudeRawSensor implements SensorPlugin {
 
     @Override
     public String getDescription() {
-        return "Execute location sensor and provides raw data, return state is only indication whether the test eas successful";
+        return "Execute location sensor and provides raw data, return state is only indication whether the test was successful";
     }
 
     @Override
