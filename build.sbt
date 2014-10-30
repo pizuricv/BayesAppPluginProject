@@ -4,7 +4,7 @@ name := "Bayes app plugins"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
 // disable using the Scala version in output paths and artifacts
 crossPaths := false
@@ -18,6 +18,9 @@ javacOptions in doc ++= Seq("-source", "1.8")
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
 
 testOptions += Tests.Argument(TestFrameworks.Specs2, "console", "junitxml")
+
+// disable java/scaladoc generation
+publishArtifact in (Compile, packageDoc) := false
 
 // needed to get the scripting engine working
 // http://stackoverflow.com/questions/23567500/how-to-use-scriptengine-in-scalatest
@@ -37,7 +40,7 @@ libraryDependencies ++= Seq(
   "org.twitter4j" % "twitter4j-stream" % twitter4jVersion,
   "com.googlecode.json-simple" % "json-simple" % "1.1.1",
   "de.congrace" % "exp4j" % "0.3.11",
-  "org.antlr" % "ST4" % "4.0.7",
+  "org.antlr" % "ST4" % "4.0.8",
   "javax.mail" % "mail" % "1.4.7",
   "com.google.code.gson" % "gson" % "2.2.4",
   "com.squareup.retrofit" % "retrofit" % "1.6.0",
