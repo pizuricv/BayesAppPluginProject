@@ -9,7 +9,7 @@ import com.ai.api.SensorResult;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 
-@PluginImplementation
+//@PluginImplementation
 @PluginHeader(version = "1.0.1", author = "Veselin", category = "Weather", iconURL = "http://app.waylay.io/icons/weather.png")
 public class WeatherSensor extends WeatherAbstractSensor{
 
