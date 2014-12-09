@@ -1,11 +1,13 @@
 package com.ai.myplugin;
 
 import com.ai.api.SessionContext;
+import org.junit.Ignore;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Ignore
 public class TestSessionContext implements SessionContext{
 
     private final Map<String,Object> ctx = new ConcurrentHashMap<>();
