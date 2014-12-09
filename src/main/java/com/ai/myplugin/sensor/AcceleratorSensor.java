@@ -149,17 +149,17 @@ public class AcceleratorSensor implements SensorPlugin {
         return new HashSet(Arrays.asList(states));
     }
 
-    public static void main(String []args) throws ParseException {
-        AcceleratorSensor acceleratorSensor = new AcceleratorSensor();
-        acceleratorSensor.setProperty(ACCELERATION_THRESHOLD, 5);
-        SessionContext testSessionContext = new SessionContext(1);
-        testSessionContext.setAttribute(RUNTIME_ACCELERATION, 19.851858);
-        SensorResult testResult = acceleratorSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
-        testSessionContext.setAttribute(RUNTIME_ACCELERATION, 1);
-        testResult = acceleratorSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
-    }
+//    public static void main(String []args) throws ParseException {
+//        AcceleratorSensor acceleratorSensor = new AcceleratorSensor();
+//        acceleratorSensor.setProperty(ACCELERATION_THRESHOLD, 5);
+//        SessionContext testSessionContext = new SessionContext(1);
+//        testSessionContext.setAttribute(RUNTIME_ACCELERATION, 19.851858);
+//        SensorResult testResult = acceleratorSensor.execute(testSessionContext);
+//        System.out.println(testResult.getObserverState());
+//        System.out.println(testResult.getRawData());
+//        testSessionContext.setAttribute(RUNTIME_ACCELERATION, 1);
+//        testResult = acceleratorSensor.execute(testSessionContext);
+//        System.out.println(testResult.getObserverState());
+//        System.out.println(testResult.getRawData());
+//    }
 }

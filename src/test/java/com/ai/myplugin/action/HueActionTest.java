@@ -1,6 +1,7 @@
 package com.ai.myplugin.action;
 
 import com.ai.api.SessionContext;
+import com.ai.myplugin.TestSessionContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,7 +28,7 @@ public class HueActionTest {
     @Test
     @Ignore("Integration test for when hue bridge available")
     public void testAction() throws Exception {
-        SessionContext context = new SessionContext(1);
+        SessionContext context = new TestSessionContext();
 
         action.waitForConnection(2, TimeUnit.MINUTES);
 

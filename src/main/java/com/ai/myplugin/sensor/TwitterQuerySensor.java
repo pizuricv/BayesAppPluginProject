@@ -141,7 +141,7 @@ public class TwitterQuerySensor implements SensorPlugin {
 
     @Override
     public Set<String> getSupportedStates() {
-        return new HashSet(Arrays.asList(states));
+        return new HashSet<>(Arrays.asList(states));
     }
 
     @Override
@@ -155,27 +155,27 @@ public class TwitterQuerySensor implements SensorPlugin {
 
     }
 
-    public static void main(String[] args) throws TwitterException, IOException {
-        TwitterQuerySensor twitterQuerySensor = new TwitterQuerySensor();
-        twitterQuerySensor.setProperty(FROM, "nmbs");
-        twitterQuerySensor.setProperty(DATE, "2013-10-12");
-        SessionContext testSessionContext = new SessionContext(1);
-        SensorResult result = twitterQuerySensor.execute(testSessionContext);
-        log.info(result.getObserverState());
-        log.info(result.getRawData());
-
-
-        MailAction mail = new MailAction();
-        mail.setProperty("address", "veselin.pizurica@gmail.com");
-        mail.setProperty("subject", "test the action");
-        mail.setProperty("message", "hello vele node1->tweets");
-
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("rawData", result.getRawData());
-        mapTestResult.put("node1", jsonObject);
-        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
-        mail.action(testSessionContext);
-    }
+//    public static void main(String[] args) throws TwitterException, IOException {
+//        TwitterQuerySensor twitterQuerySensor = new TwitterQuerySensor();
+//        twitterQuerySensor.setProperty(FROM, "nmbs");
+//        twitterQuerySensor.setProperty(DATE, "2013-10-12");
+//        SessionContext testSessionContext = new SessionContext(1);
+//        SensorResult result = twitterQuerySensor.execute(testSessionContext);
+//        log.info(result.getObserverState());
+//        log.info(result.getRawData());
+//
+//
+//        MailAction mail = new MailAction();
+//        mail.setProperty("address", "veselin.pizurica@gmail.com");
+//        mail.setProperty("subject", "test the action");
+//        mail.setProperty("message", "hello vele node1->tweets");
+//
+//        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("rawData", result.getRawData());
+//        mapTestResult.put("node1", jsonObject);
+//        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+//        mail.action(testSessionContext);
+//    }
 
 }

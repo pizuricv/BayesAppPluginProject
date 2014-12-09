@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
+import com.ai.myplugin.TestSessionContext;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,7 +13,7 @@ public class ShellCmdSensorTest {
     public void testExecute() throws Exception {
         ShellCmdSensor sensor = new ShellCmdSensor();
         sensor.setProperty(ShellCmdSensor.PROPERTY_COMMAND, "echo result=10");
-        SessionContext context = new SessionContext(1);
+        SessionContext context = new TestSessionContext();
         SensorResult result = sensor.execute(context);
         assertNotNull(result);
         assertTrue(result.isSuccess());
@@ -25,7 +26,7 @@ public class ShellCmdSensorTest {
         ShellCmdSensor sensor = new ShellCmdSensor();
         sensor.setProperty(ShellCmdSensor.PROPERTY_COMMAND, "echo result=6");
         sensor.setProperty(ShellCmdSensor.PROPERTY_THRESHOLD, "2,3,5,8,13");
-        SessionContext context = new SessionContext(1);
+        SessionContext context = new TestSessionContext();
         SensorResult result = sensor.execute(context);
         assertNotNull(result);
         assertTrue(result.isSuccess());

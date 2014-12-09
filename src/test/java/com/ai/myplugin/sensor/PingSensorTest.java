@@ -8,6 +8,7 @@ import com.ai.api.DataType;
 import com.ai.api.RawDataType;
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
+import com.ai.myplugin.TestSessionContext;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class PingSensorTest{
     public void testExecute() throws Exception {
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty("address", "www.waylay.io");
-        SensorResult testResult = pingSensor.execute(new SessionContext(1));
+        SensorResult testResult = pingSensor.execute(new TestSessionContext());
         System.out.println(testResult.getRawData());
         assertEquals("Alive", testResult.getObserverState());
     }
@@ -33,7 +34,7 @@ public class PingSensorTest{
     public void testExecuteUppercaseProperty() throws Exception {
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty("ADDRESS", "www.waylay.io");
-        SensorResult testResult = pingSensor.execute(new SessionContext(1));
+        SensorResult testResult = pingSensor.execute(new TestSessionContext());
         System.out.println(testResult.getRawData());
         assertEquals("Alive", testResult.getObserverState());
     }
@@ -42,7 +43,7 @@ public class PingSensorTest{
     public void testRawDataMetadata() throws Exception {
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty("ADDRESS", "www.waylay.io");
-        SensorResult testResult = pingSensor.execute(new SessionContext(1));
+        SensorResult testResult = pingSensor.execute(new TestSessionContext());
         Map<String, RawDataType> map = pingSensor.getProducedRawData();
         JSONObject obj = (JSONObject) new JSONParser().parse(testResult.getRawData());
         assertEquals(map.get("time").getDataType(), DataType.DOUBLE);
@@ -66,7 +67,7 @@ public class PingSensorTest{
     public void testDown() throws Exception {
         PingSensor pingSensor = new PingSensor();
         pingSensor.setProperty("address", "www.waylaay.io");
-        SensorResult testResult = pingSensor.execute(new SessionContext(1));
+        SensorResult testResult = pingSensor.execute(new TestSessionContext());
         System.out.println(testResult.getRawData());
         assertEquals("Not Alive", testResult.getObserverState());
     }

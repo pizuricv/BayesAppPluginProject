@@ -3,7 +3,6 @@ package com.ai.myplugin.action;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.conf.Config;
-import com.ai.myplugin.util.RawDataParser;
 import com.ai.myplugin.util.conf.Configuration;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.json.simple.JSONObject;
@@ -120,7 +119,7 @@ public class    MailAction implements ActuatorPlugin {
             String messageString = (String) getProperty(MESSAGE);
             if(testSessionContext != null && testSessionContext.getAttribute(SessionParams.RAW_DATA) != null){
                 Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
-                messageString = RawDataParser.parseTemplateFromRawMap(messageString, map);
+                messageString = testSessionContext.parseTemplateFromRawMap(messageString, map);
             }
 
             //String explainReason = RawDataParser.giveTargetNodeStateAsString(testSessionContext);
@@ -147,32 +146,32 @@ public class    MailAction implements ActuatorPlugin {
     }
 
 
-    /*
-     * TODO write a proper test that uses
-     * https://weblogs.java.net/blog/2007/04/26/introducing-mock-javamail-project
-     */
-    public static void main(String[] args) {
-        MailAction mail = new MailAction();
-        mail.setProperty(MAIL_TO, "veselin.pizurica@gmail.com");
-        mail.setProperty(SUBJECT, "test the action");
-        mail.setProperty(MESSAGE, "hello vele node1->value1");
-
-        SessionContext testSessionContext = new SessionContext(1);
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        JSONObject objRaw = new JSONObject();
-        objRaw.put("value1", 1);
-        objRaw.put("time", 123);
-        objRaw.put("rawData", objRaw.toJSONString());
-        mapTestResult.put("node1", objRaw);
-
-        objRaw = new JSONObject();
-        objRaw.put("value2", 1);
-        objRaw.put("time", 213213);
-        objRaw.put("rawData", objRaw.toJSONString());
-        mapTestResult.put("node2", objRaw);
-
-        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
-
-        mail.action(testSessionContext);
-    }
+//    /*
+//     * TODO write a proper test that uses
+//     * https://weblogs.java.net/blog/2007/04/26/introducing-mock-javamail-project
+//     */
+//    public static void main(String[] args) {
+//        MailAction mail = new MailAction();
+//        mail.setProperty(MAIL_TO, "veselin.pizurica@gmail.com");
+//        mail.setProperty(SUBJECT, "test the action");
+//        mail.setProperty(MESSAGE, "hello vele node1->value1");
+//
+//        SessionContext testSessionContext = new SessionContext(1);
+//        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+//        JSONObject objRaw = new JSONObject();
+//        objRaw.put("value1", 1);
+//        objRaw.put("time", 123);
+//        objRaw.put("rawData", objRaw.toJSONString());
+//        mapTestResult.put("node1", objRaw);
+//
+//        objRaw = new JSONObject();
+//        objRaw.put("value2", 1);
+//        objRaw.put("time", 213213);
+//        objRaw.put("rawData", objRaw.toJSONString());
+//        mapTestResult.put("node2", objRaw);
+//
+//        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+//
+//        mail.action(testSessionContext);
+//    }
 }

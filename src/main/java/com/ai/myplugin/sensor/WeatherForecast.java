@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //@PluginImplementation
 public class WeatherForecast implements SensorPlugin {
 
-    private static final Logger log = LoggerFactory.getLogger(RawFormulaSensor.class);
+    private static final Logger log = LoggerFactory.getLogger(WeatherForecast.class);
 
     static final String server = "https://george-vustrey-weather.p.mashape.com/api.php?_method=getForecasts&location=";
     static final String CITY = "city";

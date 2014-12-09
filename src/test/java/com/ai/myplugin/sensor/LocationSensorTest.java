@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
+import com.ai.myplugin.TestSessionContext;
 import com.ai.myplugin.util.LatLng;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,7 +19,7 @@ public class LocationSensorTest{
         locationSensor.setProperty(LocationSensor.LONGITUDE, 19.851858);
         locationSensor.setProperty(LocationSensor.LATITUDE, 45.262231);
         locationSensor.setProperty(LocationSensor.DISTANCE, 100);
-        SessionContext testSessionContext = new SessionContext(1);
+        TestSessionContext testSessionContext = new TestSessionContext();
         testSessionContext.setAttribute(LocationSensor.RUNTIME_LONGITUDE, 19.851858);
         testSessionContext.setAttribute(LocationSensor.RUNTIME_LATITUDE, 45.262231);
 
@@ -40,7 +41,7 @@ public class LocationSensorTest{
         LocationSensor locationSensor = new LocationSensor();
         locationSensor.setProperty(LocationSensor.LONGITUDE, gent.longitude);
         locationSensor.setProperty(LocationSensor.LATITUDE, gent.latitude);
-        SessionContext testSessionContext = new SessionContext(1);
+        TestSessionContext testSessionContext = new TestSessionContext();
         testSessionContext.setAttribute(LocationSensor.RUNTIME_LONGITUDE, noviSad.longitude);
         testSessionContext.setAttribute(LocationSensor.RUNTIME_LATITUDE, noviSad.latitude);
 

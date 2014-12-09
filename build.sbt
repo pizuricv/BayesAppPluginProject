@@ -39,8 +39,6 @@ libraryDependencies ++= Seq(
   "org.twitter4j" % "twitter4j-core" % twitter4jVersion,
   "org.twitter4j" % "twitter4j-stream" % twitter4jVersion,
   "com.googlecode.json-simple" % "json-simple" % "1.1.1",
-  "de.congrace" % "exp4j" % "0.3.11",
-  "org.antlr" % "ST4" % "4.0.8",
   "javax.mail" % "mail" % "1.4.7",
   "com.google.code.gson" % "gson" % "2.2.4",
   "com.squareup.retrofit" % "retrofit" % "1.6.0",

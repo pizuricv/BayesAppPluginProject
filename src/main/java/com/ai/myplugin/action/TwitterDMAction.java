@@ -1,14 +1,8 @@
-/**
- * User: pizuricv
- * Date: 6/4/13
- */
 package com.ai.myplugin.action;
 
 import com.ai.api.*;
 import com.ai.myplugin.util.conf.Config;
-import com.ai.myplugin.util.RawDataParser;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.DirectMessage;
@@ -89,7 +83,7 @@ public class TwitterDMAction implements ActuatorPlugin {
         String twitterMessage = getProperty(TWITTER_MESSAGE) + " , on " + (new Date()).toString();
         Map map = (Map) testSessionContext.getAttribute(SessionParams.RAW_DATA);
         try {
-            twitterMessage = RawDataParser.parseTemplateFromRawMap(twitterMessage, map);
+            twitterMessage = testSessionContext.parseTemplateFromRawMap(twitterMessage, map);
         }catch (Exception e){
             log.warn(e.getLocalizedMessage());
         }
@@ -119,43 +113,43 @@ public class TwitterDMAction implements ActuatorPlugin {
         config.getStringOpt(ACCESS_TOKEN_SECRET).ifPresent(value -> propertiesMap.put(ACCESS_TOKEN_SECRET, value));
     }
 
-    public static void main(String[] args) {
-        /*ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("******************")
-                .setOAuthConsumerSecret("******************")
-                .setOAuthAccessToken("******************")
-                .setOAuthAccessTokenSecret("******************");
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        Twitter twitter = tf.getInstance();
-
-        try {
-            DirectMessage message = twitter.sendDirectMessage("open3M", "test tweet");
-            System.out.println("Direct message successfully sent to " + message.getRecipientScreenName());
-            System.exit(0);
-        } catch (TwitterException te) {
-            System.out.println("Failed to send a direct message: " + te.getMessage());
-            System.exit(-1);
-        }*/
-        TwitterDMAction twitterDMAction = new TwitterDMAction();
-        twitterDMAction.setProperty("twitter account", "pizuricv");
-        twitterDMAction.setProperty("twitter message", "hello test node1->value1 ahh");
-
-        SessionContext testSessionContext = new SessionContext(1);
-        Map<String, Object> mapTestResult = new HashMap<String, Object>();
-        JSONObject objRaw = new JSONObject();
-        objRaw.put("value1", 1);
-        objRaw.put("time", 123);
-        objRaw.put("rawData", objRaw.toJSONString());
-        mapTestResult.put("node1", objRaw);
-
-        objRaw = new JSONObject();
-        objRaw.put("value2", 1);
-        objRaw.put("time", 213213);
-        objRaw.put("rawData", objRaw.toJSONString());
-        mapTestResult.put("node2", objRaw);
-
-        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
-        twitterDMAction.action(testSessionContext);
-    }
+//    public static void main(String[] args) {
+//        /*ConfigurationBuilder cb = new ConfigurationBuilder();
+//        cb.setDebugEnabled(true)
+//                .setOAuthConsumerKey("******************")
+//                .setOAuthConsumerSecret("******************")
+//                .setOAuthAccessToken("******************")
+//                .setOAuthAccessTokenSecret("******************");
+//        TwitterFactory tf = new TwitterFactory(cb.build());
+//        Twitter twitter = tf.getInstance();
+//
+//        try {
+//            DirectMessage message = twitter.sendDirectMessage("open3M", "test tweet");
+//            System.out.println("Direct message successfully sent to " + message.getRecipientScreenName());
+//            System.exit(0);
+//        } catch (TwitterException te) {
+//            System.out.println("Failed to send a direct message: " + te.getMessage());
+//            System.exit(-1);
+//        }*/
+//        TwitterDMAction twitterDMAction = new TwitterDMAction();
+//        twitterDMAction.setProperty("twitter account", "pizuricv");
+//        twitterDMAction.setProperty("twitter message", "hello test node1->value1 ahh");
+//
+//        SessionContext testSessionContext = new SessionContext(1);
+//        Map<String, Object> mapTestResult = new HashMap<String, Object>();
+//        JSONObject objRaw = new JSONObject();
+//        objRaw.put("value1", 1);
+//        objRaw.put("time", 123);
+//        objRaw.put("rawData", objRaw.toJSONString());
+//        mapTestResult.put("node1", objRaw);
+//
+//        objRaw = new JSONObject();
+//        objRaw.put("value2", 1);
+//        objRaw.put("time", 213213);
+//        objRaw.put("rawData", objRaw.toJSONString());
+//        mapTestResult.put("node2", objRaw);
+//
+//        testSessionContext.setAttribute(SessionParams.RAW_DATA, mapTestResult);
+//        twitterDMAction.action(testSessionContext);
+//    }
 }

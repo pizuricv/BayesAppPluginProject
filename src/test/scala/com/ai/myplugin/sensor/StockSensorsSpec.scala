@@ -78,41 +78,41 @@ class StockSensorsSpec extends Specification{
     }
   }
 
-  "The stock formula sensor" should {
-
-    "have one exta raw data property" in {
-      val stockFormulaSensor = new StockFormulaSensor
-      stockFormulaSensor.getProducedRawData.asScala must haveKey("formulaValue")
-    }
-
-    "do a substraction correctly" in {
-      val stockFormulaSensor = new StockFormulaSensor
-      stockFormulaSensor.setProperty("stock", "ALU")
-      stockFormulaSensor.setProperty("threshold", 0)
-      stockFormulaSensor.setProperty("formula", "<this.rawData.price> - <this.rawData.moving_average>")
-
-      val result = stockFormulaSensor.execute(null)
-
-//      println(result.getObserverState)
-//      println(result.getRawData)
-
-      Json.parse(result.getRawData).as[Map[String, Option[Double]]] must haveKey("formulaValue")
-    }
-
-    "execute an advanced formula correctly" in {
-      val stockFormulaSensor = new StockFormulaSensor
-      stockFormulaSensor.setProperty("stock", "GOOG")
-      stockFormulaSensor.setProperty("threshold", .15)
-      stockFormulaSensor.setProperty("formula", "(<this.rawData.price> - <this.rawData.moving_average>)/<this.rawData.moving_average>")
-
-      val result = stockFormulaSensor.execute(null)
-
-//      println(result.getObserverState)
-//      println(result.getRawData)
-
-      Json.parse(result.getRawData).as[Map[String, Option[Double]]] must haveKey("formulaValue")
-    }
-  }
+//  "The stock formula sensor" should {
+//
+//    "have one exta raw data property" in {
+//      val stockFormulaSensor = new StockFormulaSensor
+//      stockFormulaSensor.getProducedRawData.asScala must haveKey("formulaValue")
+//    }
+//
+//    "do a substraction correctly" in {
+//      val stockFormulaSensor = new StockFormulaSensor
+//      stockFormulaSensor.setProperty("stock", "ALU")
+//      stockFormulaSensor.setProperty("threshold", 0)
+//      stockFormulaSensor.setProperty("formula", "<this.rawData.price> - <this.rawData.moving_average>")
+//
+//      val result = stockFormulaSensor.execute(null)
+//
+////      println(result.getObserverState)
+////      println(result.getRawData)
+//
+//      Json.parse(result.getRawData).as[Map[String, Option[Double]]] must haveKey("formulaValue")
+//    }
+//
+//    "execute an advanced formula correctly" in {
+//      val stockFormulaSensor = new StockFormulaSensor
+//      stockFormulaSensor.setProperty("stock", "GOOG")
+//      stockFormulaSensor.setProperty("threshold", .15)
+//      stockFormulaSensor.setProperty("formula", "(<this.rawData.price> - <this.rawData.moving_average>)/<this.rawData.moving_average>")
+//
+//      val result = stockFormulaSensor.execute(null)
+//
+////      println(result.getObserverState)
+////      println(result.getRawData)
+//
+//      Json.parse(result.getRawData).as[Map[String, Option[Double]]] must haveKey("formulaValue")
+//    }
+//  }
 
   "The stock moving average sensor" should {
     "return a correct state" in {

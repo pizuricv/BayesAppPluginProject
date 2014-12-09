@@ -141,17 +141,17 @@ public class ForceSensor implements SensorPlugin {
         return new HashSet<>(Arrays.asList(states));
     }
 
-    public static void main(String []args) throws ParseException {
-        ForceSensor forceSensor = new ForceSensor();
-        forceSensor.setProperty(FORCE_THRESHOLD, 5);
-        SessionContext testSessionContext = new SessionContext(1);
-        testSessionContext.setAttribute(RUNTIME_FORCE, 19.851858);
-        SensorResult testResult = forceSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
-        testSessionContext.setAttribute(RUNTIME_FORCE, 1);
-        testResult = forceSensor.execute(testSessionContext);
-        System.out.println(testResult.getObserverState());
-        System.out.println(testResult.getRawData());
-    }
+//    public static void main(String []args) throws ParseException {
+//        ForceSensor forceSensor = new ForceSensor();
+//        forceSensor.setProperty(FORCE_THRESHOLD, 5);
+//        SessionContext testSessionContext = new SessionContext(1);
+//        testSessionContext.setAttribute(RUNTIME_FORCE, 19.851858);
+//        SensorResult testResult = forceSensor.execute(testSessionContext);
+//        System.out.println(testResult.getObserverState());
+//        System.out.println(testResult.getRawData());
+//        testSessionContext.setAttribute(RUNTIME_FORCE, 1);
+//        testResult = forceSensor.execute(testSessionContext);
+//        System.out.println(testResult.getObserverState());
+//        System.out.println(testResult.getRawData());
+//    }
 }

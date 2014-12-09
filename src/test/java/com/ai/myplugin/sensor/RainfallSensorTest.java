@@ -2,6 +2,7 @@ package com.ai.myplugin.sensor;
 
 import com.ai.api.SensorResult;
 import com.ai.api.SessionContext;
+import com.ai.myplugin.TestSessionContext;
 import com.ai.myplugin.services.RainResult;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -15,7 +16,7 @@ public class RainfallSensorTest{
         RainfallSensor rainfallSensor = new RainfallSensor();
         rainfallSensor.setProperty(RainfallSensor.LOCATION, "Gent");
 
-        SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
+        SensorResult testResult = rainfallSensor.execute(new TestSessionContext());
 
         assertTrue(testResult.errorMessage(), testResult.isSuccess());
         assertNotNull("state is null", testResult.getObserverState());
@@ -28,7 +29,7 @@ public class RainfallSensorTest{
         rainfallSensor.setProperty("longitude", 3.7174243);
         rainfallSensor.setProperty("latitude", 51.0543422);
 
-        SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
+        SensorResult testResult = rainfallSensor.execute(new TestSessionContext());
 
         assertTrue(testResult.errorMessage(), testResult.isSuccess());
         assertNotNull("state is null" , testResult.getObserverState());
@@ -39,7 +40,7 @@ public class RainfallSensorTest{
     public void testRainfallSensorForException(){
         RainfallSensor rainfallSensor = new RainfallSensor();
 
-        SensorResult testResult = rainfallSensor.execute(new SessionContext(1));
+        SensorResult testResult = rainfallSensor.execute(new TestSessionContext());
 
         assertFalse(testResult.isSuccess());
         assertEquals("error in getting the location: latitude, longitude and/or location not configured", testResult.errorMessage());
