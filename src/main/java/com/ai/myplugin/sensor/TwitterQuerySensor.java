@@ -7,7 +7,6 @@ package com.ai.myplugin.sensor;
 
 
 import com.ai.api.*;
-import com.ai.myplugin.action.MailAction;
 import com.ai.myplugin.util.SensorResultBuilder;
 import com.ai.myplugin.util.TwitterConfig;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -17,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.*;
 import twitter4j.TwitterException;
-import java.io.IOException;
+
 import java.util.*;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
