@@ -1,6 +1,6 @@
 #Create your own minimal plug for BayesProject
 ##Javascript based plugs
-javascript plugs are in the webscript library. They don't contain metadata, that you will still need to create directly in the app.
+javascript plugs are in the webscript library. They don't contain metadata, that you will still need to create metadata directly in the app.
 
 
 #Java based plugs
