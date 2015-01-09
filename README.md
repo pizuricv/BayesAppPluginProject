@@ -1,4 +1,5 @@
-#Create your own minimal plug for BayesProject
+#Qaylay plugin repo
+
 ##Javascript based plugs
 javascript plugs are in the webscript library. They don't contain metadata, that you will still need to create metadata directly in the app.
 
