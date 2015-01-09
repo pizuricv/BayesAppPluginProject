@@ -1,4 +1,4 @@
-#Qaylay plugin repo
+#Waylay plugin repo
 
 ##Javascript based plugs
 javascript plugs are in the webscript library. They don't contain metadata, that you will still need to create metadata directly in the app.
